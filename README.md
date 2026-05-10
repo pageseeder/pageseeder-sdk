@@ -1,3 +1,5 @@
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
+
 # PageSeeder SDK
 
 A Java 11 SDK for interacting with the [PageSeeder service API](https://dev.pageseeder.com/api.html).
