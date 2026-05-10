@@ -9,10 +9,10 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class MainTest {
+final class MainTest {
 
   @Test
-  public void shouldPrintHelpWhenNoArgumentsAreProvided() {
+  void shouldPrintHelpWhenNoArgumentsAreProvided() {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -27,7 +27,7 @@ public final class MainTest {
   }
 
   @Test
-  public void shouldReturnErrorForUnknownCommand() {
+  void shouldReturnErrorForUnknownCommand() {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 

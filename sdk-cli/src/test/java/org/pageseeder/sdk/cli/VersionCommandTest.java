@@ -17,25 +17,25 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class VersionCommandTest {
+final class VersionCommandTest {
 
   private HttpServer server;
   private URI baseUri;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     this.server = HttpServer.create(new InetSocketAddress(0), 0);
     this.server.start();
     this.baseUri = URI.create("http://localhost:" + this.server.getAddress().getPort());
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     this.server.stop(0);
   }
 
   @Test
-  public void shouldPrintRemoteVersion() throws Exception {
+  void shouldPrintRemoteVersion() {
     this.server.createContext("/ps/api/version.xml", exchange -> {
       byte[] payload = read("/fixtures/version.xml");
       exchange.getResponseHeaders().add("Content-Type", "application/xml");
@@ -58,7 +58,7 @@ public final class VersionCommandTest {
   }
 
   @Test
-  public void shouldRejectMissingOrigin() {
+  void shouldRejectMissingOrigin() {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
