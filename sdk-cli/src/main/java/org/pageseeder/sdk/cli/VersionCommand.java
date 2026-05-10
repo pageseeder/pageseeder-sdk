@@ -38,7 +38,7 @@ final class VersionCommand implements CliCommand {
     }
 
     try {
-      URI apiOrigin = URI.create(arguments.getFirst());
+      URI apiOrigin = URI.create(arguments.get(0));
       PageSeederClient client = PageSeederClient.builder()
           .apiOrigin(apiOrigin)
           .build();
