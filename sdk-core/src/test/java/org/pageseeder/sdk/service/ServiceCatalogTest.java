@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class ServiceCatalogTest {
+final class ServiceCatalogTest {
 
   @Test
-  public void shouldExposeDocBackedServiceCatalog() {
+  void shouldExposeDocBackedServiceCatalog() {
     assertTrue(ServiceCatalog.all().size() >= 300);
     assertTrue(ServiceCatalog.contains("GET", "/version"));
     assertTrue(ServiceCatalog.contains("get", "/version"));
@@ -20,7 +20,7 @@ public final class ServiceCatalogTest {
   }
 
   @Test
-  public void shouldReturnCanonicalEndpointInstances() {
+  void shouldReturnCanonicalEndpointInstances() {
     ServiceEndpoint endpoint = ServiceCatalog.endpoint("GET", "/version");
 
     assertEquals(endpoint, ServiceCatalog.find("get", "/version"));

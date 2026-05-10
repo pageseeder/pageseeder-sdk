@@ -6,10 +6,10 @@ import org.pageseeder.sdk.PageSeederInstance;
 
 import java.net.URI;
 
-public final class AuthorizationRequestTest {
+final class AuthorizationRequestTest {
 
   @Test
-  public void authorizationRequestBuildsExpectedUri() {
+  void authorizationRequestBuildsExpectedUri() {
     PageSeederInstance instance = PageSeederInstance.of(URI.create("https://example.com"));
 
     AuthorizationRequest request = AuthorizationRequest.authorizationCode(instance, "1234567890123456")

@@ -9,10 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 
-public final class TokenResponseTest {
+final class TokenResponseTest {
 
   @Test
-  public void parseSuccessfulResponseExtractsAccessTokenAndJwtClaims() throws Exception {
+  void parseSuccessfulResponseExtractsAccessTokenAndJwtClaims() throws Exception {
     ClientCredentials credentials = new ClientCredentials("1234567890123456", "super-secret");
     Instant requestedAt = Instant.parse("2026-04-12T00:00:00Z");
     String idToken = idToken(credentials.clientSecret());
@@ -41,7 +41,7 @@ public final class TokenResponseTest {
   }
 
   @Test
-  public void parseErrorResponseKeepsErrorFields() {
+  void parseErrorResponseKeepsErrorFields() {
     TokenResponse response = TokenResponse.parse(
         400,
         "{\"error\":\"invalid_grant\",\"error_description\":\"bad code\"}",

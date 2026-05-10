@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public final class ServiceEndpointTest {
+final class ServiceEndpointTest {
 
   @Test
-  public void shouldUseMethodAndPathTemplateForEquality() {
+  void shouldUseMethodAndPathTemplateForEquality() {
     ServiceEndpoint endpoint = ServiceEndpoint.of("GET", "/members/{member}");
     ServiceEndpoint same = ServiceEndpoint.of("GET", "/members/{member}");
     ServiceEndpoint differentMethod = ServiceEndpoint.of("POST", "/members/{member}");
@@ -21,7 +21,7 @@ public final class ServiceEndpointTest {
   }
 
   @Test
-  public void shouldProvideReadableStringRepresentation() {
+  void shouldProvideReadableStringRepresentation() {
     ServiceEndpoint endpoint = ServiceEndpoint.of("GET", "/members/{member}");
 
     assertEquals("GET /members/{member}", endpoint.toString());

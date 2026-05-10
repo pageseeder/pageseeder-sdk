@@ -8,10 +8,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public final class PathTemplateTest {
+final class PathTemplateTest {
 
   @Test
-  public void shouldResolveValidTemplate() {
+  void shouldResolveValidTemplate() {
     PathTemplate template = new PathTemplate("/members/{member}/groups/{group}");
     Map<String, Object> variables = new LinkedHashMap<>();
     variables.put("member", "john smith");
@@ -21,19 +21,19 @@ public final class PathTemplateTest {
   }
 
   @Test
-  public void shouldRejectInvalidVariableNameInTemplate() {
+  void shouldRejectInvalidVariableNameInTemplate() {
     assertIllegalArgument("Path variable name must match \\w+: +fragment",
         () -> new PathTemplate("/uris/{uri}/fragments/{+fragment}"));
   }
 
   @Test
-  public void shouldRejectInvalidUriPathTemplate() {
+  void shouldRejectInvalidUriPathTemplate() {
     assertIllegalArgument("Path template must not contain query or fragment components.",
         () -> new PathTemplate("/members/{member}?format=json"));
   }
 
   @Test
-  public void shouldRejectInvalidVariableNameWhenResolving() {
+  void shouldRejectInvalidVariableNameWhenResolving() {
     PathTemplate template = new PathTemplate("/members/{member}");
 
     assertIllegalArgument("Path variable name must match \\w+: member-id",
@@ -41,13 +41,13 @@ public final class PathTemplateTest {
   }
 
   @Test
-  public void shouldRejectUnexpectedClosingBrace() {
+  void shouldRejectUnexpectedClosingBrace() {
     assertIllegalArgument("Unexpected closing brace in /members/member}",
         () -> new PathTemplate("/members/member}"));
   }
 
   @Test
-  public void shouldRejectVariableNamesLongerThan255Characters() {
+  void shouldRejectVariableNamesLongerThan255Characters() {
     String longName = "a".repeat(256);
 
     assertIllegalArgument("Path variable name must not exceed 255 characters.",
@@ -55,7 +55,7 @@ public final class PathTemplateTest {
   }
 
   @Test
-  public void shouldRejectPathTemplatesLongerThan2048Characters() {
+  void shouldRejectPathTemplatesLongerThan2048Characters() {
     String longTemplate = "/" + "a".repeat(2048);
 
     assertIllegalArgument("Path template must not exceed 2048 characters.",
@@ -63,7 +63,7 @@ public final class PathTemplateTest {
   }
 
   @Test
-  public void shouldRejectUnresolvedVariablesOnResolve() {
+  void shouldRejectUnresolvedVariablesOnResolve() {
     PathTemplate template = new PathTemplate("/members/{member}");
 
     assertIllegalArgument("Unresolved path template variables in /members/{member}",
@@ -71,7 +71,7 @@ public final class PathTemplateTest {
   }
 
   @Test
-  public void shouldRejectTemplateNotStartingWithSlash() {
+  void shouldRejectTemplateNotStartingWithSlash() {
     assertIllegalArgument("Path template must start with '/'.",
         () -> new PathTemplate("members/{member}"));
   }

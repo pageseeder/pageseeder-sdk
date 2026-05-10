@@ -24,29 +24,27 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-public final class PageSeederClientTest {
+final class PageSeederClientTest {
 
   private HttpServer server;
   private URI baseUri;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     this.server = HttpServer.create(new InetSocketAddress(0), 0);
     this.server.start();
     this.baseUri = URI.create("http://localhost:" + this.server.getAddress().getPort());
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     this.server.stop(0);
   }
 
   @Test
-  public void shouldSendBasicAuthHeader() throws Exception {
+  void shouldSendBasicAuthHeader() {
     AtomicReference<String> authorization = new AtomicReference<>();
     this.server.createContext("/ps/api/members/jdoe.xml", exchange -> {
       authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
@@ -66,7 +64,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldOverrideDefaultCredentialsPerRequest() throws Exception {
+  void shouldOverrideDefaultCredentialsPerRequest() {
     AtomicReference<String> authorization = new AtomicReference<>();
     this.server.createContext("/ps/api/members/jdoe.xml", exchange -> {
       authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
@@ -87,7 +85,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldSendBearerAndCookieCredentials() throws Exception {
+  void shouldSendBearerAndCookieCredentials() {
     AtomicReference<String> bearer = new AtomicReference<>();
     AtomicReference<String> cookie = new AtomicReference<>();
     this.server.createContext("/ps/api/groups/docs.xml", exchange -> {
@@ -109,7 +107,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldConstructClientWithDefaultSettings() throws Exception {
+  void shouldConstructClientWithDefaultSettings() {
     this.server.createContext("/ps/api/version.xml",
         exchange -> reply(exchange, 200, "application/xml", read("fixtures/version.xml")));
 
@@ -121,7 +119,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldCreateDerivedClientsWithUpdatedAttributes() throws Exception {
+  void shouldCreateDerivedClientsWithUpdatedAttributes() {
     AtomicReference<String> authorization = new AtomicReference<>();
     AtomicReference<String> acceptEncoding = new AtomicReference<>();
     this.server.createContext("/ps/api/version.json", exchange -> {
@@ -140,12 +138,12 @@ public final class PageSeederClientTest {
 
     assertEquals(200, response.statusCode());
     assertEquals("Bearer derived-token", authorization.get());
-    assertEquals(null, acceptEncoding.get());
+    assertNull(acceptEncoding.get());
     assertEquals(URI.create(this.baseUri + "/ps/api/"), baseClient.apiRoot());
   }
 
   @Test
-  public void shouldEncodeQueryAndFormParameters() throws Exception {
+  void shouldEncodeQueryAndFormParameters() {
     AtomicReference<String> query = new AtomicReference<>();
     AtomicReference<String> body = new AtomicReference<>();
     this.server.createContext("/ps/api/members/jdoe.xml", exchange -> {
@@ -167,7 +165,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldDecodeGzipResponses() throws Exception {
+  void shouldDecodeGzipResponses() {
     this.server.createContext("/ps/api/members/jdoe.xml", exchange -> {
       byte[] payload = gzip(read("fixtures/member.xml"));
       exchange.getResponseHeaders().add("Content-Type", "application/xml");
@@ -186,7 +184,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldThrowServiceErrorForNonSuccessStatus() throws Exception {
+  void shouldThrowServiceErrorForNonSuccessStatus() {
     this.server.createContext("/ps/api/members/missing.xml", exchange ->
         reply(exchange, 404, "application/xml", read("fixtures/service-error.xml")));
 
@@ -201,7 +199,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldThrowServiceErrorForJsonNonSuccessStatus() throws Exception {
+  void shouldThrowServiceErrorForJsonNonSuccessStatus() {
     this.server.createContext("/ps/api/members/missing.xml", exchange ->
         reply(exchange, 404, "application/json", read("fixtures/service-error.json")));
 
@@ -217,7 +215,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldTimeoutSlowRequests() throws Exception {
+  void shouldTimeoutSlowRequests() {
     this.server.createContext("/ps/api/version.xml", exchange -> {
       try { Thread.sleep(250L); } catch (InterruptedException ex) { Thread.currentThread().interrupt(); }
       reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
@@ -233,7 +231,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldCreateDerivedClientWithUpdatedTimeout() throws Exception {
+  void shouldCreateDerivedClientWithUpdatedTimeout()  {
     this.server.createContext("/ps/api/version.xml", exchange -> {
       try { Thread.sleep(250L); } catch (InterruptedException ex) { Thread.currentThread().interrupt(); }
       reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
@@ -250,7 +248,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldDefaultInstanceUrisFromWebsite() {
+  void shouldDefaultInstanceUrisFromWebsite() {
     URI website = URI.create("https://example.com:8443");
     PageSeederInstance instance = PageSeederInstance.of(website);
 
@@ -264,7 +262,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldCreateInstanceFromOriginStrings() {
+  void shouldCreateInstanceFromOriginStrings() {
     PageSeederInstance instance = PageSeederInstance.of("https://example.com:8443", "http://api.example.com:8080");
 
     assertEquals(URI.create("https://example.com:8443"), instance.websiteOrigin());
@@ -274,7 +272,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldAllowCustomApiAndDocumentUrisOnInstance() {
+  void shouldAllowCustomApiAndDocumentUrisOnInstance() {
     PageSeederInstance instance = PageSeederInstance.builder()
         .websiteOrigin(URI.create("https://public.example.com"))
         .apiOrigin(URI.create("http://internal.example.local:8282"))
@@ -288,7 +286,7 @@ public final class PageSeederClientTest {
   }
 
   @Test
-  public void shouldAllowBuilderConfigurationUsingStrings() {
+  void shouldAllowBuilderConfigurationUsingStrings() {
     PageSeederInstance instance = PageSeederInstance.builder()
         .websiteOrigin("https://public.example.com")
         .apiOrigin("http://internal.example.local:8282")

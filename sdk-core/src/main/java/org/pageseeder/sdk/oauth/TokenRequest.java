@@ -146,6 +146,7 @@ public final class TokenRequest {
   }
 
   @Override
+  @SuppressWarnings("java:S2068")
   public String toString() {
     String query = AuthorizationRequest.formEncode(this.parameters);
     return "POST " + this.endpointUri + "?" + query.replaceAll("password=([^&]+)", "password=******");

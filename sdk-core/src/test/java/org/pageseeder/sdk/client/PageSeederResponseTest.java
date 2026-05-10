@@ -16,10 +16,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public final class PageSeederResponseTest {
+final class PageSeederResponseTest {
 
   @Test
-  public void shouldDecodeXmlWithCustomSaxHandler() throws IOException {
+  void shouldDecodeXmlWithCustomSaxHandler() throws IOException {
     PageSeederResponse response = xmlResponse("fixtures/member.xml");
 
     Handler<String> handler = new BasicHandler<>() {
@@ -27,7 +27,7 @@ public final class PageSeederResponseTest {
       private String fullname;
 
       @Override
-      public void startElement(String element, Attributes atts) {
+      void startElement(String element, Attributes atts) {
         if (isElement("member")) {
           this.username = atts.getValue("username");
           this.fullname = atts.getValue("firstname") + " " + atts.getValue("surname");
@@ -35,7 +35,7 @@ public final class PageSeederResponseTest {
       }
 
       @Override
-      public void endElement(String element) {
+      void endElement(String element) {
         if (isElement("member")) {
           add(this.username + ":" + this.fullname);
         }
@@ -49,12 +49,12 @@ public final class PageSeederResponseTest {
   }
 
   @Test
-  public void shouldDecodeXmlWithCustomStaxHandler() throws IOException {
+  void shouldDecodeXmlWithCustomStaxHandler() throws IOException {
     PageSeederResponse response = xmlResponse("fixtures/memberships.xml");
 
     XMLStreamHandler<String> handler = new BasicXMLStreamHandler<String>() {
       @Override
-      public boolean find(XMLStreamReader xml) throws XMLStreamException {
+      boolean find(XMLStreamReader xml) throws XMLStreamException {
         while (xml.hasNext()) {
           if (xml.isStartElement() && "membership".equals(xml.getLocalName())) return true;
           xml.next();
@@ -63,7 +63,7 @@ public final class PageSeederResponseTest {
       }
 
       @Override
-      public String get(XMLStreamReader xml) throws XMLStreamException {
+      String get(XMLStreamReader xml) throws XMLStreamException {
         long id = attribute(xml, "id", -1L);
         String role = attribute(xml, "role", "");
         skipToEndElement(xml, "membership");
@@ -76,7 +76,7 @@ public final class PageSeederResponseTest {
   }
 
   @Test
-  public void shouldDecodeXmlWithDocumentFunction() throws IOException {
+  void shouldDecodeXmlWithDocumentFunction() throws IOException {
     PageSeederResponse response = xmlResponse("fixtures/member.xml");
 
     String summary = response.xml().document(document -> {
@@ -88,7 +88,7 @@ public final class PageSeederResponseTest {
   }
 
   @Test
-  public void shouldDecodeXmlElementsWithFunction() throws IOException {
+  void shouldDecodeXmlElementsWithFunction() throws IOException {
     PageSeederResponse response = xmlResponse("fixtures/memberships.xml");
 
     List<String> memberships = response.xml().elements("membership",

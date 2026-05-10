@@ -7,10 +7,10 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 
-public final class ClientRegistrationTest {
+final class ClientRegistrationTest {
 
   @Test
-  public void registrationSerializesExpectedFormParameters() {
+  void registrationSerializesExpectedFormParameters() {
     ClientRegistration registration = new ClientRegistration("My App")
         .withGrantType(GrantType.AUTHORIZATION_CODE)
         .withRedirectUri(URI.create("https://client.example.com/callback"))
@@ -35,7 +35,7 @@ public final class ClientRegistrationTest {
   }
 
   @Test
-  public void registrationParsesClientCredentialsFromXml() {
+  void registrationParsesClientCredentialsFromXml() {
     String xml = "<client-registration secret=\"secret-value\">"
         + "<client identifier=\"1234567890123456\"/>"
         + "</client-registration>";
@@ -48,23 +48,23 @@ public final class ClientRegistrationTest {
   }
 
   @Test
-  public void parseClientCredentialsReturnsNullForEmptyBody() {
+  void parseClientCredentialsReturnsNullForEmptyBody() {
     Assertions.assertNull(ClientRegistration.parseClientCredentials(new byte[0]));
   }
 
   @Test
-  public void parseClientCredentialsReturnsNullForMalformedXml() {
+  void parseClientCredentialsReturnsNullForMalformedXml() {
     Assertions.assertNull(ClientRegistration.parseClientCredentials("<not valid xml".getBytes()));
   }
 
   @Test
-  public void parseClientCredentialsReturnsNullWhenClientElementMissing() {
+  void parseClientCredentialsReturnsNullWhenClientElementMissing() {
     String xml = "<client-registration secret=\"s\"/>";
     Assertions.assertNull(ClientRegistration.parseClientCredentials(xml.getBytes()));
   }
 
   @Test
-  public void parseClientCredentialsReturnsNullWhenSecretIsBlank() {
+  void parseClientCredentialsReturnsNullWhenSecretIsBlank() {
     String xml = "<client-registration secret=\"\">"
         + "<client identifier=\"1234567890123456\"/>"
         + "</client-registration>";
@@ -72,7 +72,7 @@ public final class ClientRegistrationTest {
   }
 
   @Test
-  public void registrationExcludesRefreshTokenLifetimeForClientCredentials() {
+  void registrationExcludesRefreshTokenLifetimeForClientCredentials() {
     ClientRegistration registration = new ClientRegistration("My App")
         .withGrantType(GrantType.CLIENT_CREDENTIALS)
         .withRefreshTokenLifetime(Duration.ofDays(7));
@@ -83,7 +83,7 @@ public final class ClientRegistrationTest {
   }
 
   @Test
-  public void registrationExcludesRedirectUriForClientCredentials() {
+  void registrationExcludesRedirectUriForClientCredentials() {
     ClientRegistration registration = new ClientRegistration("My App")
         .withGrantType(GrantType.CLIENT_CREDENTIALS)
         .withRedirectUri(URI.create("https://client.example.com/callback"));

@@ -6,10 +6,10 @@ import org.pageseeder.sdk.PageSeederInstance;
 
 import java.net.URI;
 
-public final class TokenRequestTest {
+final class TokenRequestTest {
 
   @Test
-  public void passwordRequestMasksPasswordInToString() {
+  void passwordRequestMasksPasswordInToString() {
     PageSeederInstance instance = PageSeederInstance.of(URI.create("https://example.com"));
     ClientCredentials clientCredentials = new ClientCredentials("1234567890123456", "secret-value");
 
@@ -20,7 +20,7 @@ public final class TokenRequestTest {
   }
 
   @Test
-  public void clientCredentialsRequestUsesExpectedGrantType() {
+  void clientCredentialsRequestUsesExpectedGrantType() {
     PageSeederInstance instance = PageSeederInstance.of(URI.create("https://example.com"));
     ClientCredentials clientCredentials = new ClientCredentials("1234567890123456", "secret-value");
 
