@@ -9,6 +9,20 @@ plugins {
 
 val globalVersion = file("version.txt").readText().trim()
 
+sonar {
+  properties {
+    property("sonar.projectKey", "pageseeder_pageseeder-sdk")
+    property("sonar.organization", "pageseeder")
+    // Tell SonarCloud where the JaCoCo XML reports are
+    property(
+      "sonar.coverage.jacoco.xmlReportPaths",
+      subprojects.joinToString(",") {
+        it.layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
+      }
+    )
+  }
+}
+
 subprojects {
   group   = "org.pageseeder.sdk"
   version = globalVersion
@@ -47,15 +61,19 @@ subprojects {
       }
     }
 
-    tasks.named<JacocoReport>("jacocoTestReport") {
+    val jacocoTestReport = tasks.named<JacocoReport>("jacocoTestReport") {
       dependsOn(tasks.named("test"))
       reports {
         xml.required.set(true)
       }
     }
 
+    rootProject.tasks.named("sonar") {
+      dependsOn(jacocoTestReport)
+    }
+
     tasks.withType<Test> {
-      finalizedBy(tasks.named("jacocoTestReport"))
+      finalizedBy(jacocoTestReport)
     }
   }
 
