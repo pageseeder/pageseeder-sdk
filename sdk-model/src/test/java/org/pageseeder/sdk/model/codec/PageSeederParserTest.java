@@ -152,6 +152,20 @@ public final class PageSeederParserTest {
         () -> this.xml.parse("<member".getBytes(StandardCharsets.UTF_8), Member.class));
   }
 
+  @Test
+  public void shouldRejectExternalXmlEntities() {
+    byte[] payload = (
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<!DOCTYPE member [\n"
+            + "  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">\n"
+            + "]>\n"
+            + "<member id=\"1\" username=\"&xxe;\" status=\"activated\" locked=\"false\" "
+            + "onvacation=\"false\" attachments=\"false\"/>\n"
+    ).getBytes(StandardCharsets.UTF_8);
+
+    assertThrows(ParsingException.class, () -> this.xml.parse(payload, Member.class));
+  }
+
   private static byte[] read(String path) throws IOException {
     try (InputStream in = PageSeederParserTest.class.getClassLoader().getResourceAsStream(path)) {
       if (in == null) {

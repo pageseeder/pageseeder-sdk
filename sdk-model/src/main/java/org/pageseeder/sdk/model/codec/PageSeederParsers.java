@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.pageseeder.sdk.exception.ParsingException;
 import org.pageseeder.sdk.model.Comment;
@@ -50,7 +51,10 @@ final class PageSeederParsers {
   }
 
   static XmlMapper newXmlMapper() {
-    XmlMapper mapper = XmlMapper.builder().defaultUseWrapper(false).build();
+    XmlFactory factory = XmlFactory.builder()
+        .xmlInputFactory(newXmlInputFactory())
+        .build();
+    XmlMapper mapper = XmlMapper.builder(factory).defaultUseWrapper(false).build();
     return configure(mapper);
   }
 
@@ -301,7 +305,7 @@ final class PageSeederParsers {
     if (!(mapper instanceof XmlMapper)) {
       return null;
     }
-    XMLInputFactory factory = XMLInputFactory.newFactory();
+    XMLInputFactory factory = newXmlInputFactory();
     try (ByteArrayInputStream in = new ByteArrayInputStream(body)) {
       XMLStreamReader xml = factory.createXMLStreamReader(in);
       while (xml.hasNext()) {
@@ -313,6 +317,13 @@ final class PageSeederParsers {
     } catch (XMLStreamException | IOException ex) {
       throw new ParsingException("Unable to determine XML root element", ex);
     }
+  }
+
+  private static XMLInputFactory newXmlInputFactory() {
+    XMLInputFactory factory = XMLInputFactory.newFactory();
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    return factory;
   }
 
   private static List<String> labels(JsonNode node) {
