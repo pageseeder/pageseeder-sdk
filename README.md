@@ -2,6 +2,9 @@
 
 A Java 11 SDK for interacting with the [PageSeeder service API](https://dev.pageseeder.com/api.html).
 
+> [!WARNING]
+> This SDK is being actively redeveloped as a replacement for PageSeeder Bridge. It is not ready for production use yet.
+
 ## Modules
 
 The project is a Gradle multi-module build. Dependencies flow left to right:
