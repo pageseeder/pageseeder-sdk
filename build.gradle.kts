@@ -9,6 +9,12 @@ plugins {
 
 val globalVersion = file("version.txt").readText().trim()
 
+allprojects {
+  dependencyLocking {
+    lockAllConfigurations()
+  }
+}
+
 sonar {
   properties {
     property("sonar.projectKey", "pageseeder_pageseeder-sdk")
