@@ -4,12 +4,14 @@ import org.junit.jupiter.api.Test;
 import org.pageseeder.bridge.PSConfig;
 import org.pageseeder.sdk.PageSeederInstance;
 
+import java.util.Properties;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PSConfigsTest {
+class PSConfigsTest {
 
   @Test
-  public void toInstance_simpleUrl() {
+  void toInstance_simpleUrl() {
     PSConfig config = PSConfig.newInstance("https://example.com");
     PageSeederInstance instance = PSConfigs.toInstance(config);
 
@@ -20,7 +22,7 @@ public class PSConfigsTest {
   }
 
   @Test
-  public void toInstance_separateApiUrl() {
+  void toInstance_separateApiUrl() {
     PSConfig config = PSConfig.newInstance("https://example.com", "https://api.example.com");
     PageSeederInstance instance = PSConfigs.toInstance(config);
 
@@ -30,7 +32,7 @@ public class PSConfigsTest {
   }
 
   @Test
-  public void toInstance_nonDefaultPorts() {
+  void toInstance_nonDefaultPorts() {
     PSConfig config = PSConfig.newInstance("http://localhost:8080", "http://localhost:8282");
     PageSeederInstance instance = PSConfigs.toInstance(config);
 
@@ -40,7 +42,7 @@ public class PSConfigsTest {
   }
 
   @Test
-  public void toInstance_defaultPortsOmitted() {
+  void toInstance_defaultPortsOmitted() {
     PSConfig config = PSConfig.newInstance("https://example.com:443");
     PageSeederInstance instance = PSConfigs.toInstance(config);
 
@@ -49,11 +51,10 @@ public class PSConfigsTest {
   }
 
   @Test
-  public void toInstance_customSitePrefix() {
-    PSConfig config = PSConfig.newInstance("https://example.com");
+  void toInstance_customSitePrefix() {
     // PSConfig doesn't expose a prefix setter via newInstance(String),
     // so use the Properties-based factory which does support siteprefix
-    java.util.Properties p = new java.util.Properties();
+    Properties p = new Properties();
     p.setProperty("url", "https://example.com");
     p.setProperty("siteprefix", "/pageseeder");
     PSConfig configWithPrefix = PSConfig.newInstance(p);
