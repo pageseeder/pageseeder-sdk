@@ -119,6 +119,12 @@ subprojects {
   }
 }
 
+tasks.register<Delete>("clean") {
+  group = "build"
+  description = "Deletes the build directory."
+  delete(layout.buildDirectory)
+}
+
 tasks.wrapper {
   gradleVersion = "8.14.4"
   distributionType = Wrapper.DistributionType.ALL
