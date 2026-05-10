@@ -24,6 +24,17 @@ subprojects {
     tasks.named("assemble") {
       dependsOn(tasks.named("cyclonedxBom"))
     }
+    pluginManager.withPlugin("maven-publish") {
+      configure<PublishingExtension> {
+        publications.named<MavenPublication>("maven") {
+          artifact(layout.buildDirectory.file("reports/bom.xml")) {
+            classifier = "cyclonedx"
+            extension = "xml"
+            builtBy(tasks.named("cyclonedxBom"))
+          }
+        }
+      }
+    }
   }
 
   pluginManager.withPlugin("java") {
