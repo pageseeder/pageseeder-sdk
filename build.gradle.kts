@@ -41,6 +41,12 @@ subprojects {
   pluginManager.withPlugin("java") {
     apply(plugin = "jacoco")
 
+    configure<JavaPluginExtension> {
+      toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+      }
+    }
+
     tasks.named<JacocoReport>("jacocoTestReport") {
       dependsOn(tasks.named("test"))
       reports {
@@ -57,9 +63,6 @@ subprojects {
     configure<JavaPluginExtension> {
       withJavadocJar()
       withSourcesJar()
-      toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-      }
     }
   }
 
