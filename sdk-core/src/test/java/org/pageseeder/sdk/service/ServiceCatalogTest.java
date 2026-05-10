@@ -24,6 +24,6 @@ final class ServiceCatalogTest {
     ServiceEndpoint endpoint = ServiceCatalog.endpoint("GET", "/version");
 
     assertEquals(endpoint, ServiceCatalog.find("get", "/version"));
-    assertEquals(endpoint, ServiceCatalog.VERSION);
+    assertEquals(ServiceCatalog.VERSION, endpoint);
   }
 }

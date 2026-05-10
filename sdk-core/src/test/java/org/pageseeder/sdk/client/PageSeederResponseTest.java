@@ -27,7 +27,7 @@ final class PageSeederResponseTest {
       private String fullname;
 
       @Override
-      void startElement(String element, Attributes atts) {
+      public void startElement(String element, Attributes atts) {
         if (isElement("member")) {
           this.username = atts.getValue("username");
           this.fullname = atts.getValue("firstname") + " " + atts.getValue("surname");
@@ -35,7 +35,7 @@ final class PageSeederResponseTest {
       }
 
       @Override
-      void endElement(String element) {
+      public void endElement(String element) {
         if (isElement("member")) {
           add(this.username + ":" + this.fullname);
         }
@@ -54,7 +54,7 @@ final class PageSeederResponseTest {
 
     XMLStreamHandler<String> handler = new BasicXMLStreamHandler<String>() {
       @Override
-      boolean find(XMLStreamReader xml) throws XMLStreamException {
+      public boolean find(XMLStreamReader xml) throws XMLStreamException {
         while (xml.hasNext()) {
           if (xml.isStartElement() && "membership".equals(xml.getLocalName())) return true;
           xml.next();
@@ -63,7 +63,7 @@ final class PageSeederResponseTest {
       }
 
       @Override
-      String get(XMLStreamReader xml) throws XMLStreamException {
+      public String get(XMLStreamReader xml) throws XMLStreamException {
         long id = attribute(xml, "id", -1L);
         String role = attribute(xml, "role", "");
         skipToEndElement(xml, "membership");

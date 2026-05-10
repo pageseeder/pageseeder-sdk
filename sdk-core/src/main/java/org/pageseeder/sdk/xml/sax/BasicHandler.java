@@ -28,6 +28,7 @@ public abstract class BasicHandler<T> extends Handler<T> {
   }
 
   @Override
+  @SuppressWarnings("java:S1075") // XPath uses '/'
   public final void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
     String element = localName.isEmpty() ? qName : localName;
     this.ancestorOrSelf.add(element);
