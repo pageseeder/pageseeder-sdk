@@ -18,7 +18,7 @@ import java.util.Objects;
  * <p>If the response includes an OpenID Connect {@code id_token}, the raw JWT claims are
  * accessible via {@link #jwtSubject()}, {@link #jwtPreferredUsername()}, etc. To convert
  * these claims into a {@code Member}, use {@code TokenResponses.toMember(this)} from
- * {@code sdk-model}.
+ * {@code sdk-mapping}.
  *
  * @author Christophe Lauret
  *
@@ -42,54 +42,96 @@ public final class TokenResponse {
     this.jwtClaims = jwtClaims != null ? Map.copyOf(jwtClaims) : null;
   }
 
+  /**
+   * @return {@code true} if the token endpoint returned an HTTP response (status code &gt; 0)
+   */
   public boolean isAvailable() {
     return this.statusCode > 0;
   }
 
+  /**
+   * @return {@code true} if the token endpoint responded with HTTP 200
+   */
   public boolean isSuccessful() {
     return this.statusCode == 200;
   }
 
+  /**
+   * @return the HTTP status code from the token endpoint, or {@code -1} if unavailable
+   */
   public int statusCode() {
     return this.statusCode;
   }
 
+  /**
+   * @return the raw JSON response body, or {@code null} if none was received
+   */
   public @Nullable String rawResponse() {
     return this.rawResponse;
   }
 
+  /**
+   * Returns the parsed access token, or {@code null} if the response was not successful or
+   * did not include an {@code access_token}.
+   *
+   * @return the access token, or {@code null}
+   */
   public @Nullable AccessToken accessToken() {
     return this.accessToken;
   }
 
+  /**
+   * @return the {@code refresh_token} parameter, or {@code null} if absent
+   */
   public @Nullable String refreshToken() {
     return parameter("refresh_token");
   }
 
+  /**
+   * @return the {@code scope} parameter, or {@code null} if absent
+   */
   public @Nullable String scope() {
     return parameter("scope");
   }
 
+  /**
+   * @return the {@code token_type} parameter (e.g. {@code "Bearer"}), or {@code null} if absent
+   */
   public @Nullable String tokenType() {
     return parameter("token_type");
   }
 
+  /**
+   * @return the raw encoded {@code id_token} JWT, or {@code null} if absent
+   */
   public @Nullable String idToken() {
     return parameter("id_token");
   }
 
+  /**
+   * @return the {@code error} parameter (RFC 6749 error code), or {@code null} if absent
+   */
   public @Nullable String error() {
     return parameter("error");
   }
 
+  /**
+   * @return the {@code error_description} parameter, or {@code null} if absent
+   */
   public @Nullable String errorDescription() {
     return parameter("error_description");
   }
 
+  /**
+   * @return the {@code error_uri} parameter, or {@code null} if absent
+   */
   public @Nullable String errorUri() {
     return parameter("error_uri");
   }
 
+  /**
+   * @return the {@code expires_in} parameter as seconds, or {@code null} if absent or non-numeric
+   */
   public @Nullable Long expiresInSeconds() {
     String value = this.parameters.get("expires_in");
     if (value == null) return null;
@@ -100,6 +142,12 @@ public final class TokenResponse {
     }
   }
 
+  /**
+   * Returns the raw string value of any response parameter by name, or {@code null} if absent.
+   *
+   * @param name the parameter name (e.g. {@code "access_token"})
+   * @return the parameter value, or {@code null}
+   */
   public @Nullable String parameter(String name) {
     Objects.requireNonNull(name, "name");
     return this.parameters.get(name);
@@ -107,32 +155,44 @@ public final class TokenResponse {
 
   // --- JWT identity claims ---
 
-  /** The {@code sub} claim (PageSeeder member ID as a string). */
+  /**
+   * @return the {@code sub} claim (PageSeeder member ID as a string), or {@code null} if absent
+   */
   public @Nullable String jwtSubject() {
     return jwtClaim("sub");
   }
 
-  /** The {@code preferred_username} claim. */
+  /**
+   * @return the {@code preferred_username} claim, or {@code null} if absent
+   */
   public @Nullable String jwtPreferredUsername() {
     return jwtClaim("preferred_username");
   }
 
-  /** The {@code email} claim. */
+  /**
+   * @return the {@code email} claim, or {@code null} if absent
+   */
   public @Nullable String jwtEmail() {
     return jwtClaim("email");
   }
 
-  /** The {@code given_name} claim. */
+  /**
+   * @return the {@code given_name} claim, or {@code null} if absent
+   */
   public @Nullable String jwtGivenName() {
     return jwtClaim("given_name");
   }
 
-  /** The {@code family_name} claim. */
+  /**
+   * @return the {@code family_name} claim, or {@code null} if absent
+   */
   public @Nullable String jwtFamilyName() {
     return jwtClaim("family_name");
   }
 
-  /** Returns all raw JWT payload claims, or {@code null} if no valid id_token was present. */
+  /**
+   * @return all raw JWT payload claims, or {@code null} if no valid {@code id_token} was present
+   */
   public @Nullable Map<String, String> jwtClaims() {
     return this.jwtClaims;
   }
@@ -143,6 +203,15 @@ public final class TokenResponse {
 
   // --- Factory methods ---
 
+  /**
+   * Parses a token endpoint response.
+   *
+   * @param statusCode   the HTTP status code returned by the token endpoint
+   * @param rawResponse  the raw JSON response body
+   * @param requestedAt  the time the request was sent, used to compute token expiry
+   * @param credentials  the client credentials used to verify the {@code id_token} signature
+   * @return the parsed response
+   */
   public static TokenResponse parse(int statusCode, String rawResponse, Instant requestedAt, ClientCredentials credentials) {
     Objects.requireNonNull(rawResponse, "rawResponse");
     Objects.requireNonNull(requestedAt, "requestedAt");
