@@ -20,6 +20,7 @@ subprojects {
   pluginManager.withPlugin("org.cyclonedx.bom") {
     tasks.named("cyclonedxBom") {
       setProperty("includeConfigs", listOf("runtimeClasspath"))
+      setProperty("outputFormat", "json")
     }
     tasks.named("assemble") {
       dependsOn(tasks.named("cyclonedxBom"))
@@ -27,9 +28,9 @@ subprojects {
     pluginManager.withPlugin("maven-publish") {
       configure<PublishingExtension> {
         publications.named<MavenPublication>("maven") {
-          artifact(layout.buildDirectory.file("reports/bom.xml")) {
+          artifact(layout.buildDirectory.file("reports/bom.json")) {
             classifier = "cyclonedx"
-            extension = "xml"
+            extension = "json"
             builtBy(tasks.named("cyclonedxBom"))
           }
         }
