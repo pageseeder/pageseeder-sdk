@@ -226,7 +226,7 @@ final class PageSeederClientTest {
           .execute(ServiceCall.of(ServiceCatalog.VERSION));
       fail("Expected timeout");
     } catch (TransportException ex) {
-      assertTrue(ex.getCause() != null);
+      assertNotNull(ex.getCause());
     }
   }
 
@@ -243,7 +243,7 @@ final class PageSeederClientTest {
           .execute(ServiceCall.of(ServiceCatalog.VERSION));
       fail("Expected timeout");
     } catch (TransportException ex) {
-      assertTrue(ex.getCause() != null);
+      assertNotNull(ex.getCause());
     }
   }
 

@@ -52,7 +52,7 @@ final class PageSeederResponseTest {
   void shouldDecodeXmlWithCustomStaxHandler() throws IOException {
     PageSeederResponse response = xmlResponse("fixtures/memberships.xml");
 
-    XMLStreamHandler<String> handler = new BasicXMLStreamHandler<String>() {
+    XMLStreamHandler<String> handler = new BasicXMLStreamHandler<>() {
       @Override
       public boolean find(XMLStreamReader xml) throws XMLStreamException {
         while (xml.hasNext()) {
