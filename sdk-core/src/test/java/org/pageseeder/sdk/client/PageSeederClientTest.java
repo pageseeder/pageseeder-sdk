@@ -22,6 +22,8 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -189,13 +191,12 @@ final class PageSeederClientTest {
         reply(exchange, 404, "application/xml", read("fixtures/service-error.xml")));
 
     PageSeederClient client = PageSeederClient.builder().apiOrigin(this.baseUri).build();
-    try {
-      client.execute(ServiceCall.of(ServiceCatalog.MEMBER).pathVariable("member", "missing"));
-      fail("Expected ServiceErrorException");
-    } catch (ServiceErrorException ex) {
-      assertEquals(404, ex.getStatusCode());
-      assertEquals("deadbeef", ex.getError().getId());
-    }
+    ServiceCall call = ServiceCall.of(ServiceCatalog.MEMBER).pathVariable("member", "missing");
+
+    ServiceErrorException ex = assertThrows(ServiceErrorException.class, () -> client.execute(call));
+
+    assertEquals(404, ex.getStatusCode());
+    assertEquals("deadbeef", ex.getError().getId());
   }
 
   @Test
@@ -204,47 +205,61 @@ final class PageSeederClientTest {
         reply(exchange, 404, "application/json", read("fixtures/service-error.json")));
 
     PageSeederClient client = PageSeederClient.builder().apiOrigin(this.baseUri).build();
-    try {
-      client.execute(ServiceCall.of(ServiceCatalog.MEMBER).pathVariable("member", "missing"));
-      fail("Expected ServiceErrorException");
-    } catch (ServiceErrorException ex) {
-      assertEquals(404, ex.getStatusCode());
-      assertEquals("deadbeef", ex.getError().getId());
-      assertEquals("Missing member", ex.getError().getMessage());
-    }
+    ServiceCall call = ServiceCall.of(ServiceCatalog.MEMBER).pathVariable("member", "missing");
+
+    ServiceErrorException ex = assertThrows(ServiceErrorException.class, () -> client.execute(call));
+
+    assertEquals(404, ex.getStatusCode());
+    assertEquals("deadbeef", ex.getError().getId());
+    assertEquals("Missing member", ex.getError().getMessage());
   }
 
   @Test
   void shouldTimeoutSlowRequests() {
+    CountDownLatch releaseResponse = new CountDownLatch(1);
     this.server.createContext("/ps/api/version.xml", exchange -> {
-      try { Thread.sleep(250L); } catch (InterruptedException ex) { Thread.currentThread().interrupt(); }
-      reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
+      if (await(releaseResponse)) {
+        reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
+      }
     });
 
+    PageSeederClient client = PageSeederClient.builder()
+        .apiOrigin(this.baseUri)
+        .timeout(Duration.ofMillis(50))
+        .build();
+    ServiceCall call = ServiceCall.of(ServiceCatalog.VERSION);
+
+    TransportException ex;
     try {
-      PageSeederClient.builder().apiOrigin(this.baseUri).timeout(Duration.ofMillis(50)).build()
-          .execute(ServiceCall.of(ServiceCatalog.VERSION));
-      fail("Expected timeout");
-    } catch (TransportException ex) {
-      assertNotNull(ex.getCause());
+      ex = assertThrows(TransportException.class, () -> client.execute(call));
+    } finally {
+      releaseResponse.countDown();
     }
+
+    assertNotNull(ex.getCause());
   }
 
   @Test
   void shouldCreateDerivedClientWithUpdatedTimeout()  {
+    CountDownLatch releaseResponse = new CountDownLatch(1);
     this.server.createContext("/ps/api/version.xml", exchange -> {
-      try { Thread.sleep(250L); } catch (InterruptedException ex) { Thread.currentThread().interrupt(); }
-      reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
+      if (await(releaseResponse)) {
+        reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
+      }
     });
 
+    PageSeederClient client = new PageSeederClient(PageSeederInstance.of(this.baseUri))
+        .withTimeout(Duration.ofMillis(50));
+    ServiceCall call = ServiceCall.of(ServiceCatalog.VERSION);
+
+    TransportException ex;
     try {
-      new PageSeederClient(PageSeederInstance.of(this.baseUri))
-          .withTimeout(Duration.ofMillis(50))
-          .execute(ServiceCall.of(ServiceCatalog.VERSION));
-      fail("Expected timeout");
-    } catch (TransportException ex) {
-      assertNotNull(ex.getCause());
+      ex = assertThrows(TransportException.class, () -> client.execute(call));
+    } finally {
+      releaseResponse.countDown();
     }
+
+    assertNotNull(ex.getCause());
   }
 
   @Test
@@ -305,6 +320,15 @@ final class PageSeederClientTest {
     exchange.sendResponseHeaders(status, payload.length);
     exchange.getResponseBody().write(payload);
     exchange.close();
+  }
+
+  private static boolean await(CountDownLatch latch) {
+    try {
+      return latch.await(1, TimeUnit.SECONDS);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      return false;
+    }
   }
 
   private static byte[] gzip(byte[] bytes) throws IOException {
