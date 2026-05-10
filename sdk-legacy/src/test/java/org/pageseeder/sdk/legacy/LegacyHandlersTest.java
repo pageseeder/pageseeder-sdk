@@ -27,7 +27,7 @@ class LegacyHandlersTest {
   /** Minimal Bridge BasicHandler subclass that collects item names as strings. */
   private static class ItemNameHandler extends BasicHandler<String> {
     @Override
-    void startElement(String element, Attributes atts) {
+    public void startElement(String element, Attributes atts) {
       if ("item".equals(element)) {
         add(atts.getValue("name"));
       }
@@ -75,7 +75,7 @@ class LegacyHandlersTest {
   /** Minimal Bridge BasicXMLStreamHandler subclass that collects item names as strings. */
   private static class StaxItemNameHandler extends BasicXMLStreamHandler<String> {
     @Override
-    boolean find(XMLStreamReader xml) throws XMLStreamException {
+    public boolean find(XMLStreamReader xml) throws XMLStreamException {
       while (xml.hasNext()) {
         xml.next();
         if (xml.isStartElement() && "item".equals(xml.getLocalName())) {
@@ -86,7 +86,7 @@ class LegacyHandlersTest {
     }
 
     @Override
-    String get(XMLStreamReader xml) {
+    public String get(XMLStreamReader xml) {
       return xml.getAttributeValue(null, "name");
     }
   }
