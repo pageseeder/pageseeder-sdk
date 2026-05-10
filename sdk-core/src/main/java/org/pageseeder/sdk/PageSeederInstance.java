@@ -52,6 +52,10 @@ import java.util.Objects;
  */
 public final class PageSeederInstance {
 
+  private static final String WEBSITE_ORIGIN_NAME = "websiteOrigin";
+  private static final String API_ORIGIN_NAME = "apiOrigin";
+  private static final String DOCUMENT_ORIGIN_NAME = "documentOrigin";
+
   private static final String DEFAULT_SITE_PREFIX = "/ps";
 
   private final URI websiteOrigin;
@@ -60,9 +64,9 @@ public final class PageSeederInstance {
   private final String sitePrefix;
 
   private PageSeederInstance(URI websiteOrigin, URI apiOrigin, URI documentOrigin, String sitePrefix) {
-    this.websiteOrigin = validateOrigin(websiteOrigin, "websiteOrigin");
-    this.apiOrigin = validateOrigin(apiOrigin, "apiOrigin");
-    this.documentOrigin = validateOrigin(documentOrigin, "documentOrigin");
+    this.websiteOrigin = validateOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME);
+    this.apiOrigin = validateOrigin(apiOrigin, API_ORIGIN_NAME);
+    this.documentOrigin = validateOrigin(documentOrigin, DOCUMENT_ORIGIN_NAME);
     this.sitePrefix = validateSitePrefix(sitePrefix);
   }
 
@@ -77,7 +81,7 @@ public final class PageSeederInstance {
    * @return A new PageSeeder instance using the standard defaults.
    */
   public static PageSeederInstance of(URI websiteOrigin) {
-    URI normalizedWebsite = validateOrigin(websiteOrigin, "websiteOrigin");
+    URI normalizedWebsite = validateOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME);
     return new PageSeederInstance(normalizedWebsite, normalizedWebsite, defaultDocumentOrigin(normalizedWebsite), DEFAULT_SITE_PREFIX);
   }
 
@@ -91,7 +95,7 @@ public final class PageSeederInstance {
    * @return A new PageSeeder instance using the standard defaults.
    */
   public static PageSeederInstance of(String websiteOrigin) {
-    return of(parseOrigin(websiteOrigin, "websiteOrigin"));
+    return of(parseOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME));
   }
 
   /**
@@ -106,8 +110,8 @@ public final class PageSeederInstance {
    * @return A new PageSeeder instance using the standard defaults.
    */
   public static PageSeederInstance of(URI websiteOrigin, URI apiOrigin) {
-    URI normalizedWebsite = validateOrigin(websiteOrigin, "websiteOrigin");
-    URI normalizedApi = validateOrigin(apiOrigin, "apiOrigin");
+    URI normalizedWebsite = validateOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME);
+    URI normalizedApi = validateOrigin(apiOrigin, API_ORIGIN_NAME);
     return new PageSeederInstance(normalizedWebsite, normalizedApi, defaultDocumentOrigin(normalizedWebsite), DEFAULT_SITE_PREFIX);
   }
 
@@ -122,7 +126,7 @@ public final class PageSeederInstance {
    * @return A new PageSeeder instance using the standard defaults.
    */
   public static PageSeederInstance of(String websiteOrigin, String apiOrigin) {
-    return of(parseOrigin(websiteOrigin, "websiteOrigin"), parseOrigin(apiOrigin, "apiOrigin"));
+    return of(parseOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME), parseOrigin(apiOrigin, API_ORIGIN_NAME));
   }
 
   /**
@@ -197,7 +201,7 @@ public final class PageSeederInstance {
    * @return The default document origin.
    */
   public static URI defaultDocumentOrigin(URI websiteOrigin) {
-    URI normalizedWebsite = validateOrigin(websiteOrigin, "websiteOrigin");
+    URI normalizedWebsite = validateOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME);
     return URI.create(new URIBuilder(normalizedWebsite).scheme("http").port(80).build());
   }
 
@@ -208,7 +212,7 @@ public final class PageSeederInstance {
    * @return The default document origin.
    */
   public static URI defaultDocumentOrigin(String websiteOrigin) {
-    return defaultDocumentOrigin(parseOrigin(websiteOrigin, "websiteOrigin"));
+    return defaultDocumentOrigin(parseOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME));
   }
 
   private static URI parseOrigin(String value, String name) {
@@ -291,7 +295,7 @@ public final class PageSeederInstance {
      * @return This builder.
      */
     public Builder websiteOrigin(String websiteOrigin) {
-      return websiteOrigin(parseOrigin(websiteOrigin, "websiteOrigin"));
+      return websiteOrigin(parseOrigin(websiteOrigin, WEBSITE_ORIGIN_NAME));
     }
 
     /**
@@ -312,7 +316,7 @@ public final class PageSeederInstance {
      * @return This builder.
      */
     public Builder apiOrigin(String apiOrigin) {
-      return apiOrigin(parseOrigin(apiOrigin, "apiOrigin"));
+      return apiOrigin(parseOrigin(apiOrigin, API_ORIGIN_NAME));
     }
 
     /**
@@ -333,7 +337,7 @@ public final class PageSeederInstance {
      * @return This builder.
      */
     public Builder documentOrigin(String documentOrigin) {
-      return documentOrigin(parseOrigin(documentOrigin, "documentOrigin"));
+      return documentOrigin(parseOrigin(documentOrigin, DOCUMENT_ORIGIN_NAME));
     }
 
     /**
@@ -360,10 +364,10 @@ public final class PageSeederInstance {
       if (this.websiteOrigin == null && this.apiOrigin == null) {
         throw new IllegalStateException("websiteOrigin or apiOrigin is required");
       }
-      URI website = this.websiteOrigin != null ? validateOrigin(this.websiteOrigin, "websiteOrigin")
-          : validateOrigin(this.apiOrigin, "apiOrigin");
-      URI api = this.apiOrigin != null ? validateOrigin(this.apiOrigin, "apiOrigin") : website;
-      URI document = this.documentOrigin != null ? validateOrigin(this.documentOrigin, "documentOrigin")
+      URI website = this.websiteOrigin != null ? validateOrigin(this.websiteOrigin, WEBSITE_ORIGIN_NAME)
+          : validateOrigin(this.apiOrigin, API_ORIGIN_NAME);
+      URI api = this.apiOrigin != null ? validateOrigin(this.apiOrigin, API_ORIGIN_NAME) : website;
+      URI document = this.documentOrigin != null ? validateOrigin(this.documentOrigin, DOCUMENT_ORIGIN_NAME)
           : defaultDocumentOrigin(website);
       return new PageSeederInstance(website, api, document, this.sitePrefix);
     }
