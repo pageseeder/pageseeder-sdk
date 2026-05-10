@@ -21,3 +21,4 @@ xmlwriter = { module = "org.pageseeder.xmlwriter:pso-xmlwriter", version.ref = "
 [plugins]
 cyclonedx = { id = "org.cyclonedx.bom", version = "2.4.1" }
 jreleaser = { id = "org.jreleaser", version = "1.24.0" }
+sonar = { id = "org.sonarqube", version = "7.3.0.8198" }

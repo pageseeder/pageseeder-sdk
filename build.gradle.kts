@@ -1,8 +1,10 @@
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
   alias(libs.plugins.jreleaser) apply false
   alias(libs.plugins.cyclonedx) apply false
+  alias(libs.plugins.sonar)
 }
 
 val globalVersion = file("version.txt").readText().trim()
@@ -13,6 +15,30 @@ subprojects {
 
   repositories {
     mavenCentral()
+  }
+
+  pluginManager.withPlugin("org.cyclonedx.bom") {
+    tasks.named("cyclonedxBom") {
+      setProperty("includeConfigs", listOf("runtimeClasspath"))
+    }
+    tasks.named("assemble") {
+      dependsOn(tasks.named("cyclonedxBom"))
+    }
+  }
+
+  pluginManager.withPlugin("java") {
+    apply(plugin = "jacoco")
+
+    tasks.named<JacocoReport>("jacocoTestReport") {
+      dependsOn(tasks.named("test"))
+      reports {
+        xml.required.set(true)
+      }
+    }
+
+    tasks.withType<Test> {
+      finalizedBy(tasks.named("jacocoTestReport"))
+    }
   }
 
   pluginManager.withPlugin("java-library") {
