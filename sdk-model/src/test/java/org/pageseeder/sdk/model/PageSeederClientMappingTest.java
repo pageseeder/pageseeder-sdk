@@ -10,11 +10,6 @@ import org.pageseeder.sdk.client.PageSeederClient;
 import org.pageseeder.sdk.auth.BasicCredentials;
 import org.pageseeder.sdk.auth.BearerToken;
 import org.pageseeder.sdk.model.codec.Decoders;
-import org.pageseeder.sdk.model.Member;
-import org.pageseeder.sdk.model.Membership;
-import org.pageseeder.sdk.model.ResourceUri;
-import org.pageseeder.sdk.model.ResultPage;
-import org.pageseeder.sdk.model.Version;
 import org.pageseeder.sdk.service.PayloadFormat;
 import org.pageseeder.sdk.service.ServiceCall;
 import org.pageseeder.sdk.service.ServiceCatalog;
@@ -27,25 +22,25 @@ import java.net.URI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public final class PageSeederClientMappingTest {
+final class PageSeederClientMappingTest {
 
   private HttpServer server;
   private URI baseUri;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     this.server = HttpServer.create(new InetSocketAddress(0), 0);
     this.server.start();
     this.baseUri = URI.create("http://localhost:" + this.server.getAddress().getPort());
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     this.server.stop(0);
   }
 
   @Test
-  public void shouldDecodeMemberWithBasicCredentials() throws Exception {
+  void shouldDecodeMemberWithBasicCredentials() {
     this.server.createContext("/ps/api/members/jdoe.xml",
         exchange -> reply(exchange, 200, "application/xml", read("fixtures/member.xml")));
 
@@ -62,7 +57,7 @@ public final class PageSeederClientMappingTest {
   }
 
   @Test
-  public void shouldDecodeWithOverriddenCredentials() throws Exception {
+  void shouldDecodeWithOverriddenCredentials() {
     this.server.createContext("/ps/api/members/jdoe.xml",
         exchange -> reply(exchange, 200, "application/xml", read("fixtures/member.xml")));
 
@@ -80,7 +75,7 @@ public final class PageSeederClientMappingTest {
   }
 
   @Test
-  public void shouldDecodeVersionXmlAndJson() throws Exception {
+  void shouldDecodeVersionXmlAndJson() {
     this.server.createContext("/ps/api/version.xml",
         exchange -> reply(exchange, 200, "application/xml", read("fixtures/version.xml")));
     this.server.createContext("/ps/api/version.json",
@@ -97,7 +92,7 @@ public final class PageSeederClientMappingTest {
   }
 
   @Test
-  public void shouldDecodeMemberMembershipsAndUri() throws Exception {
+  void shouldDecodeMemberMembershipsAndUri() {
     this.server.createContext("/ps/api/members/jdoe.xml",
         exchange -> reply(exchange, 200, "application/xml", read("fixtures/member.xml")));
     this.server.createContext("/ps/api/members/jdoe/memberships.xml", exchange ->
