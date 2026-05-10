@@ -1,0 +1,13 @@
+/target/
+/.settings/
+/.classpath
+/.project
+/bin/
+/.gradle/
+/build/
+/.idea/
+/out/
+/sdk-model/build/
+/sdk-legacy/build/
+/sdk-core/build/
+/sdk-cli/build/

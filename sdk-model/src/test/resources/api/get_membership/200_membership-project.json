@@ -1,0 +1,27 @@
+{
+  "id": 101,
+  "emailListed": true,
+  "notification": "immediate",
+  "status": "normal",
+  "role": "manager",
+  "member": {
+    "id": 123,
+    "firstname": "John",
+    "surname": "Smith",
+    "username": "jsmith",
+    "fullname": "John Smith",
+    "email": "jsmith@example.org",
+    "lastpasswordchange": "2016-02-25T13:48:12+11:00",
+    "lastlogin": "2016-10-26T14:05:55+11:00",
+    "status": "activated"
+  },
+  "project": {
+    "id": 201,
+    "name": "acme",
+    "type": "project",
+    "description": "ACME project",
+    "owner": "acme",
+    "access": "member",
+    "common": false
+  }
+}

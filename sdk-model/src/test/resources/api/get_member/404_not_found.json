@@ -1,0 +1,5 @@
+{
+  "id": "0106",
+  "request": "/ps/api/members/999999.json",
+  "message": "Unable to find matching member."
+}

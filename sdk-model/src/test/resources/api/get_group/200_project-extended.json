@@ -1,0 +1,21 @@
+{
+  "id": 222,
+  "name": "australia-nsw",
+  "type":"project",
+  "description": "For unit testing",
+  "owner": "Australia",
+  "access": "member",
+  "common": "false",
+  "visibility": "australia-nsw",
+  "template": "australia-nsw",
+  "editurls": "false",
+  "commenting": "public",
+  "moderation": "reviewer",
+  "registration": "normal",
+  "defaultrole": "reviewer",
+  "defaultnotify": "immediate",
+  "indexversion": 5002,
+  "relatedurl": "https://example.org/hello.html",
+  "detailstype": "state",
+  "title": "New South Wales"
+}

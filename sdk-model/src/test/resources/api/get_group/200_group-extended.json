@@ -1,0 +1,21 @@
+{
+  "id":111,
+  "name": "australia-nsw-sydney",
+  "type":"group",
+  "description": "For unit testing",
+  "owner": "Australia",
+  "access": "public",
+  "common": "true",
+  "visibility": "australia-nsw-sydney",
+  "template": "australia-nsw",
+  "editurls": false,
+  "commenting": "public",
+  "moderation": "reviewer",
+  "registration": "normal",
+  "defaultrole": "reviewer",
+  "defaultnotify": "immediate",
+  "indexversion": 5003,
+  "relatedurl": "https://example.org/hello.html",
+  "detailstype": "city",
+  "title": "Sydney, NSW (Australia)"
+}

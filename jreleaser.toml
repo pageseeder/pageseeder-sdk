@@ -1,0 +1,65 @@
+[project]
+name = "sdk"
+description = "Java API to connect to a PageSeeder server"
+longDescription = """
+# PageSeeder SDK
+
+PageSeeder SDK is a modular Java library for integrating with the **PageSeeder Service API**.
+
+## Modules
+
+- **sdk-core** — HTTP client, service catalog, authentication (Basic, Session, Bearer), OAuth 2.0, and XML parsing utilities. No external dependencies beyond SLF4J.
+- **sdk-model** — Immutable domain POJOs (Member, Group, Membership, Comment, etc.) and Jackson-based decoders for XML and JSON responses.
+- **sdk-cli** — Command-line tools for interacting with a PageSeeder server.
+- **sdk-legacy** — Compatibility bridge to ease migration from the legacy PageSeeder Bridge library.
+
+## Key packages
+
+- `org.pageseeder.sdk.client` — `PageSeederClient`, `PageSeederInstance`, `PageSeederResponse`
+- `org.pageseeder.sdk.service` — `ServiceCall`, `ServiceCatalog`, `ServiceEndpoint`
+- `org.pageseeder.sdk.auth` — `BasicCredentials`, `SessionCookie`, `BearerToken`
+- `org.pageseeder.sdk.oauth` — OAuth 2.0 flows: `TokenRequest`, `TokenResponse`, `ClientRegistration`
+- `org.pageseeder.sdk.xml` — SAX and StAX utilities for consuming API responses
+- `org.pageseeder.sdk.model` — PageSeeder domain objects as immutable Java POJOs
+- `org.pageseeder.sdk.codec` — Typed decoders for XML and JSON API responses
+"""
+tags = [
+    "java", "sdk", "client", "http", "rest",
+    "authentication", "oauth2", "openid-connect",
+    "xml", "sax", "stax", "psml", "html",
+    "pageseeder"
+]
+authors = ["Christophe Lauret"]
+license = "Apache-2.0"
+inceptionYear = "2026"
+vendor = "Allette Systems"
+
+# Organization info
+[project.links]
+homepage = "https://github.com/pageseeder/sdk"
+documentation = "https://dev.pageseeder.com"
+license = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+
+# Java-specific configuration
+[project.languages.java]
+groupId = "org.pageseeder.sdk"
+
+# Git configuration
+[release.github]
+active = "NEVER"
+owner = "pageseeder"
+name = "pageseeder-sdk"
+username = "pageseeder"
+branch = "main"
+
+# Signing configuration
+[signing]
+active = "ALWAYS"
+armored = true
+mode = "FILE"
+
+# Maven deployment configuration
+[deploy.maven.mavenCentral.sonatype]
+active = "ALWAYS"
+url = "https://central.sonatype.com/api/v1/publisher"
+stagingRepositories = ["build/staging-deploy"]

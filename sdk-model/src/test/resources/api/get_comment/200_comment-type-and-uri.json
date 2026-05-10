@@ -1,0 +1,38 @@
+{
+  "id": 25064,
+  "discussionid": 25064,
+  "contentrole": "Comment",
+  "type": "mytype1",
+  "created": "2016-12-20T16:03:53+11:00",
+  "title": "findSimpleComment",
+  "author": {
+    "id": 92,
+    "firstname": "Unit",
+    "surname": "Test",
+    "username": "unit-admin",
+    "status": "activated",
+    "fullname": "Unit Test"
+  },
+  "content": [
+    {
+      "type": "text/plain",
+      "value": "create Simple Comment"
+    }
+  ],
+  "context": {
+    "uri": {
+      "id": 9155,
+      "scheme": "http",
+      "host": "localhost",
+      "port": 80,
+      "path": "/ps/unittest/comment/findcomment/documents/finddoc.psml",
+      "external": "false",
+      "mediatype": "application/vnd.pageseeder.psml+xml",
+      "created": "2016-12-20T16:03:52+11:00",
+      "modified": "2016-12-20T16:03:52+11:00",
+      "title": "finddoc",
+      "description": "for searching document",
+      "labels": "finddoc"
+    }
+  }
+}

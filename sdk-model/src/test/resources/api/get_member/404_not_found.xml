@@ -1,0 +1,4 @@
+<error id="0106">
+  <request>/ps/api/members/999999.xml</request>
+  <message>Unable to find matching member.</message>
+</error>

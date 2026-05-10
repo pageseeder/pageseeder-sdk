@@ -1,0 +1,10 @@
+<result total="2" start="0">
+  <membership id="10" role="manager" status="active" notification="immediate" email-listed="true" created="2024-03-01T09:00:00+10:00">
+    <member id="7" username="jdoe" firstname="John" surname="Doe" email="jdoe@example.com" status="activated"/>
+    <group id="4" name="docs" title="Docs" description="Documentation" owner="admin" defaultrole="writer" defaultnotify="daily"/>
+  </membership>
+  <membership id="11" role="writer" status="pending" notification="daily" email-listed="false" created="2024-03-02T09:00:00+10:00">
+    <member id="7" username="jdoe" firstname="John" surname="Doe" email="jdoe@example.com" status="activated"/>
+    <group id="5" name="ops" title="Ops" description="Operations" owner="admin" defaultrole="reader" defaultnotify="weekly"/>
+  </membership>
+</result>

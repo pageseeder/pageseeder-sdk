@@ -1,0 +1,14 @@
+{
+  "member": {
+    "id": "7",
+    "username": "jdoe",
+    "firstname": "John",
+    "surname": "Doe",
+    "email": "jdoe@example.com",
+    "status": "activated",
+    "locked": "true",
+    "onvacation": "false",
+    "attachments": "true",
+    "lastlogin": "2024-02-03T10:15:30+10:00"
+  }
+}

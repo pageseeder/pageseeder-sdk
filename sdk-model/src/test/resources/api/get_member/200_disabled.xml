@@ -1,0 +1,8 @@
+<member id="333"
+        firstname="Jules"
+        surname="Winnfield"
+        username="jwinnfield@example.org"
+        email="jwinnfield@example.org"
+        status="disabled">
+  <fullname>Jules Winnfield</fullname>
+</member>

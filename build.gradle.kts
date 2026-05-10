@@ -1,0 +1,88 @@
+import org.gradle.api.publish.maven.MavenPublication
+
+plugins {
+  alias(libs.plugins.jreleaser) apply false
+  alias(libs.plugins.cyclonedx) apply false
+}
+
+val globalVersion = file("version.txt").readText().trim()
+
+subprojects {
+  group   = "org.pageseeder.sdk"
+  version = globalVersion
+
+  repositories {
+    mavenCentral()
+  }
+
+  pluginManager.withPlugin("java-library") {
+    configure<JavaPluginExtension> {
+      withJavadocJar()
+      withSourcesJar()
+      toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+      }
+    }
+  }
+
+  pluginManager.withPlugin("maven-publish") {
+    configure<PublishingExtension> {
+      publications {
+        create<MavenPublication>("maven") {
+          from(components["java"])
+          artifactId = project.name
+
+          pom {
+            val title = project.findProperty("title")?.toString() ?: project.name
+            val website = project.findProperty("website")?.toString() ?: ""
+            val gitName = project.findProperty("gitName")?.toString() ?: project.name
+
+            name.set(title)
+            description.set(project.description ?: title)
+            url.set(website)
+            licenses {
+              license {
+                name.set("The Apache Software License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+              }
+            }
+            organization {
+              name.set("Allette Systems")
+              url.set("https://www.allette.com.au")
+            }
+            scm {
+              url.set("git@github.com:pageseeder/${gitName}.git")
+              connection.set("scm:git:git@github.com:pageseeder/${gitName}.git")
+              developerConnection.set("scm:git:git@github.com:pageseeder/${gitName}.git")
+            }
+            developers {
+              developer {
+                name.set("Christophe Lauret")
+                email.set("clauret@weborganic.com")
+              }
+            }
+          }
+        }
+      }
+
+      repositories {
+        maven {
+          url = rootProject.layout.buildDirectory.dir("staging-deploy/${project.name}").get().asFile.toURI()
+        }
+      }
+    }
+  }
+
+  tasks.withType<Test> {
+    useJUnitPlatform()
+  }
+
+  tasks.withType<Javadoc> {
+    options { encoding = "UTF-8" }
+  }
+}
+
+tasks.wrapper {
+  gradleVersion = "8.14.4"
+  distributionType = Wrapper.DistributionType.ALL
+}

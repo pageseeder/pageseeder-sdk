@@ -1,0 +1,12 @@
+{
+  "id": 123,
+  "firstname": "Vincent",
+  "surname": "Vega",
+  "username": "vvega",
+  "email": "vvega@example.org",
+  "lastpasswordchange": "2016-02-25T13:48:12+11:00",
+  "lastlogin": "2026-04-19T11:25:47+10:00",
+  "status": "activated",
+  "admin": true,
+  "fullname": "Vincent Vega"
+}

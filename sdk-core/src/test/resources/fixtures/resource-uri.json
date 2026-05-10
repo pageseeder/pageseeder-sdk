@@ -1,0 +1,20 @@
+{
+  "uri": {
+    "id": "88",
+    "scheme": "https",
+    "host": "example.com",
+    "port": "443",
+    "path": "/docs/guide.psml",
+    "title": "Guide",
+    "docid": "DOC-1",
+    "description": "Main guide",
+    "mediatype": "application/vnd.pageseeder.psml+xml",
+    "created": "2024-03-05T12:00:00+10:00",
+    "modified": "2024-03-06T13:00:00+10:00",
+    "external": "false",
+    "folder": "false",
+    "labels": {
+      "label": ["guide", "published"]
+    }
+  }
+}

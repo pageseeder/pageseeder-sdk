@@ -1,0 +1,38 @@
+{
+  "id": 25093,
+  "discussionid": 25093,
+  "contentrole": "Comment",
+  "created": "2016-12-20T16:04:01+11:00",
+  "title": "</p><script type=\"text/javascript\">alert(\"hey\")</script><p>",
+  "author": {
+    "fullname": "華華華華華華華華華華華"
+  },
+  "modifiedby": {
+    "id": 92,
+    "firstname": "Unit",
+    "surname": "Test",
+    "username": "unit-admin",
+    "status": "activated",
+    "date": "2016-12-20T16:04:01+11:00",
+    "fullname": "Unit Test"
+  },
+  "content": [
+    {
+      "type": "text/plain",
+      "value": "華華華華華華華華華華"
+    }
+  ],
+  "context": {
+    "uri": {
+      "id": 6621,
+      "scheme": "http",
+      "host": "example.org",
+      "port": 80,
+      "path": "/",
+      "external": "true",
+      "mediatype": "",
+      "created": "2016-12-20T10:13:15+11:00",
+      "modified": "2016-12-20T10:13:15+11:00"
+    }
+  }
+}
