@@ -21,7 +21,7 @@ The foundation module of the PageSeeder SDK. Provides the HTTP client, service c
 
 ```java
 // 1. Describe the PageSeeder deployment
-PageSeederInstance instance = new PageSeederInstance(URI.create("https://example.pageseeder.com"));
+PageSeederInstance instance = PageSeederInstance.of("https://example.pageseeder.com");
 
 // 2. Build a client
 PageSeederClient client = PageSeederClient.builder()

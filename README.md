@@ -24,7 +24,7 @@ sdk-legacy
 ### 1. Create a client
 
 ```java
-PageSeederInstance instance = new PageSeederInstance(URI.create("https://example.pageseeder.com"));
+PageSeederInstance instance = PageSeederInstance.of("https://example.pageseeder.com");
 
 PageSeederClient client = PageSeederClient.builder()
     .instance(instance)
@@ -37,7 +37,8 @@ PageSeederClient client = PageSeederClient.builder()
 Use a named endpoint from `ServiceCatalog`, attach path variables and parameters, then execute:
 
 ```java
-ServiceCall call = ServiceCall.of(ServiceCatalog.MEMBER)
+ServiceEndpoint endpoint = ServiceEndpoint.of("GET", "/members/{member}");
+ServiceCall call = ServiceCall.of(endpoint)
     .pathVariable("member", "jdoe");
 
 Member member = client.execute(call, Decoders.object(Member.class));
@@ -46,8 +47,9 @@ Member member = client.execute(call, Decoders.object(Member.class));
 For lists and paginated results:
 
 ```java
+ServiceEndpoint endpoint = ServiceEndpoint.of("GET", "/members/{member}/memberships");
 List<Membership> memberships = client.execute(
-    ServiceCall.of(ServiceCatalog.MEMBER_MEMBERSHIPS).pathVariable("member", "jdoe"),
+    ServiceCall.of(endpoint).pathVariable("member", "jdoe"),
     Decoders.list(Membership.class));
 ```
 
