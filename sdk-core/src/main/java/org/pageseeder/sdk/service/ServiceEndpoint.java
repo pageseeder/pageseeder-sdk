@@ -5,22 +5,15 @@ import java.util.Objects;
 /**
  * A typed PageSeeder endpoint definition.
  *
+ * @param method       the HTTP method for this endpoint
+ * @param pathTemplate the URI path template for this endpoint
+ *
  * @author Christophe Lauret
  *
  * @version 1.0.0
  * @since 1.0.0
  */
-public final class ServiceEndpoint {
-
-  /**
-   * The HTTP method for this endpoint.
-   */
-  private final String method;
-
-  /**
-   * The URI path template for this endpoint.
-   */
-  private final PathTemplate pathTemplate;
+public record ServiceEndpoint(String method, PathTemplate pathTemplate) {
 
   /**
    * Constructs a new {@code ServiceEndpoint} instance with the specified HTTP method and path template.
@@ -30,8 +23,12 @@ public final class ServiceEndpoint {
    *                     Variables in the template can be defined using curly braces (e.g., "/path/{variable}").
    */
   public ServiceEndpoint(String method, String pathTemplate) {
-    this.method = Objects.requireNonNull(method, "method");
-    this.pathTemplate = new PathTemplate(pathTemplate);
+    this(method, new PathTemplate(pathTemplate));
+  }
+
+  public ServiceEndpoint {
+    method = Objects.requireNonNull(method, "method");
+    pathTemplate = Objects.requireNonNull(pathTemplate, "pathTemplate");
   }
 
   /**
@@ -123,19 +120,6 @@ public final class ServiceEndpoint {
    */
   public PathTemplate pathTemplate() {
     return this.pathTemplate;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ServiceEndpoint)) return false;
-    ServiceEndpoint that = (ServiceEndpoint) o;
-    return this.method.equals(that.method) && this.pathTemplate.equals(that.pathTemplate);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.method, this.pathTemplate);
   }
 
   @Override

@@ -11,25 +11,25 @@ import java.util.regex.Pattern;
 /**
  * URI template helper for PageSeeder services.
  *
+ * @param template the URI path template
+ *
  * @author Christophe Lauret
  *
  * @version 1.0.0
  * @since 1.0.0
  */
-public final class PathTemplate {
+public record PathTemplate(String template) {
 
   private static final int MAX_TEMPLATE_LENGTH = 2048;
   private static final int MAX_VARIABLE_NAME_LENGTH = 255;
   private static final Pattern VARIABLE_NAME = Pattern.compile("\\w+");
-
-  private final String template;
 
   /**
    * Creates a new path template.
    *
    * @param template The path template.
    */
-  public PathTemplate(String template) {
+  public PathTemplate {
     String pathTemplate = Objects.requireNonNull(template, "Path template must not be null.");
     if (pathTemplate.isBlank() || pathTemplate.charAt(0) != '/') {
       throw new IllegalArgumentException("Path template must start with '/'.");
@@ -38,7 +38,7 @@ public final class PathTemplate {
       throw new IllegalArgumentException("Path template must not exceed " + MAX_TEMPLATE_LENGTH + " characters.");
     }
     validateTemplate(pathTemplate);
-    this.template = pathTemplate;
+    template = pathTemplate;
   }
 
   /**
@@ -73,19 +73,6 @@ public final class PathTemplate {
     Map<String, Object> variables = new LinkedHashMap<>();
     variables.put(validateVariableName(key), value);
     return variables;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof PathTemplate)) return false;
-    PathTemplate that = (PathTemplate) o;
-    return this.template.equals(that.template);
-  }
-
-  @Override
-  public int hashCode() {
-    return this.template.hashCode();
   }
 
   @Override

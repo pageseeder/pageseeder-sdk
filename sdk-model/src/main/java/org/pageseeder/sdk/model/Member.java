@@ -5,32 +5,26 @@ import java.util.Objects;
 
 /**
  * Immutable PageSeeder member.
+ *
+ * @param id          the member ID
+ * @param username    the member username
+ * @param email       the member email address
+ * @param firstname   the member first name
+ * @param surname     the member surname
+ * @param status      the member status
+ * @param locked      whether the member is locked
+ * @param onVacation  whether the member is on vacation
+ * @param attachments whether the member accepts attachments
+ * @param lastLogin   the member's last login timestamp
  */
-public final class Member {
+public record Member(long id, String username, String email, String firstname, String surname, MemberStatus status,
+                     boolean locked, boolean onVacation, boolean attachments, OffsetDateTime lastLogin) {
 
-  private final long id;
-  private final String username;
-  private final String email;
-  private final String firstname;
-  private final String surname;
-  private final MemberStatus status;
-  private final boolean locked;
-  private final boolean onVacation;
-  private final boolean attachments;
-  private final OffsetDateTime lastLogin;
-
-  public Member(long id, String username, String email, String firstname, String surname, MemberStatus status,
-                boolean locked, boolean onVacation, boolean attachments, OffsetDateTime lastLogin) {
-    this.id = id;
-    this.username = Objects.requireNonNull(username, "username");
-    this.email = email;
-    this.firstname = firstname == null ? "" : firstname;
-    this.surname = surname == null ? "" : surname;
-    this.status = status == null ? MemberStatus.UNKNOWN : status;
-    this.locked = locked;
-    this.onVacation = onVacation;
-    this.attachments = attachments;
-    this.lastLogin = lastLogin;
+  public Member {
+    username = Objects.requireNonNull(username, "username");
+    firstname = firstname == null ? "" : firstname;
+    surname = surname == null ? "" : surname;
+    status = status == null ? MemberStatus.UNKNOWN : status;
   }
 
   public long getId() {

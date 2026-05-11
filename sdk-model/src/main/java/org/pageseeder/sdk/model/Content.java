@@ -4,15 +4,15 @@ import java.util.Objects;
 
 /**
  * Immutable PageSeeder content block.
+ *
+ * @param type  the content media type
+ * @param value the content value
  */
-public final class Content {
+public record Content(String type, String value) {
 
-  private final String type;
-  private final String value;
-
-  public Content(String type, String value) {
-    this.type = Objects.toString(type, "text/plain");
-    this.value = Objects.toString(value, "");
+  public Content {
+    type = Objects.toString(type, "text/plain");
+    value = Objects.toString(value, "");
   }
 
   public String getType() {

@@ -3,20 +3,15 @@ package org.pageseeder.sdk.exception;
 /**
  * PageSeeder service error returned by the API.
  *
+ * @param id      the service error ID
+ * @param message the service error message
+ *
  * @author Christophe Lauret
  *
  * @version 1.0.0
  * @since 1.0.0
  */
-public final class ServiceError {
-
-  private final String id;
-  private final String message;
-
-  public ServiceError(String id, String message) {
-    this.id = id;
-    this.message = message;
-  }
+public record ServiceError(String id, String message) {
 
   public String getId() {
     return this.id;

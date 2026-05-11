@@ -5,15 +5,14 @@ package org.pageseeder.sdk.model;
  *
  * <p>A comment user is either a registered member or an unregistered/deleted
  * user represented only by a full name.
+ *
+ * @param member   the registered member, or {@code null} for an unregistered/deleted user
+ * @param fullname the user's full name
  */
-public final class CommentUser {
+public record CommentUser(Member member, String fullname) {
 
-  private final Member member;
-  private final String fullname;
-
-  public CommentUser(Member member, String fullname) {
-    this.member = member;
-    this.fullname = fullname == null ? "" : fullname;
+  public CommentUser {
+    fullname = fullname == null ? "" : fullname;
   }
 
   public Member getMember() {

@@ -4,16 +4,11 @@ import java.time.OffsetDateTime;
 
 /**
  * Immutable PageSeeder stamped comment user.
+ *
+ * @param user the comment user
+ * @param date the timestamp associated with the user
  */
-public final class StampedCommentUser {
-
-  private final CommentUser user;
-  private final OffsetDateTime date;
-
-  public StampedCommentUser(CommentUser user, OffsetDateTime date) {
-    this.user = user;
-    this.date = date;
-  }
+public record StampedCommentUser(CommentUser user, OffsetDateTime date) {
 
   public CommentUser getUser() {
     return this.user;

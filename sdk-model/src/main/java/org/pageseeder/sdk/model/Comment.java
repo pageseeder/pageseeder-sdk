@@ -5,52 +5,31 @@ import java.util.List;
 
 /**
  * Immutable PageSeeder comment.
+ *
+ * @param id           the comment ID
+ * @param discussionId the discussion ID
+ * @param contentRole  the content role
+ * @param type         the comment type
+ * @param created      the creation timestamp
+ * @param title        the comment title
+ * @param author       the comment author
+ * @param modifiedBy   the user who last modified the comment
+ * @param assignedTo   the user assigned to the comment
+ * @param status       the comment status
+ * @param priority     the comment priority
+ * @param due          the due timestamp
+ * @param content      the comment content blocks
+ * @param context      the comment context
+ * @param attachments  the comment attachments
  */
-public final class Comment {
+public record Comment(long id, long discussionId, String contentRole, String type, OffsetDateTime created,
+                      String title, CommentUser author, StampedCommentUser modifiedBy,
+                      StampedCommentUser assignedTo, String status, String priority, OffsetDateTime due,
+                      List<Content> content, CommentContext context, List<ResourceUri> attachments) {
 
-  private final long id;
-  private final long discussionId;
-  private final String contentRole;
-  private final String type;
-  private final OffsetDateTime created;
-  private final String title;
-  private final CommentUser author;
-  private final StampedCommentUser modifiedBy;
-  private final StampedCommentUser assignedTo;
-  private final String status;
-  private final String priority;
-  private final OffsetDateTime due;
-  private final List<Content> content;
-  private final CommentContext context;
-  private final List<ResourceUri> attachments;
-
-  public Comment(long id, long discussionId, String contentRole, String type, OffsetDateTime created, String title,
-                 CommentUser author, StampedCommentUser modifiedBy,
-                 StampedCommentUser assignedTo, String status, String priority, OffsetDateTime due,
-                 List<Content> content, CommentContext context, List<ResourceUri> attachments) {
-    this(id, discussionId, contentRole, type, created, title, author, modifiedBy, assignedTo, status, priority, due,
-        copyOf(content), context, copyOf(attachments), true);
-  }
-
-  private Comment(long id, long discussionId, String contentRole, String type, OffsetDateTime created, String title,
-                  CommentUser author, StampedCommentUser modifiedBy,
-                  StampedCommentUser assignedTo, String status, String priority, OffsetDateTime due,
-                  List<Content> content, CommentContext context, List<ResourceUri> attachments, boolean trusted) {
-    this.id = id;
-    this.discussionId = discussionId;
-    this.contentRole = contentRole;
-    this.type = type;
-    this.created = created;
-    this.title = title;
-    this.author = author;
-    this.modifiedBy = modifiedBy;
-    this.assignedTo = assignedTo;
-    this.status = status;
-    this.priority = priority;
-    this.due = due;
-    this.content = content;
-    this.context = context;
-    this.attachments = attachments;
+  public Comment {
+    content = copyOf(content);
+    attachments = copyOf(attachments);
   }
 
   public static Comment fromParsed(long id, long discussionId, String contentRole, String type, OffsetDateTime created,
@@ -58,7 +37,7 @@ public final class Comment {
                                    StampedCommentUser assignedTo, String status, String priority, OffsetDateTime due,
                                    List<Content> content, CommentContext context, List<ResourceUri> attachments) {
     return new Comment(id, discussionId, contentRole, type, created, title, author, modifiedBy, assignedTo, status,
-        priority, due, content, context, attachments, true);
+        priority, due, content, context, attachments);
   }
 
   private static <T> List<T> copyOf(List<T> values) {

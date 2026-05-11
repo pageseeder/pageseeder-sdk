@@ -5,41 +5,28 @@ import java.util.List;
 
 /**
  * Immutable PageSeeder resource URI metadata.
+ *
+ * @param id          the resource URI ID
+ * @param scheme      the URI scheme
+ * @param host        the URI host
+ * @param port        the URI port, or {@code -1} if unspecified
+ * @param path        the URI path
+ * @param title       the resource title
+ * @param docid       the document identifier
+ * @param description the resource description
+ * @param mediaType   the resource media type
+ * @param created     the creation timestamp
+ * @param modified    the last modification timestamp
+ * @param labels      the resource labels
+ * @param external    whether the URI is external
+ * @param folder      whether the URI represents a folder
  */
-public final class ResourceUri {
+public record ResourceUri(long id, String scheme, String host, int port, String path, String title, String docid,
+                          String description, String mediaType, OffsetDateTime created, OffsetDateTime modified,
+                          List<String> labels, boolean external, boolean folder) {
 
-  private final long id;
-  private final String scheme;
-  private final String host;
-  private final int port;
-  private final String path;
-  private final String title;
-  private final String docid;
-  private final String description;
-  private final String mediaType;
-  private final OffsetDateTime created;
-  private final OffsetDateTime modified;
-  private final List<String> labels;
-  private final boolean external;
-  private final boolean folder;
-
-  public ResourceUri(long id, String scheme, String host, int port, String path, String title, String docid,
-                     String description, String mediaType, OffsetDateTime created, OffsetDateTime modified,
-                     List<String> labels, boolean external, boolean folder) {
-    this.id = id;
-    this.scheme = scheme;
-    this.host = host;
-    this.port = port;
-    this.path = path;
-    this.title = title;
-    this.docid = docid;
-    this.description = description;
-    this.mediaType = mediaType;
-    this.created = created;
-    this.modified = modified;
-    this.labels = labels == null ? List.of() : List.copyOf(labels);
-    this.external = external;
-    this.folder = folder;
+  public ResourceUri {
+    labels = labels == null ? List.of() : List.copyOf(labels);
   }
 
   public long getId() {

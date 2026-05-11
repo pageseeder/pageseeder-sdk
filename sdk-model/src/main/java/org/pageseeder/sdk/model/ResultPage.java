@@ -5,18 +5,15 @@ import java.util.List;
 /**
  * Lightweight PageSeeder result wrapper.
  *
+ * @param total the total number of available results
+ * @param start the result start offset
+ * @param items the result items
  * @param <T> the result item type.
  */
-public final class ResultPage<T> {
+public record ResultPage<T>(int total, int start, List<T> items) {
 
-  private final int total;
-  private final int start;
-  private final List<T> items;
-
-  public ResultPage(int total, int start, List<T> items) {
-    this.total = total;
-    this.start = start;
-    this.items = List.copyOf(items);
+  public ResultPage {
+    items = List.copyOf(items);
   }
 
   public int getTotal() {
