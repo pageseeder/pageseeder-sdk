@@ -20,6 +20,12 @@ import javax.xml.stream.XMLStreamReader;
 public abstract class BasicXMLStreamHandler<T> implements XMLStreamHandler<T> {
 
   /**
+   * Constructor for subclasses.
+   */
+  protected BasicXMLStreamHandler() {
+  }
+
+  /**
    * Advances the stream reader to the next start element.
    *
    * @param xml the stream reader
