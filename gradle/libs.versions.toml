@@ -1,6 +1,6 @@
 [versions]
 jackson = "2.21.3"
-junit = "5.14.4"
+junit = "6.0.3"
 pso-bridge = "0.11.40"
 slf4j = "2.0.17"
 xmlwriter = "1.1.1"
@@ -11,9 +11,8 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 pso-bridge = { module = "org.pageseeder.bridge:pso-bridge", version.ref = "pso-bridge" }
-junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 xmlwriter = { module = "org.pageseeder.xmlwriter:pso-xmlwriter", version.ref = "xmlwriter" }

@@ -14,7 +14,6 @@ dependencies {
 
   compileOnly(libs.jspecify)
 
-  testImplementation(platform(libs.junit.bom))
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.slf4j.simple)
   testRuntimeOnly(libs.junit.platform.launcher)
