@@ -221,10 +221,7 @@ public abstract class BasicHandler<T> extends Handler<T> {
    * @return the parsed long value
    */
   public static Long getLong(Attributes atts, String name) {
-    String value = atts.getValue(name);
-    if (value == null) {
-      throw new MissingAttributeException(name);
-    }
+    String value = getString(atts, name);
     return toLong(value, name);
   }
 
@@ -292,10 +289,7 @@ public abstract class BasicHandler<T> extends Handler<T> {
    * @return the parsed integer value
    */
   public static int getInt(Attributes atts, String name) {
-    String value = atts.getValue(name);
-    if (value == null) {
-      throw new MissingAttributeException(name);
-    }
+    String value = getString(atts, name);
     return toInt(value, name);
   }
 
