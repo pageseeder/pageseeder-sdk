@@ -53,7 +53,7 @@ final class PageSeederClientMappingTest {
         ServiceCall.of(ServiceCatalog.MEMBER).pathVariable("member", "jdoe"),
         Decoders.object(Member.class));
 
-    assertEquals("jdoe", member.getUsername());
+    assertEquals("jdoe", member.username());
   }
 
   @Test
@@ -71,7 +71,7 @@ final class PageSeederClientMappingTest {
         new BearerToken("override-token"),
         Decoders.object(Member.class));
 
-    assertEquals("jdoe", member.getUsername());
+    assertEquals("jdoe", member.username());
   }
 
   @Test
@@ -87,8 +87,8 @@ final class PageSeederClientMappingTest {
     Version jsonVersion = client.execute(
         ServiceCall.of(ServiceCatalog.VERSION).accept(PayloadFormat.JSON), Decoders.object(Version.class));
 
-    assertEquals("5.9804", xmlVersion.getString());
-    assertEquals(9804, jsonVersion.getBuild());
+    assertEquals("5.9804", xmlVersion.string());
+    assertEquals(9804, jsonVersion.build());
   }
 
   @Test
@@ -114,11 +114,11 @@ final class PageSeederClientMappingTest {
         ServiceCall.of(ServiceCatalog.RESOURCE_URI).pathVariable("uri", "88").accept(PayloadFormat.JSON),
         Decoders.object(ResourceUri.class));
 
-    assertEquals("jdoe", member.getUsername());
-    assertEquals(3, memberships.getItems().size());
-    assertNull(memberships.getItems().get(0).getMember());
-    assertEquals("acme-info", memberships.getItems().get(1).getGroup().getName());
-    assertEquals("Guide", uri.getTitle());
+    assertEquals("jdoe", member.username());
+    assertEquals(3, memberships.items().size());
+    assertNull(memberships.items().get(0).member());
+    assertEquals("acme-info", memberships.items().get(1).group().name());
+    assertEquals("Guide", uri.title());
   }
 
   private static void reply(HttpExchange exchange, int status, String contentType, byte[] payload) throws IOException {

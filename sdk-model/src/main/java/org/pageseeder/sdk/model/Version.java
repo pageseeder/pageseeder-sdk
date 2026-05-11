@@ -27,33 +27,6 @@ public record Version(int major, int build, @Nullable String string) {
     string = string == null ? major + "." + String.format("%04d", build) : string;
   }
 
-  /**
-   * Returns the major version.
-   *
-   * @return the major version
-   */
-  public int getMajor() {
-    return this.major;
-  }
-
-  /**
-   * Returns the build number.
-   *
-   * @return the build number
-   */
-  public int getBuild() {
-    return this.build;
-  }
-
-  /**
-   * Returns the full version string.
-   *
-   * @return the full version string
-   */
-  public String getString() {
-    return this.string;
-  }
-
   @Override
   public String toString() {
     return this.string;

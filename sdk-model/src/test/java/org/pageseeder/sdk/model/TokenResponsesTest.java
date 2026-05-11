@@ -29,11 +29,11 @@ final class TokenResponsesTest {
     Member member = TokenResponses.toMember(response);
 
     Assertions.assertNotNull(member);
-    Assertions.assertEquals(42L, member.getId());
-    Assertions.assertEquals("clauret", member.getUsername());
-    Assertions.assertEquals("clauret@example.com", member.getEmail());
-    Assertions.assertEquals("Christophe", member.getFirstname());
-    Assertions.assertEquals("Lauret", member.getSurname());
+    Assertions.assertEquals(42L, member.id());
+    Assertions.assertEquals("clauret", member.username());
+    Assertions.assertEquals("clauret@example.com", member.email());
+    Assertions.assertEquals("Christophe", member.firstname());
+    Assertions.assertEquals("Lauret", member.surname());
   }
 
   @Test

@@ -20,22 +20,4 @@ public record Content(String type, String value) {
     type = Objects.toString(type, "text/plain");
     value = Objects.toString(value, "");
   }
-
-  /**
-   * Returns the content media type.
-   *
-   * @return the content media type
-   */
-  public String getType() {
-    return this.type;
-  }
-
-  /**
-   * Returns the content value.
-   *
-   * @return the content value
-   */
-  public String getValue() {
-    return this.value;
-  }
 }

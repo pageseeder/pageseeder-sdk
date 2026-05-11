@@ -12,8 +12,10 @@ import org.pageseeder.sdk.exception.ParsingException;
 import org.pageseeder.sdk.model.Comment;
 import org.pageseeder.sdk.model.CommentContext;
 import org.pageseeder.sdk.model.CommentUser;
+import org.pageseeder.sdk.model.ConfiguredGroup;
 import org.pageseeder.sdk.model.Content;
 import org.pageseeder.sdk.model.Group;
+import org.pageseeder.sdk.model.GroupSettings;
 import org.pageseeder.sdk.model.GroupType;
 import org.pageseeder.sdk.model.Member;
 import org.pageseeder.sdk.model.MemberStatus;
@@ -72,17 +74,18 @@ final class PageSeederParsers {
 
   static <T> List<T> parseList(ObjectMapper mapper, byte[] body, Class<T> type) {
     JsonNode root = readTree(mapper, body);
-    JsonNode listNode = findListNode(root, alias(type));
+    ListNode list = findListNode(root, aliases(type));
+    JsonNode listNode = list == null ? null : list.node();
     List<T> items = new ArrayList<>();
     if (listNode == null || listNode.isMissingNode() || listNode.isNull()) {
       return items;
     }
     if (listNode.isArray()) {
       for (JsonNode itemNode : listNode) {
-        items.add(mapNode(itemNode, type));
+        items.add(mapNode(itemNode, type, list.rootElementName()));
       }
     } else {
-      items.add(mapNode(listNode, type));
+      items.add(mapNode(listNode, type, list.rootElementName()));
     }
     return items;
   }
@@ -138,6 +141,9 @@ final class PageSeederParsers {
     if (type == Group.class) {
       return (T) toGroup(node, rootElementName);
     }
+    if (type == ConfiguredGroup.class) {
+      return (T) toConfiguredGroup(node, rootElementName);
+    }
     if (type == Membership.class) {
       return (T) toMembership(node);
     }
@@ -150,30 +156,37 @@ final class PageSeederParsers {
     throw new ParsingException("Unsupported PageSeeder mapping type: " + type.getName());
   }
 
-  private static JsonNode findListNode(JsonNode root, String alias) {
-    if (root.has("result")) {
-      return findListNode(root.get("result"), alias);
-    }
-    if (root.has(alias)) {
-      return root.get(alias);
-    }
-    if (root.has(alias + "s")) {
-      return root.get(alias + "s");
-    }
-    if (root.isArray()) {
-      return root;
-    }
-    return root.has(alias) ? root.get(alias) : null;
+  private record ListNode(JsonNode node, String rootElementName) {
   }
 
-  private static String alias(Class<?> type) {
-    if (type == Member.class) return "member";
-    if (type == Comment.class) return "comment";
-    if (type == Group.class) return "group";
-    if (type == Membership.class) return "membership";
-    if (type == ResourceUri.class) return "uri";
-    if (type == Version.class) return "version";
-    return type.getSimpleName().toLowerCase();
+  private static ListNode findListNode(JsonNode root, String... aliases) {
+    if (root.has("result")) {
+      return findListNode(root.get("result"), aliases);
+    }
+    for (String alias : aliases) {
+      if (root.has(alias)) {
+        return new ListNode(root.get(alias), alias);
+      }
+    }
+    for (String alias : aliases) {
+      if (root.has(alias + "s")) {
+        return new ListNode(root.get(alias + "s"), alias);
+      }
+    }
+    if (root.isArray()) {
+      return new ListNode(root, null);
+    }
+    return null;
+  }
+
+  private static String[] aliases(Class<?> type) {
+    if (type == Member.class) return new String[] {"member"};
+    if (type == Comment.class) return new String[] {"comment"};
+    if (type == Group.class || type == ConfiguredGroup.class) return new String[] {"group", "project"};
+    if (type == Membership.class) return new String[] {"membership"};
+    if (type == ResourceUri.class) return new String[] {"uri"};
+    if (type == Version.class) return new String[] {"version"};
+    return new String[] {type.getSimpleName().toLowerCase()};
   }
 
   private static Member toMember(JsonNode node) {
@@ -188,7 +201,13 @@ final class PageSeederParsers {
         booleanValue(source, "locked"),
         booleanValue(source, "onvacation"),
         booleanValue(source, "attachments"),
-        offsetDateTime(source, "lastlogin")
+        nullableText(source, "externalid"),
+        offsetDateTime(source, "created"),
+        offsetDateTime(source, "activated"),
+        offsetDateTime(source, "lastpasswordchange"),
+        offsetDateTime(source, "lastlogin"),
+        booleanValue(source, "admin"),
+        offsetDateTime(source, "date")
     );
   }
 
@@ -218,9 +237,10 @@ final class PageSeederParsers {
   }
 
   private static Group toGroup(JsonNode node, String rootElementName) {
-    JsonNode source = unwrap(node, "group");
-    GroupType type = rootElementName != null
-        ? GroupType.fromValue(rootElementName)
+    String elementName = groupElementName(node, rootElementName);
+    JsonNode source = unwrapGroup(node);
+    GroupType type = elementName != null
+        ? GroupType.fromValue(elementName)
         : GroupType.fromValue(nullableText(source, "type"));
     return new Group(
         longValue(source, "id"),
@@ -229,8 +249,33 @@ final class PageSeederParsers {
         nullableText(source, "title"),
         nullableText(source, "description"),
         nullableText(source, "owner"),
+        nullableText(source, "access"),
+        booleanValue(source, "common"),
+        nullableText(source, "relatedurl"),
         GroupRole.fromValue(nullableText(source, "defaultrole")),
         NotificationPreference.fromValue(nullableText(source, "defaultnotify"))
+    );
+  }
+
+  private static ConfiguredGroup toConfiguredGroup(JsonNode node, String rootElementName) {
+    String elementName = groupElementName(node, rootElementName);
+    JsonNode source = unwrapGroup(node);
+    return new ConfiguredGroup(toGroup(source, elementName), toGroupSettings(source));
+  }
+
+  private static GroupSettings toGroupSettings(JsonNode source) {
+    return new GroupSettings(
+        nullableText(source, "visibility"),
+        nullableText(source, "template"),
+        nullableText(source, "detailstype"),
+        nullableBoolean(source, "editurls"),
+        nullableText(source, "commenting"),
+        nullableText(source, "moderation"),
+        nullableText(source, "registration"),
+        GroupRole.fromValue(nullableText(source, "defaultrole")),
+        NotificationPreference.fromValue(nullableText(source, "defaultnotify")),
+        nullableInteger(source, "indexversion"),
+        nullableText(source, "message")
     );
   }
 
@@ -299,6 +344,24 @@ final class PageSeederParsers {
       }
     }
     return node.has(alias) ? node.get(alias) : node;
+  }
+
+  private static JsonNode unwrapGroup(JsonNode node) {
+    JsonNode source = unwrap(node, "group");
+    return source == node ? unwrap(node, "project") : source;
+  }
+
+  private static String groupElementName(JsonNode node, String rootElementName) {
+    if (rootElementName != null) {
+      return rootElementName;
+    }
+    if (node != null && node.has("project")) {
+      return "project";
+    }
+    if (node != null && node.has("group")) {
+      return "group";
+    }
+    return null;
   }
 
   private static String rootElementName(ObjectMapper mapper, byte[] body) {
@@ -458,7 +521,13 @@ final class PageSeederParsers {
         false,
         false,
         false,
-        null
+        nullableText(node, "externalid"),
+        offsetDateTime(node, "created"),
+        offsetDateTime(node, "activated"),
+        offsetDateTime(node, "lastpasswordchange"),
+        offsetDateTime(node, "lastlogin"),
+        false,
+        offsetDateTime(node, "date")
     ) : null;
     return new CommentUser(member, fullname);
   }
@@ -621,9 +690,22 @@ final class PageSeederParsers {
     return Integer.parseInt(value);
   }
 
+  private static Integer nullableInteger(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    return Integer.parseInt(value);
+  }
+
   private static boolean booleanValue(JsonNode node, String field) {
     String value = nullableText(node, field);
     return "true".equalsIgnoreCase(value);
+  }
+
+  private static Boolean nullableBoolean(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    return value == null || value.isBlank() ? null : Boolean.parseBoolean(value);
   }
 
   private static OffsetDateTime offsetDateTime(JsonNode node, String field) {

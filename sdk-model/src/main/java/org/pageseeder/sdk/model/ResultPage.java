@@ -22,31 +22,4 @@ public record ResultPage<T>(int total, int start, List<T> items) {
   public ResultPage {
     items = List.copyOf(items);
   }
-
-  /**
-   * Returns the total number of available results.
-   *
-   * @return the total number of available results
-   */
-  public int getTotal() {
-    return this.total;
-  }
-
-  /**
-   * Returns the result start offset.
-   *
-   * @return the result start offset
-   */
-  public int getStart() {
-    return this.start;
-  }
-
-  /**
-   * Returns the result items.
-   *
-   * @return the result items
-   */
-  public List<T> getItems() {
-    return this.items;
-  }
 }

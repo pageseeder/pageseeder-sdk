@@ -33,7 +33,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -92,17 +94,17 @@ final class ServiceApiSampleTest {
   private static void assertMember(ApiSample sample, Member member) {
     switch (sample.testName()) {
       case "admin":
-        assertEquals(123L, member.getId());
-        assertEquals("vvega", member.getUsername());
-        assertEquals("Vincent Vega", member.getFullname());
-        assertEquals("vvega@example.org", member.getEmail());
-        assertEquals(MemberStatus.ACTIVATED, member.getStatus());
+        assertEquals(123L, member.id());
+        assertEquals("vvega", member.username());
+        assertEquals("Vincent Vega", member.fullname());
+        assertEquals("vvega@example.org", member.email());
+        assertEquals(MemberStatus.ACTIVATED, member.status());
         break;
       case "disabled":
-        assertEquals(333L, member.getId());
-        assertEquals("jwinnfield@example.org", member.getUsername());
-        assertEquals("Jules Winnfield", member.getFullname());
-        assertEquals(MemberStatus.DISABLED, member.getStatus());
+        assertEquals(333L, member.id());
+        assertEquals("jwinnfield@example.org", member.username());
+        assertEquals("Jules Winnfield", member.fullname());
+        assertEquals(MemberStatus.DISABLED, member.status());
         break;
       default:
         fail("No member assertions registered for sample " + sample);
@@ -112,66 +114,66 @@ final class ServiceApiSampleTest {
   private static void assertComment(ApiSample sample, Comment comment) {
     switch (sample.testName()) {
       case "comment-group":
-        assertEquals(25061L, comment.getId());
-        assertEquals("findSimpleComment", comment.getTitle());
-        assertEquals("unit-admin", comment.getAuthor().getMember().getUsername());
-        assertEquals("Unit Test", comment.getAuthor().getFullname());
-        assertEquals("unittest-comment-findcomment", comment.getContext().getGroup().getName());
+        assertEquals(25061L, comment.id());
+        assertEquals("findSimpleComment", comment.title());
+        assertEquals("unit-admin", comment.author().member().username());
+        assertEquals("Unit Test", comment.author().fullname());
+        assertEquals("unittest-comment-findcomment", comment.context().group().name());
         break;
       case "comment-uri":
-        assertEquals(25062L, comment.getId());
+        assertEquals(25062L, comment.id());
         assertEquals("/ps/unittest/comment/findcomment/documents/finddoc.psml",
-            comment.getContext().getUri().getPath());
+            comment.context().uri().path());
         break;
       case "comment-type":
-        assertEquals("mytype1", comment.getType());
-        assertEquals("Comment", comment.getContentRole());
+        assertEquals("mytype1", comment.type());
+        assertEquals("Comment", comment.contentRole());
         break;
       case "comment-type-and-uri":
-        assertEquals("mytype1", comment.getType());
-        assertEquals("finddoc", comment.getContext().getUri().getTitle());
+        assertEquals("mytype1", comment.type());
+        assertEquals("finddoc", comment.context().uri().title());
         break;
       case "comment-task":
-        assertEquals("Open", comment.getStatus());
-        assertEquals("High", comment.getPriority());
-        assertEquals("unit-admin", comment.getAssignedTo().getUser().getMember().getUsername());
-        assertEquals("unittest-comment-findcomment", comment.getContext().getGroup().getName());
+        assertEquals("Open", comment.status());
+        assertEquals("High", comment.priority());
+        assertEquals("unit-admin", comment.assignedTo().user().member().username());
+        assertEquals("unittest-comment-findcomment", comment.context().group().name());
         break;
       case "comment-task-uri":
-        assertEquals("Open", comment.getStatus());
-        assertEquals("finddoc", comment.getContext().getUri().getTitle());
+        assertEquals("Open", comment.status());
+        assertEquals("finddoc", comment.context().uri().title());
         break;
       case "comment-task-type":
-        assertEquals("mytype1", comment.getType());
-        assertEquals("High", comment.getPriority());
+        assertEquals("mytype1", comment.type());
+        assertEquals("High", comment.priority());
         break;
       case "comment-task-type-uri":
-        assertEquals("mytype1", comment.getType());
-        assertEquals("Open", comment.getStatus());
+        assertEquals("mytype1", comment.type());
+        assertEquals("Open", comment.status());
         assertEquals("/ps/unittest/comment/findcomment/documents/finddoc.psml",
-            comment.getContext().getUri().getPath());
+            comment.context().uri().path());
         break;
       case "comment-type-xhtml":
-        assertEquals("forum", comment.getType());
-        assertEquals("File Attachment", comment.getContentRole());
-        assertEquals("application/xhtml+xml", comment.getContent().get(0).getType());
+        assertEquals("forum", comment.type());
+        assertEquals("File Attachment", comment.contentRole());
+        assertEquals("application/xhtml+xml", comment.content().get(0).type());
         break;
       case "comment-attachments":
-        assertEquals("File Attachment", comment.getContentRole());
-        assertEquals(2, comment.getAttachments().size());
+        assertEquals("File Attachment", comment.contentRole());
+        assertEquals(2, comment.attachments().size());
         assertEquals("/ps/unittest/comment/createcomment_18/doc1PublicUrl.psml",
-            comment.getAttachments().get(0).getPath());
+            comment.attachments().get(0).path());
         break;
       case "comment-public1":
-        assertEquals("Somebody", comment.getAuthor().getFullname());
-        assertNull(comment.getAuthor().getMember());
-        assertEquals("comment-test", comment.getContext().getGroup().getName());
+        assertEquals("Somebody", comment.author().fullname());
+        assertNull(comment.author().member());
+        assertEquals("comment-test", comment.context().group().name());
         break;
       case "comment-nasty":
-        assertEquals("華華華華華華華華華華華", comment.getAuthor().getFullname());
-        assertNull(comment.getAuthor().getMember());
-        assertEquals("unit-admin", comment.getModifiedBy().getUser().getMember().getUsername());
-        assertEquals("http", comment.getContext().getUri().getScheme());
+        assertEquals("華華華華華華華華華華華", comment.author().fullname());
+        assertNull(comment.author().member());
+        assertEquals("unit-admin", comment.modifiedBy().user().member().username());
+        assertEquals("http", comment.context().uri().scheme());
         break;
       default:
         fail("No comment assertions registered for sample " + sample);
@@ -181,14 +183,14 @@ final class ServiceApiSampleTest {
   private static void assertVersion(ApiSample sample, Version version) {
     switch (sample.testName()) {
       case "version":
-        assertEquals(6, version.getMajor());
-        assertEquals(2007, version.getBuild());
-        assertEquals("6.2007", version.getString());
+        assertEquals(6, version.major());
+        assertEquals(2007, version.build());
+        assertEquals("6.2007", version.string());
         break;
       case "version-beta":
-        assertEquals(6, version.getMajor());
-        assertEquals(3000, version.getBuild());
-        assertEquals("6.3000-beta-1", version.getString());
+        assertEquals(6, version.major());
+        assertEquals(3000, version.build());
+        assertEquals("6.3000-beta-1", version.string());
         break;
       default:
         fail("No version assertions registered for sample " + sample);
@@ -198,28 +200,28 @@ final class ServiceApiSampleTest {
   private static void assertMembership(ApiSample sample, Membership membership) {
     switch (sample.testName()) {
       case "membership-group":
-        assertEquals(102L, membership.getId());
-        assertEquals("jsmith", membership.getMember().getUsername());
-        assertEquals("product-support", membership.getGroup().getName());
-        assertEquals(0, membership.getDetails().size());
+        assertEquals(102L, membership.id());
+        assertEquals("jsmith", membership.member().username());
+        assertEquals("product-support", membership.group().name());
+        assertEquals(0, membership.details().size());
         break;
       case "membership-group-details":
-        assertEquals(102L, membership.getId());
-        assertEquals("jsmith", membership.getMember().getUsername());
-        assertEquals("product-support", membership.getGroup().getName());
-        assertEquals(4, membership.getDetails().size());
-        MembershipDetail detail = membership.getDetails().get(3);
-        assertEquals(5, detail.getPosition());
-        assertEquals("shape", detail.getName());
-        assertEquals("square", detail.getValue());
-        assertEquals("Shape or form", detail.getTitle());
-        assertEquals("geometric", detail.getType());
+        assertEquals(102L, membership.id());
+        assertEquals("jsmith", membership.member().username());
+        assertEquals("product-support", membership.group().name());
+        assertEquals(4, membership.details().size());
+        MembershipDetail detail = membership.details().get(3);
+        assertEquals(5, detail.position());
+        assertEquals("shape", detail.name());
+        assertEquals("square", detail.value());
+        assertEquals("Shape or form", detail.title());
+        assertEquals("geometric", detail.type());
         break;
       case "membership-project":
-        assertEquals(101L, membership.getId());
-        assertEquals("jsmith", membership.getMember().getUsername());
-        assertEquals("acme", membership.getGroup().getName());
-        assertEquals(0, membership.getDetails().size());
+        assertEquals(101L, membership.id());
+        assertEquals("jsmith", membership.member().username());
+        assertEquals("acme", membership.group().name());
+        assertEquals(0, membership.details().size());
         break;
       default:
         fail("No membership assertions registered for sample " + sample);
@@ -229,14 +231,30 @@ final class ServiceApiSampleTest {
   private static void assertGroup(ApiSample sample, Group group) {
     switch (sample.testName()) {
       case "group-extended":
-        assertEquals(111L, group.getId());
-        assertEquals("australia-nsw-sydney", group.getName());
-        assertEquals(GroupType.GROUP, group.getType());
+        assertEquals(111L, group.id());
+        assertEquals("australia-nsw-sydney", group.name());
+        assertEquals(GroupType.GROUP, group.type());
+        assertEquals("public", group.access());
+        assertTrue(group.common());
+        assertEquals("https://example.org/hello.html", group.relatedUrl());
+        assertEquals("For unit testing", group.description());
+        assertEquals("Australia", group.owner());
+        assertEquals("Sydney, NSW (Australia)", group.title());
+        assertEquals(GroupRole.REVIEWER, group.defaultRole());
+        assertEquals(NotificationPreference.IMMEDIATE, group.defaultNotification());
         break;
       case "project-extended":
-        assertEquals(222L, group.getId());
-        assertEquals("australia-nsw", group.getName());
-        assertEquals(GroupType.PROJECT, group.getType());
+        assertEquals(222L, group.id());
+        assertEquals("australia-nsw", group.name());
+        assertEquals(GroupType.PROJECT, group.type());
+        assertEquals("member", group.access());
+        assertFalse(group.common());
+        assertEquals("https://example.org/hello.html", group.relatedUrl());
+        assertEquals("For unit testing", group.description());
+        assertEquals("Australia", group.owner());
+        assertEquals("New South Wales", group.title());
+        assertEquals(GroupRole.REVIEWER, group.defaultRole());
+        assertEquals(NotificationPreference.IMMEDIATE, group.defaultNotification());
         break;
       default:
         fail("No group assertions registered for sample " + sample);
@@ -328,12 +346,12 @@ final class ServiceApiSampleTest {
         public void verify(PageSeederClient client, ServiceCall call, ApiSample sample) {
           List<Membership> memberships = client.execute(call, Decoders.list(Membership.class));
           assertEquals(3, memberships.size());
-          assertNull(memberships.get(0).getMember());
-          assertEquals("acme", memberships.get(0).getGroup().getName());
-          assertNull(memberships.get(1).getMember());
-          assertEquals("acme-info", memberships.get(1).getGroup().getName());
-          assertNull(memberships.get(2).getMember());
-          assertEquals("product-support", memberships.get(2).getGroup().getName());
+          assertNull(memberships.get(0).member());
+          assertEquals("acme", memberships.get(0).group().name());
+          assertNull(memberships.get(1).member());
+          assertEquals("acme-info", memberships.get(1).group().name());
+          assertNull(memberships.get(2).member());
+          assertEquals("product-support", memberships.get(2).group().name());
         }
       });
       contracts.put("self", success(

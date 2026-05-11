@@ -43,7 +43,7 @@ final class VersionCommand implements CliCommand {
           .apiOrigin(apiOrigin)
           .build();
       Version version = client.execute(ServiceCall.of(ServiceCatalog.VERSION), Decoders.object(Version.class));
-      out.println(version.getString());
+      out.println(version.string());
       return 0;
     } catch (IllegalArgumentException ex) {
       err.println("Invalid API origin: " + ex.getMessage());
