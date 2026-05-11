@@ -43,6 +43,10 @@ import java.util.zip.GZIPInputStream;
  */
 public final class PageSeederClient {
 
+  private static final String ERROR_ID = "id";
+  private static final String ERROR_MESSAGE = "message";
+  private static final String ERROR_ELEMENT = "error";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(PageSeederClient.class);
 
   // XMLInputFactory is thread-safe for createXMLStreamReader per the StAX spec
@@ -297,40 +301,91 @@ public final class PageSeederClient {
   }
 
   private static @Nullable ServiceError parseXmlError(byte[] body) {
+    XMLStreamReader xml = null;
     try {
-      XMLStreamReader xml = ERROR_XML_FACTORY.createXMLStreamReader(new ByteArrayInputStream(body));
-      String errorId = null;
-      String message = null;
-      boolean inError = false;
-      boolean inMessage = false;
-      while (xml.hasNext()) {
-        int event = xml.next();
-        if (event == XMLStreamConstants.START_ELEMENT) {
-          if ("error".equals(xml.getLocalName())) {
-            inError = true;
-            errorId = xml.getAttributeValue(null, "id");
-            message = xml.getAttributeValue(null, "message"); // attribute form
-          } else if (inError && "message".equals(xml.getLocalName())) {
-            inMessage = true;
-          }
-        } else if (event == XMLStreamConstants.CHARACTERS && inMessage) {
-          message = xml.getText();
-        } else if (event == XMLStreamConstants.END_ELEMENT) {
-          if ("message".equals(xml.getLocalName())) {
-            inMessage = false;
-          } else if ("error".equals(xml.getLocalName())) {
-            break;
-          }
-        }
-      }
-      xml.close();
-      if (message != null) {
-        return new ServiceError(errorId != null ? errorId : "", message);
-      }
+      xml = ERROR_XML_FACTORY.createXMLStreamReader(new ByteArrayInputStream(body));
+      return readXmlError(xml);
     } catch (XMLStreamException ex) {
       LOGGER.debug("Unable to parse XML service error", ex);
+    } finally {
+      closeXmlErrorReader(xml);
     }
     return null;
+  }
+
+  private static @Nullable ServiceError readXmlError(XMLStreamReader xml) throws XMLStreamException {
+    XmlError error = new XmlError();
+    while (xml.hasNext() && !error.isComplete()) {
+      error.read(xml.next(), xml);
+    }
+    return error.toServiceError();
+  }
+
+  private static void closeXmlErrorReader(@Nullable XMLStreamReader xml) {
+    if (xml == null) {
+      return;
+    }
+    try {
+      xml.close();
+    } catch (XMLStreamException ex) {
+      LOGGER.debug("Unable to close XML service error reader", ex);
+    }
+  }
+
+  private static final class XmlError {
+
+    private @Nullable String id;
+    private @Nullable String message;
+    private boolean inError;
+    private boolean inMessage;
+    private boolean complete;
+
+    private void read(int event, XMLStreamReader xml) {
+      if (event == XMLStreamConstants.START_ELEMENT) {
+        readStart(xml);
+      } else if (event == XMLStreamConstants.CHARACTERS) {
+        readCharacters(xml);
+      } else if (event == XMLStreamConstants.END_ELEMENT) {
+        readEnd(xml);
+      }
+    }
+
+    private void readStart(XMLStreamReader xml) {
+      String element = xml.getLocalName();
+      if (ERROR_ELEMENT.equals(element)) {
+        this.inError = true;
+        this.id = xml.getAttributeValue(null, ERROR_ID);
+        this.message = xml.getAttributeValue(null, ERROR_MESSAGE);
+      } else if (this.inError && ERROR_MESSAGE.equals(element)) {
+        this.inMessage = true;
+      }
+    }
+
+    private void readCharacters(XMLStreamReader xml) {
+      if (this.inMessage) {
+        this.message = xml.getText();
+      }
+    }
+
+    private void readEnd(XMLStreamReader xml) {
+      String element = xml.getLocalName();
+      if (ERROR_MESSAGE.equals(element)) {
+        this.inMessage = false;
+      } else if (ERROR_ELEMENT.equals(element)) {
+        this.complete = true;
+      }
+    }
+
+    private boolean isComplete() {
+      return this.complete;
+    }
+
+    private @Nullable ServiceError toServiceError() {
+      if (this.message == null) {
+        return null;
+      }
+      return new ServiceError(this.id != null ? this.id : "", this.message);
+    }
   }
 
   private static @Nullable ServiceError parseJsonError(byte[] body) {
@@ -338,8 +393,8 @@ public final class PageSeederClient {
     // This avoids a Jackson dependency in core. Covers the standard PageSeeder error format.
     try {
       String json = new String(body, StandardCharsets.UTF_8);
-      String id = extractJsonString(json, "id");
-      String message = extractJsonString(json, "message");
+      String id = extractJsonString(json, ERROR_ID);
+      String message = extractJsonString(json, ERROR_MESSAGE);
       if (message == null) {
         message = extractJsonString(json, "description");
       }
