@@ -1,7 +1,8 @@
-package org.pageseeder.sdk.model;
+package org.pageseeder.sdk.model.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.pageseeder.sdk.model.Member;
 import org.pageseeder.sdk.oauth.ClientCredentials;
 import org.pageseeder.sdk.oauth.TokenResponse;
 

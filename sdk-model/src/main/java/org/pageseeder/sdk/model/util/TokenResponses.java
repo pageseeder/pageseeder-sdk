@@ -1,5 +1,7 @@
-package org.pageseeder.sdk.model;
+package org.pageseeder.sdk.model.util;
 
+import org.pageseeder.sdk.model.Member;
+import org.pageseeder.sdk.model.MemberStatus;
 import org.pageseeder.sdk.oauth.TokenResponse;
 
 import org.jspecify.annotations.Nullable;
