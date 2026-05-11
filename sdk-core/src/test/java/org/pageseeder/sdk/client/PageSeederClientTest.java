@@ -167,6 +167,26 @@ final class PageSeederClientTest {
   }
 
   @Test
+  void shouldSendStringRequestBody() {
+    AtomicReference<String> body = new AtomicReference<>();
+    AtomicReference<String> contentType = new AtomicReference<>();
+    String payload = "<comment>Caf\u00e9</comment>";
+    this.server.createContext("/ps/api/groups/docs/comments.xml", exchange -> {
+      contentType.set(exchange.getRequestHeaders().getFirst("Content-Type"));
+      body.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+      reply(exchange, 200, "application/xml", read("fixtures/version.xml"));
+    });
+
+    PageSeederClient.builder().apiOrigin(this.baseUri).build()
+        .execute(ServiceCall.of(new ServiceEndpoint("POST", "/groups/{group}/comments"))
+            .pathVariable("group", "docs")
+            .rawBody(payload, "application/xml; charset=UTF-8"));
+
+    assertEquals("application/xml; charset=UTF-8", contentType.get());
+    assertEquals(payload, body.get());
+  }
+
+  @Test
   void shouldDecodeGzipResponses() {
     this.server.createContext("/ps/api/members/jdoe.xml", exchange -> {
       byte[] payload = gzip(read("fixtures/member.xml"));
