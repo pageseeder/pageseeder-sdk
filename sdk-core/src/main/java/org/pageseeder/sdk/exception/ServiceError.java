@@ -1,5 +1,8 @@
 package org.pageseeder.sdk.exception;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * PageSeeder service error returned by the API.
  *
@@ -11,7 +14,10 @@ package org.pageseeder.sdk.exception;
  * @version 1.0.0
  * @since 1.0.0
  */
-public record ServiceError(String id, String message) {
+public record ServiceError(String id, String message) implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public String getId() {
     return this.id;
