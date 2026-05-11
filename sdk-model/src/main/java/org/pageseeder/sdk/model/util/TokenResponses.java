@@ -1,10 +1,11 @@
 package org.pageseeder.sdk.model.util;
 
 import org.pageseeder.sdk.model.Member;
-import org.pageseeder.sdk.model.MemberStatus;
 import org.pageseeder.sdk.oauth.TokenResponse;
 
 import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * Utility methods for converting {@link TokenResponse} into SDK model types.
@@ -35,19 +36,10 @@ public final class TokenResponses {
     }
     try {
       long id = Long.parseLong(subject);
-      String username = response.jwtPreferredUsername();
-      return new Member(
-          id,
-          username != null ? username : "",
-          response.jwtEmail(),
-          response.jwtGivenName(),
-          response.jwtFamilyName(),
-          MemberStatus.UNKNOWN,
-          false,
-          false,
-          false,
-          null
-      );
+      String username = Objects.toString(response.jwtPreferredUsername(), "");
+      String firstname = Objects.toString(response.jwtGivenName(), "");
+      String surname = Objects.toString(response.jwtFamilyName(), "");
+      return new Member(id, username, response.jwtEmail(), firstname, surname);
     } catch (NumberFormatException ex) {
       return null;
     }

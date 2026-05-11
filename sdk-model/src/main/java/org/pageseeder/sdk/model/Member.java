@@ -31,6 +31,21 @@ public record Member(long id, String username, @Nullable String email, String fi
                      @Nullable OffsetDateTime activated, @Nullable OffsetDateTime lastPasswordChange,
                      @Nullable OffsetDateTime lastLogin, boolean admin, @Nullable OffsetDateTime date) {
 
+
+  /**
+   * Creates a member without extended metadata.
+   *
+   * @param id          the member ID
+   * @param username    the member username
+   * @param email       the member email address
+   * @param firstname   the member first name
+   * @param surname     the member surname
+   */
+  public Member(long id, String username, @Nullable String email, String firstname, String surname) {
+    this(id, username, email, firstname, surname, MemberStatus.UNKNOWN, false, false, false, null, null, null, null,
+        null, false, null);
+  }
+
   /**
    * Creates a member without extended metadata.
    *
