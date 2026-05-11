@@ -29,6 +29,7 @@ import java.util.Set;
  */
 public final class ServiceCatalog {
 
+  @SuppressWarnings("java:S1075") // Classpath resource bundled with the SDK, not a configurable service URI.
   private static final String RESOURCE_PATH = "/org/pageseeder/sdk/service/services.txt";
 
   private static final Set<ServiceEndpoint> ENDPOINTS = build();
