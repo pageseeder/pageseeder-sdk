@@ -1,6 +1,6 @@
 package org.pageseeder.sdk.model;
 
-import org.jspecify.annotations.Nullable;
+import java.util.Objects;
 
 /**
  * PageSeeder version information.
@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
  * @version 1.0.0
  * @since 1.0.0
  */
-public record Version(int major, int build, @Nullable String string) {
+public record Version(int major, int build, String string) {
 
   /**
    * Creates version information, deriving the display string when omitted.
@@ -24,7 +24,7 @@ public record Version(int major, int build, @Nullable String string) {
    * @param string the full version string, or {@code null} to derive it
    */
   public Version {
-    string = string == null ? major + "." + String.format("%04d", build) : string;
+    string = Objects.toString(string, major + "." + String.format("%04d", build));
   }
 
   @Override

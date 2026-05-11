@@ -15,9 +15,9 @@ package org.pageseeder.sdk.model;
  * @param defaultRole         the default role for members
  * @param defaultNotification the default notification preference
  */
-public record Group(long id, String name, GroupType type, String title, String description, String owner,
-                    String access, boolean common, String relatedUrl,
-                    GroupRole defaultRole, NotificationPreference defaultNotification) {
+public record Group(long id, String name, GroupType type, String title, String description, String owner, String access,
+                    boolean common, String relatedUrl, GroupRole defaultRole,
+                    NotificationPreference defaultNotification) {
 
   /**
    * Creates a group with no core settings.
@@ -31,8 +31,7 @@ public record Group(long id, String name, GroupType type, String title, String d
    * @param defaultRole         the default role for members
    * @param defaultNotification the default notification preference
    */
-  public Group(long id, String name, GroupType type, String title, String description, String owner,
-               GroupRole defaultRole, NotificationPreference defaultNotification) {
+  public Group(long id, String name, GroupType type, String title, String description, String owner, GroupRole defaultRole, NotificationPreference defaultNotification) {
     this(id, name, type, title, description, owner, null, false, null, defaultRole, defaultNotification);
   }
 
@@ -47,8 +46,7 @@ public record Group(long id, String name, GroupType type, String title, String d
    * @param defaultRole         the default role for members
    * @param defaultNotification the default notification preference
    */
-  public Group(long id, String name, String title, String description, String owner, GroupRole defaultRole,
-               NotificationPreference defaultNotification) {
+  public Group(long id, String name, String title, String description, String owner, GroupRole defaultRole, NotificationPreference defaultNotification) {
     this(id, name, GroupType.UNKNOWN, title, description, owner, null, false, null, defaultRole, defaultNotification);
   }
 
