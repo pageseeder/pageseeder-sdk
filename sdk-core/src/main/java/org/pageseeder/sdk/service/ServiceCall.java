@@ -2,6 +2,7 @@ package org.pageseeder.sdk.service;
 
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -117,7 +118,16 @@ public final class ServiceCall {
     return this;
   }
 
-  // TODO: add jsonBody(Object) and xmlBody(Object) once sdk-mapping serialization support is in place
+  /**
+   * Sets a UTF-8 encoded string as the request body with an explicit content type.
+   *
+   * @param body        The request body text.
+   * @param contentType The {@code Content-Type} header value.
+   * @return {@code this} for chaining.
+   */
+  public ServiceCall rawBody(String body, String contentType) {
+    return rawBody(body.getBytes(StandardCharsets.UTF_8), contentType);
+  }
 
   /** @return The target service endpoint. */
   public ServiceEndpoint endpoint() {
