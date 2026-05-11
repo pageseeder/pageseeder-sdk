@@ -24,6 +24,7 @@ import java.util.function.Function;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("java:S6218") // Response is a behavior-rich SDK facade; record identity would include byte[] by reference.
 public final class PageSeederResponse {
 
   private final int statusCode;

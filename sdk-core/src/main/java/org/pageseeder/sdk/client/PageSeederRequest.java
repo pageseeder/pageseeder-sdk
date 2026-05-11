@@ -9,6 +9,7 @@ import java.util.Map;
 /**
  * Resolved SDK request.
  */
+@SuppressWarnings("java:S6218") // Keep a class to preserve SDK API flexibility and avoid record identity over byte[].
 public final class PageSeederRequest {
 
   private final String method;
