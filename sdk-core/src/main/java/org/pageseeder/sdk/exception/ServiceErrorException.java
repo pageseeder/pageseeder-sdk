@@ -9,6 +9,7 @@ package org.pageseeder.sdk.exception;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("java:S110") // Keep the typed HTTP exception branch for SDK error handling.
 public final class ServiceErrorException extends HttpStatusException {
 
   /** Service error payload returned by PageSeeder. */
