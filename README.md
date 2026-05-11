@@ -2,10 +2,10 @@
 
 # PageSeeder SDK
 
-A Java 11 SDK for interacting with the [PageSeeder service API](https://dev.pageseeder.com/api.html).
+A Java 17 SDK for interacting with the [PageSeeder service API](https://dev.pageseeder.com/api.html).
 
 > [!WARNING]
-> This SDK is being actively redeveloped as a replacement for PageSeeder Bridge. It is not ready for production use yet.
+> **This SDK is being actively redeveloped as a replacement for [PageSeeder Bridge](https://github.com/pageseeder/bridge). It is not ready for production use yet.**
 
 ## Modules
 
