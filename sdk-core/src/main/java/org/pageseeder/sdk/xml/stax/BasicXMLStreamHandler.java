@@ -11,6 +11,11 @@ import javax.xml.stream.XMLStreamReader;
  * Convenience base class for StAX handlers.
  *
  * @param <T> The type of object produced by this handler.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public abstract class BasicXMLStreamHandler<T> implements XMLStreamHandler<T> {
 

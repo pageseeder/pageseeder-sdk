@@ -14,6 +14,11 @@ import java.util.Objects;
  * Convenience SAX handler with basic parsing state.
  *
  * @param <T> The type of object produced by this handler.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public abstract class BasicHandler<T> extends Handler<T> {
 

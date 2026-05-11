@@ -9,6 +9,11 @@ import javax.xml.stream.XMLStreamReader;
  * Contract for pull-based XML handlers.
  *
  * @param <T> The type of object produced by this handler.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public interface XMLStreamHandler<T> {
 

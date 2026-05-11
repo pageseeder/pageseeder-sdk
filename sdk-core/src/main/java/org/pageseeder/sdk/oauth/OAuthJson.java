@@ -9,6 +9,11 @@ import java.util.Map;
 
 /**
  * Minimal JSON support for OAuth token payloads.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 final class OAuthJson {
 

@@ -6,6 +6,11 @@ import java.io.Serial;
 
 /**
  * Exception thrown when an attribute value is invalid.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class InvalidAttributeException extends AttributeException {
 

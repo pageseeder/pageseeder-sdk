@@ -2,6 +2,11 @@ package org.pageseeder.sdk.exception;
 
 /**
  * Non-success HTTP status response.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class HttpStatusException extends PageSeederException {
 

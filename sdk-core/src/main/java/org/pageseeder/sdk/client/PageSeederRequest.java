@@ -8,6 +8,11 @@ import java.util.Map;
 
 /**
  * Resolved SDK request.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @SuppressWarnings("java:S6206") // Keep a class to preserve SDK API flexibility and avoid record identity over byte[].
 public final class PageSeederRequest {

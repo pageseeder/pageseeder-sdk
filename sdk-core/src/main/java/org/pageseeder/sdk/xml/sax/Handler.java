@@ -9,6 +9,11 @@ import java.util.List;
  * SAX handler able to expose parsed objects directly.
  *
  * @param <T> The type of object produced by this handler.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public abstract class Handler<T> extends DefaultHandler {
 

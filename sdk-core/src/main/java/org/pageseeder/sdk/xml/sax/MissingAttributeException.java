@@ -4,6 +4,11 @@ import java.io.Serial;
 
 /**
  * Exception thrown when a required attribute is missing.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class MissingAttributeException extends AttributeException {
 

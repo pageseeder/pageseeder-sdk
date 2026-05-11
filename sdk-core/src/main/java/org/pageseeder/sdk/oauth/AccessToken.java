@@ -11,6 +11,11 @@ import java.util.regex.Pattern;
 
 /**
  * OAuth access token.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class AccessToken implements Credentials {
 

@@ -13,6 +13,11 @@ import java.util.UUID;
 
 /**
  * Immutable OAuth authorization request.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @SuppressWarnings("java:S1192") // OAuth parameter names are clearer inline in this small request builder.
 public final class AuthorizationRequest {

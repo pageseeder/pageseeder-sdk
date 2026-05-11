@@ -26,9 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-
 /**
  * XML-specific decoding helpers for a response body.
+ *
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class XmlResponseBody {
 

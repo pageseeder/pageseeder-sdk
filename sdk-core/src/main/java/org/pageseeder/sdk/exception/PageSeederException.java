@@ -2,6 +2,11 @@ package org.pageseeder.sdk.exception;
 
 /**
  * Base exception for the modern PageSeeder SDK.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class PageSeederException extends RuntimeException {
 

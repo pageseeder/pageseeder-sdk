@@ -7,6 +7,11 @@ import java.util.regex.Pattern;
 
 /**
  * OAuth client credentials.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class ClientCredentials {
 

@@ -6,6 +6,11 @@ import java.io.Serial;
 
 /**
  * Base class for SAX attribute parsing failures.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public abstract class AttributeException extends RuntimeException {
 
