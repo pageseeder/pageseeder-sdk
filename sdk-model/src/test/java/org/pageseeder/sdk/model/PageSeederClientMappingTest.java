@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 final class PageSeederClientMappingTest {
 
