@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Represents an OAuth client registration request for PageSeeder.
@@ -64,23 +65,20 @@ public final class ClientRegistration {
    * @param clientName the client display name
    */
   public ClientRegistration(String clientName) {
-    this(clientName, null, null, null, null, null, null, null, DEFAULT_OPENID_SCOPE, null);
+    this(new RegistrationState(clientName));
   }
 
-  private ClientRegistration(String clientName, @Nullable GrantType grantType, @Nullable URI redirectUri,
-                             @Nullable URI clientUri, @Nullable String applicationName,
-                             @Nullable String webhookSecret, @Nullable Duration accessTokenLifetime,
-                             @Nullable Duration refreshTokenLifetime, String scope, @Nullable String description) {
-    this.clientName = requireNonBlank(clientName, "clientName");
-    this.grantType = grantType;
-    this.redirectUri = redirectUri;
-    this.clientUri = clientUri;
-    this.applicationName = applicationName;
-    this.webhookSecret = webhookSecret;
-    this.accessTokenLifetime = requireNonNegative(accessTokenLifetime, "accessTokenLifetime");
-    this.refreshTokenLifetime = requireNonNegative(refreshTokenLifetime, "refreshTokenLifetime");
-    this.scope = requireNonBlank(scope, "scope");
-    this.description = description;
+  private ClientRegistration(RegistrationState state) {
+    this.clientName = requireNonBlank(state.clientName, "clientName");
+    this.grantType = state.grantType;
+    this.redirectUri = state.redirectUri;
+    this.clientUri = state.clientUri;
+    this.applicationName = state.applicationName;
+    this.webhookSecret = state.webhookSecret;
+    this.accessTokenLifetime = requireNonNegative(state.accessTokenLifetime, "accessTokenLifetime");
+    this.refreshTokenLifetime = requireNonNegative(state.refreshTokenLifetime, "refreshTokenLifetime");
+    this.scope = requireNonBlank(state.scope, "scope");
+    this.description = state.description;
   }
 
   /**
@@ -184,8 +182,7 @@ public final class ClientRegistration {
     if (grantType == GrantType.REFRESH_TOKEN) {
       throw new IllegalArgumentException("grantType REFRESH_TOKEN is not valid for registration");
     }
-    return new ClientRegistration(this.clientName, grantType, this.redirectUri, this.clientUri, this.applicationName,
-        this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.grantType = grantType);
   }
 
   /**
@@ -196,8 +193,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withRedirectUri(URI redirectUri) {
     Objects.requireNonNull(redirectUri, "redirectUri");
-    return new ClientRegistration(this.clientName, this.grantType, redirectUri, this.clientUri, this.applicationName,
-        this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.redirectUri = redirectUri);
   }
 
   /**
@@ -208,8 +204,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withClientUri(URI clientUri) {
     Objects.requireNonNull(clientUri, "clientUri");
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, clientUri, this.applicationName,
-        this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.clientUri = clientUri);
   }
 
   /**
@@ -220,8 +215,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withApplicationName(String applicationName) {
     Objects.requireNonNull(applicationName, "applicationName");
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, applicationName,
-        this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.applicationName = applicationName);
   }
 
   /**
@@ -232,8 +226,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withWebhookSecret(String webhookSecret) {
     Objects.requireNonNull(webhookSecret, "webhookSecret");
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
-        webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.webhookSecret = webhookSecret);
   }
 
   /**
@@ -244,8 +237,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withAccessTokenLifetime(Duration accessTokenLifetime) {
     Objects.requireNonNull(accessTokenLifetime, "accessTokenLifetime");
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
-        this.webhookSecret, accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.accessTokenLifetime = accessTokenLifetime);
   }
 
   /**
@@ -256,8 +248,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withRefreshTokenLifetime(Duration refreshTokenLifetime) {
     Objects.requireNonNull(refreshTokenLifetime, "refreshTokenLifetime");
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
-        this.webhookSecret, this.accessTokenLifetime, refreshTokenLifetime, this.scope, this.description);
+    return withState(state -> state.refreshTokenLifetime = refreshTokenLifetime);
   }
 
   /**
@@ -267,8 +258,7 @@ public final class ClientRegistration {
    * @return the updated registration
    */
   public ClientRegistration withScope(String scope) {
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
-        this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, scope, this.description);
+    return withState(state -> state.scope = scope);
   }
 
   /**
@@ -279,8 +269,7 @@ public final class ClientRegistration {
    */
   public ClientRegistration withDescription(String description) {
     Objects.requireNonNull(description, "description");
-    return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
-        this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, description);
+    return withState(state -> state.description = description);
   }
 
   /**
@@ -408,5 +397,43 @@ public final class ClientRegistration {
 
   private static String encodePathSegment(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+  }
+
+  private ClientRegistration withState(Consumer<RegistrationState> update) {
+    RegistrationState state = toState();
+    update.accept(state);
+    return new ClientRegistration(state);
+  }
+
+  private RegistrationState toState() {
+    RegistrationState state = new RegistrationState(this.clientName);
+    state.grantType = this.grantType;
+    state.redirectUri = this.redirectUri;
+    state.clientUri = this.clientUri;
+    state.applicationName = this.applicationName;
+    state.webhookSecret = this.webhookSecret;
+    state.accessTokenLifetime = this.accessTokenLifetime;
+    state.refreshTokenLifetime = this.refreshTokenLifetime;
+    state.scope = this.scope;
+    state.description = this.description;
+    return state;
+  }
+
+  private static final class RegistrationState {
+
+    private final String clientName;
+    private @Nullable GrantType grantType;
+    private @Nullable URI redirectUri;
+    private @Nullable URI clientUri;
+    private @Nullable String applicationName;
+    private @Nullable String webhookSecret;
+    private @Nullable Duration accessTokenLifetime;
+    private @Nullable Duration refreshTokenLifetime;
+    private String scope = DEFAULT_OPENID_SCOPE;
+    private @Nullable String description;
+
+    private RegistrationState(String clientName) {
+      this.clientName = clientName;
+    }
   }
 }
