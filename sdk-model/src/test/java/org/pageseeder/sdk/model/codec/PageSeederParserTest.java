@@ -953,8 +953,8 @@ final class PageSeederParserTest {
 
   @Test
   void shouldFailOnMalformedPayload() {
-    assertThrows(ParsingException.class,
-        () -> this.xml.parse("<member".getBytes(StandardCharsets.UTF_8), Member.class));
+    byte[] payload = "<member".getBytes(StandardCharsets.UTF_8);
+    assertThrows(ParsingException.class, () -> this.xml.parse(payload, Member.class));
   }
 
   @Test
