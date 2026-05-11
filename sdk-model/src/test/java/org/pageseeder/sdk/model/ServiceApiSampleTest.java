@@ -377,8 +377,7 @@ final class ServiceApiSampleTest {
 
     private static String sampleGroup(ApiSample sample) {
       switch (sample.testName()) {
-        case "membership-group":
-        case "membership-group-details":
+        case "membership-group", "membership-group-details":
           return "product-support";
         case "membership-project":
           return "acme";
