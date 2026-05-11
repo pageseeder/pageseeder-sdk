@@ -20,7 +20,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,7 +30,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -463,7 +461,7 @@ final class ServiceApiSampleTest {
                 .thenComparingInt(ApiSample::statusCode)
                 .thenComparing(ApiSample::testName)
                 .thenComparing(sample -> sample.format().name()))
-            .collect(Collectors.toCollection(ArrayList::new));
+            .toList();
         if (samples.isEmpty()) {
           throw new IllegalStateException("No API fixtures found in " + API_FIXTURES_DIRECTORY.toAbsolutePath());
         }

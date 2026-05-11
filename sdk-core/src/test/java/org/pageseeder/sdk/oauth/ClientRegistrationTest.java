@@ -36,9 +36,10 @@ final class ClientRegistrationTest {
 
   @Test
   void registrationParsesClientCredentialsFromXml() {
-    String xml = "<client-registration secret=\"secret-value\">"
-        + "<client identifier=\"1234567890123456\"/>"
-        + "</client-registration>";
+    String xml = """
+        <client-registration secret="secret-value">
+          <client identifier="1234567890123456"/>
+        </client-registration>""";
 
     ClientCredentials credentials = ClientRegistration.parseClientCredentials(xml.getBytes());
 
@@ -65,9 +66,10 @@ final class ClientRegistrationTest {
 
   @Test
   void parseClientCredentialsReturnsNullWhenSecretIsBlank() {
-    String xml = "<client-registration secret=\"\">"
-        + "<client identifier=\"1234567890123456\"/>"
-        + "</client-registration>";
+    String xml = """
+        <client-registration secret="">
+          <client identifier="1234567890123456"/>
+        </client-registration>""";
     Assertions.assertNull(ClientRegistration.parseClientCredentials(xml.getBytes()));
   }
 

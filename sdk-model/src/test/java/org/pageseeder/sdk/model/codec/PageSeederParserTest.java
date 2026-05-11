@@ -22,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class PageSeederParserTest {
+final class PageSeederParserTest {
 
   private final XmlPageSeederParser xml = new XmlPageSeederParser();
   private final JsonPageSeederParser json = new JsonPageSeederParser();
 
   @Test
-  public void shouldParseMemberFromXmlAndJson() throws IOException {
+  void shouldParseMemberFromXmlAndJson() throws IOException {
     Member xmlMember = this.xml.parse(read("fixtures/member.xml"), Member.class);
     Member jsonMember = this.json.parse(read("fixtures/member.json"), Member.class);
 
@@ -39,7 +39,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseMemberMembershipResultsFromXml() throws IOException {
+  void shouldParseMemberMembershipResultsFromXml() throws IOException {
     List<Membership> xmlPage = this.xml.parseList(
         read("api/get_list-member-memberships/200_memberships-formember.xml"), Membership.class);
 
@@ -52,7 +52,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseSingleMembershipFromXmlAndJson() throws IOException {
+  void shouldParseSingleMembershipFromXmlAndJson() throws IOException {
     Membership xmlMembership = this.xml.parse(read("api/get_membership/200_membership-group.xml"), Membership.class);
     Membership jsonMembership = this.json.parse(read("api/get_membership/200_membership-group.json"), Membership.class);
 
@@ -63,7 +63,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseMembershipDetailsFromXmlAndJson() throws IOException {
+  void shouldParseMembershipDetailsFromXmlAndJson() throws IOException {
     Membership xmlMembership = this.xml.parse(read("api/get_membership/200_membership-group-details.xml"), Membership.class);
     Membership jsonMembership = this.json.parse(read("api/get_membership/200_membership-group-details.json"), Membership.class);
 
@@ -87,7 +87,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseGroupsAndProjectsFromXmlAndJson() throws IOException {
+  void shouldParseGroupsAndProjectsFromXmlAndJson() throws IOException {
     Group xmlGroup = this.xml.parse(read("api/get_group/200_group-extended.xml"), Group.class);
     Group jsonGroup = this.json.parse(read("api/get_group/200_group-extended.json"), Group.class);
     Group xmlProject = this.xml.parse(read("api/get_group/200_project-extended.xml"), Group.class);
@@ -103,7 +103,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseCommentsFromXmlAndJson() throws IOException {
+  void shouldParseCommentsFromXmlAndJson() throws IOException {
     Comment xmlTask = this.xml.parse(read("api/get_comment/200_comment-task-type-uri.xml"), Comment.class);
     Comment jsonTask = this.json.parse(read("api/get_comment/200_comment-task-type-uri.json"), Comment.class);
     Comment xmlMarkup = this.xml.parse(read("api/get_comment/200_comment-type-xhtml.xml"), Comment.class);
@@ -124,7 +124,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseResourceUriAndError() throws IOException {
+  void shouldParseResourceUriAndError() throws IOException {
     ResourceUri xmlUri = this.xml.parse(read("fixtures/resource-uri.xml"), ResourceUri.class);
     ResourceUri jsonUri = this.json.parse(read("fixtures/resource-uri.json"), ResourceUri.class);
     ServiceError xmlError = this.xml.parseError(read("fixtures/service-error.xml"));
@@ -137,7 +137,7 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldParseVersionFromXmlAndJsonIntoSdkAndBridgeModels() throws IOException {
+  void shouldParseVersionFromXmlAndJsonIntoSdkAndBridgeModels() throws IOException {
     Version xmlVersion = this.xml.parse(read("fixtures/version.xml"), Version.class);
     Version jsonVersion = this.json.parse(read("fixtures/version.json"), Version.class);
 
@@ -147,21 +147,20 @@ public final class PageSeederParserTest {
   }
 
   @Test
-  public void shouldFailOnMalformedPayload() {
+  void shouldFailOnMalformedPayload() {
     assertThrows(ParsingException.class,
         () -> this.xml.parse("<member".getBytes(StandardCharsets.UTF_8), Member.class));
   }
 
   @Test
-  public void shouldRejectExternalXmlEntities() {
-    byte[] payload = (
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<!DOCTYPE member [\n"
-            + "  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">\n"
-            + "]>\n"
-            + "<member id=\"1\" username=\"&xxe;\" status=\"activated\" locked=\"false\" "
-            + "onvacation=\"false\" attachments=\"false\"/>\n"
-    ).getBytes(StandardCharsets.UTF_8);
+  void shouldRejectExternalXmlEntities() {
+    byte[] payload = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE member [
+          <!ENTITY xxe SYSTEM "file:///etc/passwd">
+        ]>
+        <member id="1" username="&xxe;" status="activated" locked="false" onvacation="false" attachments="false"/>
+        """.getBytes(StandardCharsets.UTF_8);
 
     assertThrows(ParsingException.class, () -> this.xml.parse(payload, Member.class));
   }
