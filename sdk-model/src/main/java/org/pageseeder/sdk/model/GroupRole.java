@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Group role.
  *
@@ -54,7 +56,7 @@ public enum GroupRole {
    * @param value the value to parse
    * @return the matching role, or {@link #UNKNOWN} when unknown
    */
-  public static GroupRole fromValue(String value) {
+  public static GroupRole fromValue(@Nullable String value) {
     if (value == null || value.isBlank()) {
       return UNKNOWN;
     }
