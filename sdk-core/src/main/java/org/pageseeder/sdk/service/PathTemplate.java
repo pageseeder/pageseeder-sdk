@@ -9,7 +9,44 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
- * URI template helper for PageSeeder services.
+ * URI path template helper for PageSeeder services.
+ *
+ * <p>A path template represents only the path component of a URI. It must start
+ * with {@code /} and must not include query or fragment components such as
+ * {@code ?format=json} or {@code #section}. Variables are written between braces
+ * and their names must match {@code \w+}; in practice, use letters, digits, and
+ * underscores only.
+ *
+ * <p>Examples of valid templates:
+ *
+ * <pre>
+ * PathTemplate member = new PathTemplate("/members/&#123;member&#125;");
+ * PathTemplate group = new PathTemplate("/members/&#123;member&#125;/groups/&#123;group&#125;");
+ * PathTemplate document = new PathTemplate("/groups/&#123;group&#125;/documents/&#123;document_id&#125;");
+ * </pre>
+ *
+ * <p>Examples of invalid templates:
+ *
+ * <pre>
+ * new PathTemplate("members/&#123;member&#125;");          // must start with '/'
+ * new PathTemplate("/members/&#123;member&#125;?format=json"); // no query component
+ * new PathTemplate("/members/&#123;member-id&#125;");     // '-' is not valid in a variable name
+ * new PathTemplate("/members/&#123;member");         // unclosed variable
+ * </pre>
+ *
+ * <p>Resolve a template by passing all variables used by the path. Values are
+ * encoded as URI path segments, so spaces and other reserved characters are
+ * escaped before the final path is returned.
+ *
+ * <pre>
+ * PathTemplate template = new PathTemplate("/members/&#123;member&#125;/groups/&#123;group&#125;");
+ * Map&lt;String, Object&gt; variables = new LinkedHashMap&lt;&gt;();
+ * variables.put("member", "john smith");
+ * variables.put("group", "Editors");
+ *
+ * String path = template.resolve(variables);
+ * // path is "/members/john%20smith/groups/Editors"
+ * </pre>
  *
  * @param template the URI path template
  *
@@ -27,7 +64,21 @@ public record PathTemplate(String template) {
   /**
    * Creates a new path template.
    *
+   * <p>The supplied template is valid when it:
+   * <ul>
+   *   <li>is not blank;</li>
+   *   <li>starts with {@code /};</li>
+   *   <li>is at most 2048 characters long;</li>
+   *   <li>does not contain query or fragment components;</li>
+   *   <li>contains only balanced path variables such as {@code {member}};</li>
+   *   <li>uses variable names matching {@code \w+} and at most 255 characters long;</li>
+   *   <li>is a valid URI path once variables are replaced by a placeholder.</li>
+   * </ul>
+   *
    * @param template The path template.
+   *
+   * @throws NullPointerException     if the template is {@code null}
+   * @throws IllegalArgumentException if the template is not a valid path template
    */
   public PathTemplate {
     String pathTemplate = Objects.requireNonNull(template, "Path template must not be null.");
@@ -44,9 +95,17 @@ public record PathTemplate(String template) {
   /**
    * Resolves the path template with the specified variables.
    *
+   * <p>Every variable in the template must be provided. Variable names passed to
+   * this method are validated with the same rules as variable names declared in
+   * the template. Values must not be {@code null}.
+   *
    * @param variables The variables to resolve.
    *
    * @return The resolved path template.
+   *
+   * @throws NullPointerException     if a variable value is {@code null}
+   * @throws IllegalArgumentException if a variable name is invalid or if any
+   *                                  template variable remains unresolved
    */
   public String resolve(Map<String, ?> variables) {
     String resolved = this.template;
@@ -68,6 +127,9 @@ public record PathTemplate(String template) {
    * @param key   The variable name.
    * @param value The variable value.
    * @return A mutable map pre-populated with the single entry.
+   *
+   * @throws NullPointerException     if the variable name is {@code null}
+   * @throws IllegalArgumentException if the variable name is invalid
    */
   public static Map<String, Object> variables(String key, Object value) {
     Map<String, Object> variables = new LinkedHashMap<>();
@@ -89,7 +151,9 @@ public record PathTemplate(String template) {
       throw new IllegalArgumentException("Path template must not contain query or fragment components.");
     }
     StringBuilder normalized = new StringBuilder(template.length());
-    for (int i = 0; i < template.length(); i++) {
+    int i = 0;
+    int length = template.length();
+    while (i < length) {
       char current = template.charAt(i);
       if (current == '{') {
         int end = template.indexOf('}', i + 1);
@@ -99,11 +163,12 @@ public record PathTemplate(String template) {
         String name = template.substring(i + 1, end);
         validateVariableName(name);
         normalized.append('x');
-        i = end;
+        i = end + 1;
       } else if (current == '}') {
         throw new IllegalArgumentException("Unexpected closing brace in " + template);
       } else {
         normalized.append(current);
+        i++;
       }
     }
     try {
