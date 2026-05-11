@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class PageSeederResponseMappingTest {
+final class PageSeederResponseMappingTest {
 
   @Test
-  public void shouldDecodeJsonWithCustomTreeDecoder() throws IOException {
+  void shouldDecodeJsonWithCustomTreeDecoder() throws IOException {
     JsonResponseBody json = jsonResponse("fixtures/member.json");
 
     String summary = json.map(root -> {
@@ -29,7 +29,7 @@ public final class PageSeederResponseMappingTest {
   }
 
   @Test
-  public void shouldDecodeJsonNodeWithFunction() throws IOException {
+  void shouldDecodeJsonNodeWithFunction() throws IOException {
     JsonResponseBody json = jsonResponse("fixtures/member.json");
 
     String summary = json.at("/member",
@@ -39,7 +39,7 @@ public final class PageSeederResponseMappingTest {
   }
 
   @Test
-  public void shouldDecodeJsonNodesWithFunction() throws IOException {
+  void shouldDecodeJsonNodesWithFunction() throws IOException {
     JsonResponseBody json = jsonResponse("fixtures/memberships.json");
 
     List<String> memberships = json.listAt("/result/membership",
@@ -49,7 +49,7 @@ public final class PageSeederResponseMappingTest {
   }
 
   @Test
-  public void shouldExposeJsonTree() throws IOException {
+  void shouldExposeJsonTree() throws IOException {
     PageSeederResponse response = new PageSeederResponse(
         200,
         Map.of("Content-Type", List.of("application/json; charset=UTF-8")),
