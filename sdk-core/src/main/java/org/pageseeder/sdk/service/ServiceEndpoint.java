@@ -27,8 +27,8 @@ public record ServiceEndpoint(String method, PathTemplate pathTemplate) {
   }
 
   public ServiceEndpoint {
-    method = Objects.requireNonNull(method, "method");
-    pathTemplate = Objects.requireNonNull(pathTemplate, "pathTemplate");
+    Objects.requireNonNull(method, "method");
+    Objects.requireNonNull(pathTemplate, "pathTemplate");
   }
 
   /**
@@ -102,24 +102,6 @@ public record ServiceEndpoint(String method, PathTemplate pathTemplate) {
    */
   public static ServiceEndpoint delete(String pathTemplate) {
     return new ServiceEndpoint("DELETE", pathTemplate);
-  }
-
-  /**
-   * The HTTP method for this endpoint.
-   *
-   * @return The HTTP method for this endpoint.
-   */
-  public String method() {
-    return this.method;
-  }
-
-  /**
-   * The URI path template for this endpoint.
-   *
-   * @return The URI path template for this endpoint.
-   */
-  public PathTemplate pathTemplate() {
-    return this.pathTemplate;
   }
 
   @Override
