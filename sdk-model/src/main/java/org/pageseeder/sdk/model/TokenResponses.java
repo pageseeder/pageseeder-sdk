@@ -3,8 +3,6 @@ package org.pageseeder.sdk.model;
 import org.pageseeder.sdk.oauth.TokenResponse;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.sdk.model.Member;
-import org.pageseeder.sdk.model.MemberStatus;
 
 /**
  * Utility methods for converting {@link TokenResponse} into SDK model types.

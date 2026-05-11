@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.pageseeder.sdk.oauth.ClientCredentials;
 import org.pageseeder.sdk.oauth.TokenResponse;
-import org.pageseeder.sdk.model.Member;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -12,10 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 
-public final class TokenResponsesTest {
+final class TokenResponsesTest {
 
   @Test
-  public void toMemberExtractsMemberFromJwtClaims() throws Exception {
+  void toMemberExtractsMemberFromJwtClaims() throws Exception {
     ClientCredentials credentials = new ClientCredentials("1234567890123456", "super-secret");
     String idToken = idToken(credentials.clientSecret());
     String rawResponse = "{"
@@ -37,7 +36,7 @@ public final class TokenResponsesTest {
   }
 
   @Test
-  public void toMemberReturnsNullWhenNoIdToken() {
+  void toMemberReturnsNullWhenNoIdToken() {
     TokenResponse response = TokenResponse.parse(
         200,
         "{\"access_token\":\"abcdefghijklmnopqrstuvwxyz012345\",\"expires_in\":3600}",
@@ -49,7 +48,7 @@ public final class TokenResponsesTest {
   }
 
   @Test
-  public void toMemberReturnsNullForErrorResponse() {
+  void toMemberReturnsNullForErrorResponse() {
     TokenResponse response = TokenResponse.parse(
         400,
         "{\"error\":\"invalid_grant\"}",
