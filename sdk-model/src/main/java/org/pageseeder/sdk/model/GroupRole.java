@@ -33,6 +33,9 @@ public enum GroupRole {
   /** 'Mod &amp; App' role PageSeeder. */
   MODERATOR_AND_APPROVER("Mod & App"),
 
+  /** Role inherited from the parent group relationship. */
+  INHERIT("inherit"),
+
   /** 'Unknown' role PageSeeder. */
   UNKNOWN("Unknown");
 

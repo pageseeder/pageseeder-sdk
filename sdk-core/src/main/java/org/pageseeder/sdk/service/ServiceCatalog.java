@@ -37,17 +37,57 @@ public final class ServiceCatalog {
   /** Endpoint for retrieving a member by username. */
   public static final ServiceEndpoint MEMBER = endpoint("GET", "/members/{member}");
 
+  /** Endpoint for retrieving an authenticator. */
+  public static final ServiceEndpoint AUTHENTICATOR = endpoint("GET", "/authenticators/{authenticator}");
+
+  /** Endpoint for retrieving authenticators for a member. */
+  public static final ServiceEndpoint MEMBER_AUTHENTICATORS = endpoint("GET", "/members/{member}/authenticators");
+
+  /** Endpoint for retrieving authenticators for the current member. */
+  public static final ServiceEndpoint SELF_AUTHENTICATORS = endpoint("GET", "/self/authenticators");
+
+  /** Endpoint for retrieving a member data item. */
+  public static final ServiceEndpoint MEMBER_DATA = endpoint("GET", "/member-data/{member}/data/{data}");
+
+  /** Endpoint for retrieving all member data items for a member. */
+  public static final ServiceEndpoint MEMBER_DATA_LIST = endpoint("GET", "/members/{member}/data");
+
   /** Endpoint for retrieving the memberships for a member. */
   public static final ServiceEndpoint MEMBER_MEMBERSHIPS = endpoint("GET", "/members/{member}/memberships");
 
   /** Endpoint for retrieving a group by name. */
   public static final ServiceEndpoint GROUP = endpoint("GET", "/groups/{group}");
 
+  /** Endpoint for retrieving the subgroups of a group. */
+  public static final ServiceEndpoint GROUP_SUBGROUPS = endpoint("GET", "/groups/{group}/subgroups");
+
+  /** Endpoint for retrieving the supergroups of a group. */
+  public static final ServiceEndpoint GROUP_SUPERGROUPS = endpoint("GET", "/groups/{group}/supergroups");
+
   /** Endpoint for retrieving resource URI metadata. */
   public static final ServiceEndpoint RESOURCE_URI = endpoint("GET", "/uri/{uri}");
 
   /** Endpoint for retrieving the PageSeeder server version. */
   public static final ServiceEndpoint VERSION = endpoint("GET", "/version");
+
+  /** Endpoint for retrieving webhooks for an OAuth client. */
+  public static final ServiceEndpoint CLIENT_WEBHOOKS = endpoint("GET", "/clients/{client}/webhooks");
+
+  /** Endpoint for retrieving a webhook for an OAuth client. */
+  public static final ServiceEndpoint CLIENT_WEBHOOK = endpoint("GET", "/clients/{client}/webhooks/{webhook}");
+
+  /** Endpoint for retrieving the versions for a URI in a group. */
+  public static final ServiceEndpoint GROUP_URI_VERSIONS = endpoint("GET", "/groups/{group}/uris/{uri}/versions");
+
+  /** Endpoint for retrieving all document versions in a group. */
+  public static final ServiceEndpoint GROUP_VERSIONS = endpoint("GET", "/groups/{group}/versions");
+
+  /** Endpoint for retrieving the published workflow for a URI in a group. */
+  public static final ServiceEndpoint GROUP_URI_WORKFLOW = endpoint("GET", "/groups/{group}/uris/{uri}/workflow");
+
+  /** Endpoint for retrieving the member-specific workflow draft for a URI in a group. */
+  public static final ServiceEndpoint MEMBER_GROUP_URI_WORKFLOW =
+      endpoint("GET", "/members/{member}/groups/{group}/uris/{uri}/workflow");
 
   private ServiceCatalog() {
   }

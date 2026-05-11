@@ -6,6 +6,21 @@ import org.jspecify.annotations.Nullable;
  * Membership status.
  */
 public enum MembershipStatus {
+  /** Normal active membership. */
+  NORMAL,
+
+  /** Invited membership. */
+  INVITED,
+
+  /** Self-invited membership. */
+  SELF_INVITED,
+
+  /** Moderated membership. */
+  MODERATED,
+
+  /** Disabled membership. */
+  DISABLED,
+
   /** Active membership. */
   ACTIVE,
 

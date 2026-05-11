@@ -346,11 +346,11 @@ final class ServiceApiSampleTest {
         public void verify(PageSeederClient client, ServiceCall call, ApiSample sample) {
           List<Membership> memberships = client.execute(call, Decoders.list(Membership.class));
           assertEquals(3, memberships.size());
-          assertNull(memberships.get(0).member());
+          assertEquals("jsmith", memberships.get(0).member().username());
           assertEquals("acme", memberships.get(0).group().name());
-          assertNull(memberships.get(1).member());
+          assertEquals("jsmith", memberships.get(1).member().username());
           assertEquals("acme-info", memberships.get(1).group().name());
-          assertNull(memberships.get(2).member());
+          assertEquals("jsmith", memberships.get(2).member().username());
           assertEquals("product-support", memberships.get(2).group().name());
         }
       });

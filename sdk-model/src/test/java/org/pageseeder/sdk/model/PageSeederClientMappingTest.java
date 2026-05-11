@@ -116,7 +116,7 @@ final class PageSeederClientMappingTest {
 
     assertEquals("jdoe", member.username());
     assertEquals(3, memberships.items().size());
-    assertNull(memberships.items().get(0).member());
+    assertEquals("jsmith", memberships.items().get(0).member().username());
     assertEquals("acme-info", memberships.items().get(1).group().name());
     assertEquals("Guide", uri.title());
   }

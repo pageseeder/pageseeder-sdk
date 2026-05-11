@@ -38,6 +38,11 @@ public enum NotificationPreference {
   ESSENTIAL("essential"),
 
   /**
+   * Inherit notification preference from the parent group relationship.
+   */
+  INHERIT("inherit"),
+
+  /**
    * Unknown notification preference.
    */
   UNKNOWN("");

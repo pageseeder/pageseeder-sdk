@@ -8,35 +8,55 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.sdk.exception.ParsingException;
+import org.pageseeder.sdk.model.Authenticator;
 import org.pageseeder.sdk.model.Comment;
 import org.pageseeder.sdk.model.CommentContext;
 import org.pageseeder.sdk.model.CommentUser;
 import org.pageseeder.sdk.model.ConfiguredGroup;
 import org.pageseeder.sdk.model.Content;
+import org.pageseeder.sdk.model.DocumentVersion;
 import org.pageseeder.sdk.model.Group;
+import org.pageseeder.sdk.model.GroupFolder;
+import org.pageseeder.sdk.model.GroupFolderPublicAccess;
+import org.pageseeder.sdk.model.GroupFolderSharing;
+import org.pageseeder.sdk.model.GroupRelationListing;
 import org.pageseeder.sdk.model.GroupSettings;
 import org.pageseeder.sdk.model.GroupType;
 import org.pageseeder.sdk.model.Member;
+import org.pageseeder.sdk.model.MemberData;
 import org.pageseeder.sdk.model.MemberStatus;
 import org.pageseeder.sdk.model.Membership;
 import org.pageseeder.sdk.model.MembershipDetail;
+import org.pageseeder.sdk.model.MembershipOverride;
 import org.pageseeder.sdk.model.MembershipStatus;
 import org.pageseeder.sdk.model.NotificationPreference;
+import org.pageseeder.sdk.model.OAuthClient;
 import org.pageseeder.sdk.model.ResourceUri;
 import org.pageseeder.sdk.model.ResultPage;
 import org.pageseeder.sdk.model.StampedCommentUser;
+import org.pageseeder.sdk.model.Subgroup;
+import org.pageseeder.sdk.model.Supergroup;
 import org.pageseeder.sdk.model.GroupRole;
 import org.pageseeder.sdk.exception.ServiceError;
 import org.pageseeder.sdk.model.Version;
+import org.pageseeder.sdk.model.Webhook;
+import org.pageseeder.sdk.model.Workflow;
+import org.pageseeder.sdk.oauth.GrantType;
 
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -76,16 +96,17 @@ final class PageSeederParsers {
     JsonNode root = readTree(mapper, body);
     ListNode list = findListNode(root, aliases(type));
     JsonNode listNode = list == null ? null : list.node();
+    MappingContext context = mappingContext(root, type, rootElementName(mapper, body));
     List<T> items = new ArrayList<>();
     if (listNode == null || listNode.isMissingNode() || listNode.isNull()) {
       return items;
     }
     if (listNode.isArray()) {
       for (JsonNode itemNode : listNode) {
-        items.add(mapNode(itemNode, type, list.rootElementName()));
+        items.add(mapNode(itemNode, type, list.rootElementName(), context));
       }
     } else {
-      items.add(mapNode(listNode, type, list.rootElementName()));
+      items.add(mapNode(listNode, type, list.rootElementName(), context));
     }
     return items;
   }
@@ -132,8 +153,19 @@ final class PageSeederParsers {
 
   @SuppressWarnings("unchecked")
   private static <T> T mapNode(JsonNode node, Class<T> type, String rootElementName) {
+    return mapNode(node, type, rootElementName, MappingContext.empty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T mapNode(JsonNode node, Class<T> type, String rootElementName, MappingContext context) {
     if (type == Member.class) {
       return (T) toMember(node);
+    }
+    if (type == Authenticator.class) {
+      return (T) toAuthenticator(node);
+    }
+    if (type == MemberData.class) {
+      return (T) toMemberData(node);
     }
     if (type == Comment.class) {
       return (T) toComment(node);
@@ -144,8 +176,23 @@ final class PageSeederParsers {
     if (type == ConfiguredGroup.class) {
       return (T) toConfiguredGroup(node, rootElementName);
     }
+    if (type == DocumentVersion.class) {
+      return (T) toDocumentVersion(node);
+    }
+    if (type == GroupFolder.class) {
+      return (T) toGroupFolder(node);
+    }
     if (type == Membership.class) {
-      return (T) toMembership(node);
+      return (T) toMembership(node, context);
+    }
+    if (type == Subgroup.class) {
+      return (T) toSubgroup(node);
+    }
+    if (type == Supergroup.class) {
+      return (T) toSupergroup(node);
+    }
+    if (type == OAuthClient.class) {
+      return (T) toOAuthClient(node);
     }
     if (type == ResourceUri.class) {
       return (T) toResourceUri(node);
@@ -153,10 +200,23 @@ final class PageSeederParsers {
     if (type == Version.class) {
       return (T) toVersion(node);
     }
+    if (type == Webhook.class) {
+      return (T) toWebhook(node);
+    }
+    if (type == Workflow.class) {
+      return (T) toWorkflow(node);
+    }
     throw new ParsingException("Unsupported PageSeeder mapping type: " + type.getName());
   }
 
   private record ListNode(JsonNode node, String rootElementName) {
+  }
+
+  private record MappingContext(@Nullable Member member, @Nullable Group group) {
+
+    static MappingContext empty() {
+      return new MappingContext(null, null);
+    }
   }
 
   private static ListNode findListNode(JsonNode root, String... aliases) {
@@ -180,13 +240,39 @@ final class PageSeederParsers {
   }
 
   private static String[] aliases(Class<?> type) {
+    if (type == Authenticator.class) return new String[] {"authenticator"};
     if (type == Member.class) return new String[] {"member"};
+    if (type == MemberData.class) return new String[] {"memberdata"};
     if (type == Comment.class) return new String[] {"comment"};
+    if (type == DocumentVersion.class) return new String[] {"version"};
     if (type == Group.class || type == ConfiguredGroup.class) return new String[] {"group", "project"};
+    if (type == GroupFolder.class) return new String[] {"groupfolder"};
     if (type == Membership.class) return new String[] {"membership"};
+    if (type == Subgroup.class) return new String[] {"subgroup"};
+    if (type == Supergroup.class) return new String[] {"supergroup"};
+    if (type == OAuthClient.class) return new String[] {"client"};
     if (type == ResourceUri.class) return new String[] {"uri"};
     if (type == Version.class) return new String[] {"version"};
+    if (type == Webhook.class) return new String[] {"webhook"};
+    if (type == Workflow.class) return new String[] {"workflow"};
     return new String[] {type.getSimpleName().toLowerCase()};
+  }
+
+  private static MappingContext mappingContext(JsonNode root, Class<?> type, @Nullable String rootElementName) {
+    if (type != Membership.class) {
+      return MappingContext.empty();
+    }
+    JsonNode source = root.has("result") ? root.get("result") : root;
+    Member member = source.has("member") ? toMember(source.get("member")) : null;
+    Group group = null;
+    if (source.has("group")) {
+      group = toGroup(source.get("group"), "group");
+    } else if (source.has("project")) {
+      group = toGroup(source.get("project"), "project");
+    } else if ("group".equals(rootElementName) || "project".equals(rootElementName)) {
+      group = toGroup(source, rootElementName);
+    }
+    return new MappingContext(member, group);
   }
 
   private static Member toMember(JsonNode node) {
@@ -211,6 +297,37 @@ final class PageSeederParsers {
     );
   }
 
+  private static Authenticator toAuthenticator(JsonNode node) {
+    JsonNode source = unwrap(node, "authenticator");
+    return new Authenticator(
+        longValue(source, "id"),
+        longValue(source, "member"),
+        nullableText(source, "public-id"),
+        source.has("data") ? nullableText(source, "data") : null,
+        nullableText(source, "name"),
+        nullableText(source, "type"),
+        offsetDateTime(source, "created"),
+        offsetDateTime(source, "last-used"),
+        booleanValue(source, "verified"),
+        stringMap(source.get("parameters"))
+    );
+  }
+
+  private static MemberData toMemberData(JsonNode node) {
+    JsonNode source = unwrap(node, "memberdata");
+    return new MemberData(
+        longValue(source, "id"),
+        nullableText(source, "name"),
+        nullableText(source, "title"),
+        offsetDateTime(source, "created"),
+        offsetDateTime(source, "modified"),
+        nullableText(source, "mediatype"),
+        intValue(source, "length"),
+        booleanValue(source, "public"),
+        nullableLong(source, "memberid")
+    );
+  }
+
   private static Comment toComment(JsonNode node) {
     JsonNode source = unwrap(node, "comment");
     return Comment.fromParsed(
@@ -232,11 +349,38 @@ final class PageSeederParsers {
     );
   }
 
+  private static Workflow toWorkflow(JsonNode node) {
+    JsonNode source = unwrap(node, "workflow");
+    return new Workflow(
+        longValue(source, "id"),
+        nullableText(source, "status"),
+        nullableText(source, "priority"),
+        offsetDateTime(source, "due"),
+        offsetDateTime(source, "statuschanged"),
+        toStampedCommentUser(source.get("assignedto")),
+        source.has("uri") ? toResourceUri(source.get("uri")) : null,
+        comments(source.get("comments"))
+    );
+  }
+
   private static Group toGroup(JsonNode node) {
     return toGroup(node, null);
   }
 
-  private static Group toGroup(JsonNode node, String rootElementName) {
+  private static DocumentVersion toDocumentVersion(JsonNode node) {
+    JsonNode source = unwrap(node, "version");
+    return new DocumentVersion(
+        longValue(source, "id"),
+        nullableText(source, "name"),
+        offsetDateTime(source, "created"),
+        nullableText(source, "publicationid"),
+        documentVersionAuthor(source.get("author")),
+        stringList(source.get("description"), "description"),
+        labels(source.get("labels"))
+    );
+  }
+
+  private static Group toGroup(JsonNode node, @Nullable String rootElementName) {
     String elementName = groupElementName(node, rootElementName);
     JsonNode source = unwrapGroup(node);
     GroupType type = elementName != null
@@ -263,6 +407,20 @@ final class PageSeederParsers {
     return new ConfiguredGroup(toGroup(source, elementName), toGroupSettings(source));
   }
 
+  private static GroupFolder toGroupFolder(JsonNode node) {
+    JsonNode source = unwrap(node, "groupfolder");
+    return new GroupFolder(
+        longValue(source, "id"),
+        stringValue(source, "scheme"),
+        stringValue(source, "host"),
+        intValue(source, "port"),
+        stringValue(source, "path"),
+        booleanValue(source, "external"),
+        GroupFolderPublicAccess.fromValue(nullableText(source, "public")),
+        GroupFolderSharing.fromValue(nullableText(source, "sharing"))
+    );
+  }
+
   private static GroupSettings toGroupSettings(JsonNode source) {
     return new GroupSettings(
         nullableText(source, "visibility"),
@@ -279,12 +437,12 @@ final class PageSeederParsers {
     );
   }
 
-  private static Membership toMembership(JsonNode node) {
+  private static Membership toMembership(JsonNode node, MappingContext context) {
     JsonNode source = unwrap(node, "membership");
-    Member member = source.has("member") ? toMember(source.get("member")) : null;
+    Member member = source.has("member") ? toMember(source.get("member")) : context.member();
     Group group = source.has("group")
         ? toGroup(source.get("group"), "group")
-        : source.has("project") ? toGroup(source.get("project"), "project") : null;
+        : source.has("project") ? toGroup(source.get("project"), "project") : context.group();
     return new Membership(
         longValue(source, "id"),
         member,
@@ -292,10 +450,45 @@ final class PageSeederParsers {
         GroupRole.fromValue(nullableText(source, "role")),
         MembershipStatus.fromValue(nullableText(source, "status")),
         NotificationPreference.fromValue(nullableText(source, "notification")),
-        booleanValue(source, "email-listed"),
+        booleanValue(source, "email-listed", "emailListed"),
+        booleanValue(source, "deleted"),
+        tokens(source, "subgroups"),
+        membershipOverrides(source, "override"),
         offsetDateTime(source, "created"),
         details(source.get("details"))
     );
+  }
+
+  private static Subgroup toSubgroup(JsonNode node) {
+    JsonNode source = unwrap(node, "subgroup");
+    return new Subgroup(
+        longValue(source, "id"),
+        GroupRole.fromValue(nullableText(source, "role")),
+        NotificationPreference.fromValue(nullableText(source, "notification")),
+        GroupRelationListing.fromValue(nullableText(source, "listed")),
+        relationGroup(source)
+    );
+  }
+
+  private static Supergroup toSupergroup(JsonNode node) {
+    JsonNode source = unwrap(node, "supergroup");
+    return new Supergroup(
+        longValue(source, "id"),
+        GroupRole.fromValue(nullableText(source, "role")),
+        NotificationPreference.fromValue(nullableText(source, "notification")),
+        GroupRelationListing.fromValue(nullableText(source, "listed")),
+        relationGroup(source)
+    );
+  }
+
+  private static Group relationGroup(JsonNode source) {
+    if (source.has("group")) {
+      return toGroup(source.get("group"), "group");
+    }
+    if (source.has("project")) {
+      return toGroup(source.get("project"), "project");
+    }
+    return toGroup(source);
   }
 
   private static ResourceUri toResourceUri(JsonNode node) {
@@ -306,15 +499,66 @@ final class PageSeederParsers {
         nullableText(source, "host"),
         intValue(source, "port"),
         nullableText(source, "path"),
+        nullableText(source, "decodedpath"),
         nullableText(source, "title"),
+        nullableText(source, "displaytitle"),
         nullableText(source, "docid"),
         nullableText(source, "description"),
         nullableText(source, "mediatype"),
+        nullableText(source, "documenttype"),
+        nullableText(source, "urltype"),
         offsetDateTime(source, "created"),
         offsetDateTime(source, "modified"),
+        longValue(source, "size"),
         labels(source.get("labels")),
         booleanValue(source, "external"),
-        booleanValue(source, "folder")
+        GroupFolderSharing.fromValue(nullableText(source, "sharing"))
+    );
+  }
+
+  private static OAuthClient toOAuthClient(JsonNode node) {
+    JsonNode source = unwrap(node, "client");
+    Member member = source.has("member") ? toMember(source.get("member")) : null;
+    return new OAuthClient(
+        nullableLong(source, "id"),
+        stringValue(source, "identifier"),
+        booleanValue(source, "requires-consent"),
+        booleanValue(source, "confidential"),
+        stringValue(source, "name"),
+        grantType(source, "grant-type"),
+        offsetDateTime(source, "created"),
+        offsetDateTime(source, "modified"),
+        offsetDateTime(source, "last-token"),
+        nullableText(source, "app"),
+        nullableText(source, "webhook-secret"),
+        uri(source, "redirect-uri"),
+        nullableText(source, "description"),
+        uri(source, "client-uri"),
+        nullableText(source, "scope"),
+        secondsDuration(source, "access-token-max-age"),
+        secondsDuration(source, "refresh-token-max-age"),
+        member
+    );
+  }
+
+  private static Webhook toWebhook(JsonNode node) {
+    JsonNode source = unwrap(node, "webhook");
+    OAuthClient client = source.has("client") ? toOAuthClient(source.get("client")) : null;
+    return new Webhook(
+        nullableLong(source, "id"),
+        offsetDateTime(source, "created"),
+        offsetDateTime(source, "modified"),
+        uri(source, "url"),
+        nullableText(source, "server"),
+        nullableText(source, "object"),
+        nullableText(source, "format"),
+        booleanValue(source, "insecuressl"),
+        nullableText(source, "status"),
+        nullableText(source, "name"),
+        stringList(source.get("projects"), "project"),
+        stringList(source.get("groups"), "group"),
+        stringList(source.get("events"), "event"),
+        client
     );
   }
 
@@ -351,7 +595,7 @@ final class PageSeederParsers {
     return source == node ? unwrap(node, "project") : source;
   }
 
-  private static String groupElementName(JsonNode node, String rootElementName) {
+  private static @Nullable String groupElementName(JsonNode node, @Nullable String rootElementName) {
     if (rootElementName != null) {
       return rootElementName;
     }
@@ -441,6 +685,108 @@ final class PageSeederParsers {
     return details;
   }
 
+  private static List<String> tokens(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    if (value == null || value.isBlank()) {
+      return List.of();
+    }
+    List<String> tokens = new ArrayList<>();
+    for (String token : value.split(",")) {
+      String normalized = token.trim();
+      if (!normalized.isEmpty()) {
+        tokens.add(normalized);
+      }
+    }
+    return tokens.isEmpty() ? List.of() : List.copyOf(tokens);
+  }
+
+  private static Set<MembershipOverride> membershipOverrides(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    if (value == null || value.isBlank()) {
+      return Set.of();
+    }
+    Set<MembershipOverride> overrides = new LinkedHashSet<>();
+    for (String token : value.split(",")) {
+      String normalized = token.trim();
+      if (!normalized.isEmpty()) {
+        overrides.add(MembershipOverride.fromValue(normalized));
+      }
+    }
+    return overrides.isEmpty() ? Set.of() : Set.copyOf(overrides);
+  }
+
+  private static List<String> stringList(JsonNode node, String itemField) {
+    if (node == null || node.isNull()) {
+      return List.of();
+    }
+    if (node.isArray()) {
+      List<String> values = new ArrayList<>();
+      for (JsonNode item : node) {
+        addStringListValue(values, item, itemField);
+      }
+      return values.isEmpty() ? List.of() : List.copyOf(values);
+    }
+    if (node.has(itemField)) {
+      return stringList(node.get(itemField), itemField);
+    }
+    if (node.isObject()) {
+      List<String> values = new ArrayList<>();
+      Iterator<JsonNode> children = node.elements();
+      while (children.hasNext()) {
+        addStringListValue(values, children.next(), itemField);
+      }
+      return values.isEmpty() ? List.of() : List.copyOf(values);
+    }
+    return tokens(node.asText(""), ",");
+  }
+
+  private static void addStringListValue(List<String> values, JsonNode node, String itemField) {
+    if (node == null || node.isNull()) {
+      return;
+    }
+    if (node.has(itemField)) {
+      addStringListValue(values, node.get(itemField), itemField);
+      return;
+    }
+    if (node.isArray()) {
+      for (JsonNode item : node) {
+        addStringListValue(values, item, itemField);
+      }
+      return;
+    }
+    values.add(node.asText());
+  }
+
+  private static Map<String, String> stringMap(JsonNode node) {
+    if (node == null || node.isNull() || !node.isObject()) {
+      return Map.of();
+    }
+    Map<String, String> values = new java.util.LinkedHashMap<>();
+    Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+    while (fields.hasNext()) {
+      Map.Entry<String, JsonNode> field = fields.next();
+      JsonNode value = field.getValue();
+      if (value != null && !value.isNull()) {
+        values.put(field.getKey(), value.asText());
+      }
+    }
+    return values.isEmpty() ? Map.of() : Map.copyOf(values);
+  }
+
+  private static List<String> tokens(String value, String delimiter) {
+    if (value == null || value.isBlank()) {
+      return List.of();
+    }
+    List<String> tokens = new ArrayList<>();
+    for (String token : value.split(delimiter)) {
+      String normalized = token.trim();
+      if (!normalized.isEmpty()) {
+        tokens.add(normalized);
+      }
+    }
+    return tokens.isEmpty() ? List.of() : List.copyOf(tokens);
+  }
+
   private static List<Content> contents(JsonNode node) {
     if (node == null || node.isNull()) {
       return List.of();
@@ -454,6 +800,25 @@ final class PageSeederParsers {
       content.add(toCommentContent(node));
     }
     return content;
+  }
+
+  private static List<Comment> comments(JsonNode node) {
+    if (node == null || node.isNull()) {
+      return List.of();
+    }
+    JsonNode comments = node.has("comment") ? node.get("comment") : node;
+    if (comments == null || comments.isNull()) {
+      return List.of();
+    }
+    List<Comment> values = new ArrayList<>();
+    if (comments.isArray()) {
+      for (JsonNode comment : comments) {
+        values.add(toComment(comment));
+      }
+    } else {
+      values.add(toComment(comments));
+    }
+    return values.isEmpty() ? List.of() : List.copyOf(values);
   }
 
   private static Content toCommentContent(JsonNode node) {
@@ -530,6 +895,21 @@ final class PageSeederParsers {
         offsetDateTime(node, "date")
     ) : null;
     return new CommentUser(member, fullname);
+  }
+
+  private static CommentUser documentVersionAuthor(JsonNode node) {
+    if (node == null || node.isNull()) {
+      return null;
+    }
+    String firstname = nullableText(node, "firstname");
+    String surname = nullableText(node, "surname");
+    String fullname = nullableText(node, "fullname");
+    if (fullname == null || fullname.isBlank()) {
+      fullname = ((firstname == null ? "" : firstname) + " " + (surname == null ? "" : surname)).trim();
+    }
+    long id = longValue(node, "id");
+    Member member = id > 0L ? new Member(id, "", null, firstname, surname) : null;
+    return new CommentUser(member, fullname == null ? "" : fullname);
   }
 
   private static StampedCommentUser toStampedCommentUser(JsonNode node) {
@@ -682,6 +1062,14 @@ final class PageSeederParsers {
     return Long.parseLong(value);
   }
 
+  private static Long nullableLong(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    return Long.parseLong(value);
+  }
+
   private static int intValue(JsonNode node, String field) {
     String value = nullableText(node, field);
     if (value == null || value.isBlank()) {
@@ -703,6 +1091,14 @@ final class PageSeederParsers {
     return "true".equalsIgnoreCase(value);
   }
 
+  private static boolean booleanValue(JsonNode node, String field, String alternativeField) {
+    String value = nullableText(node, field);
+    if (value == null) {
+      value = nullableText(node, alternativeField);
+    }
+    return "true".equalsIgnoreCase(value);
+  }
+
   private static Boolean nullableBoolean(JsonNode node, String field) {
     String value = nullableText(node, field);
     return value == null || value.isBlank() ? null : Boolean.parseBoolean(value);
@@ -711,5 +1107,27 @@ final class PageSeederParsers {
   private static OffsetDateTime offsetDateTime(JsonNode node, String field) {
     String value = nullableText(node, field);
     return value == null || value.isBlank() ? null : OffsetDateTime.parse(value);
+  }
+
+  private static URI uri(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    return value == null || value.isBlank() ? null : URI.create(value);
+  }
+
+  private static Duration secondsDuration(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    return value == null || value.isBlank() ? Duration.ZERO : Duration.ofSeconds(Long.parseLong(value));
+  }
+
+  private static GrantType grantType(JsonNode node, String field) {
+    String value = nullableText(node, field);
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    try {
+      return GrantType.fromParameterValue(value);
+    } catch (IllegalArgumentException ex) {
+      return GrantType.valueOf(value.toUpperCase(Locale.ROOT).replace('-', '_'));
+    }
   }
 }
