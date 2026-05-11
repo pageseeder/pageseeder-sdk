@@ -19,9 +19,9 @@ import java.util.Map;
  * @param verified   whether the authenticator has been verified
  * @param parameters the authenticator parameters
  */
-public record Authenticator(long id, long memberId, String publicId, @Nullable String data, @Nullable String name,
-                            String type, OffsetDateTime created, @Nullable OffsetDateTime lastUsed, boolean verified,
-                            Map<String, String> parameters) {
+public record Authenticator(long id, long memberId, @Nullable String publicId, @Nullable String data,
+                            @Nullable String name, @Nullable String type, @Nullable OffsetDateTime created,
+                            @Nullable OffsetDateTime lastUsed, boolean verified, Map<String, String> parameters) {
 
   /**
    * Creates an authenticator with immutable parameters.

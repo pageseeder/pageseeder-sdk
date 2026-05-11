@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Immutable PageSeeder comment context.
  *
@@ -7,5 +9,5 @@ package org.pageseeder.sdk.model;
  * @param uri        the resource URI associated with the comment
  * @param fragmentId the document fragment identifier associated with the comment
  */
-public record CommentContext(Group group, ResourceUri uri, String fragmentId) {
+public record CommentContext(@Nullable Group group, @Nullable ResourceUri uri, @Nullable String fragmentId) {
 }

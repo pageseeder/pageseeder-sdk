@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -89,11 +90,14 @@ final class PageSeederParsers {
 
   static <T> List<T> parseList(ObjectMapper mapper, byte[] body, Class<T> type) {
     JsonNode root = readTree(mapper, body);
-    ListNode list = findListNode(root, aliases(type));
-    JsonNode listNode = list == null ? null : list.node();
+    @Nullable ListNode list = findListNode(root, aliases(type));
     MappingContext context = mappingContext(root, type, rootElementName(mapper, body));
     List<T> items = new ArrayList<>();
-    if (listNode == null || listNode.isMissingNode() || listNode.isNull()) {
+    if (list == null) {
+      return items;
+    }
+    JsonNode listNode = list.node();
+    if (listNode.isMissingNode() || listNode.isNull()) {
       return items;
     }
     if (listNode.isArray()) {
@@ -117,8 +121,8 @@ final class PageSeederParsers {
   static ServiceError parseError(ObjectMapper mapper, byte[] body) {
     JsonNode root = readTree(mapper, body);
     JsonNode error = root.has("error") ? root.get("error") : root;
-    String id = nullableText(error, "id");
-    String message = nullableText(error, "message");
+    @Nullable String id = nullableText(error, "id");
+    @Nullable String message = nullableText(error, "message");
     if (message == null && error.has("description")) {
       message = nullableText(error, "description");
     }
@@ -256,8 +260,8 @@ final class PageSeederParsers {
       return MappingContext.empty();
     }
     JsonNode source = root.has("result") ? root.get("result") : root;
-    Member member = source.has("member") ? toMember(source.get("member")) : null;
-    Group group = null;
+    @Nullable Member member = source.has("member") ? toMember(source.get("member")) : null;
+    @Nullable Group group = null;
     if (source.has("group")) {
       group = toGroup(source.get("group"), "group");
     } else if (source.has("project")) {
@@ -274,8 +278,8 @@ final class PageSeederParsers {
         longValue(source, "id"),
         stringValue(source, "username"),
         nullableText(source, "email"),
-        nullableText(source, "firstname"),
-        nullableText(source, "surname"),
+        defaultText(source, "firstname", ""),
+        defaultText(source, "surname", ""),
         MemberStatus.fromValue(nullableText(source, "status")),
         booleanValue(source, "locked"),
         booleanValue(source, "onvacation"),
@@ -310,7 +314,7 @@ final class PageSeederParsers {
     JsonNode source = unwrap(node, "memberdata");
     return new MemberData(
         longValue(source, "id"),
-        nullableText(source, "name"),
+        stringValue(source, "name"),
         nullableText(source, "title"),
         offsetDateTime(source, "created"),
         offsetDateTime(source, "modified"),
@@ -374,7 +378,7 @@ final class PageSeederParsers {
   }
 
   private static Group toGroup(JsonNode node, @Nullable String rootElementName) {
-    String elementName = groupElementName(node, rootElementName);
+    @Nullable String elementName = groupElementName(node, rootElementName);
     JsonNode source = unwrapGroup(node);
     GroupType type = elementName != null
         ? GroupType.fromValue(elementName)
@@ -395,7 +399,7 @@ final class PageSeederParsers {
   }
 
   private static ConfiguredGroup toConfiguredGroup(JsonNode node, @Nullable String rootElementName) {
-    String elementName = groupElementName(node, rootElementName);
+    @Nullable String elementName = groupElementName(node, rootElementName);
     JsonNode source = unwrapGroup(node);
     return new ConfiguredGroup(toGroup(source, elementName), toGroupSettings(source));
   }
@@ -432,14 +436,14 @@ final class PageSeederParsers {
 
   private static Membership toMembership(JsonNode node, MappingContext context) {
     JsonNode source = unwrap(node, "membership");
-    Member member = source.has("member") ? toMember(source.get("member")) : context.member();
-    Group group = source.has("group")
+    @Nullable Member member = source.has("member") ? toMember(source.get("member")) : context.member();
+    @Nullable Group group = source.has("group")
         ? toGroup(source.get("group"), "group")
         : source.has("project") ? toGroup(source.get("project"), "project") : context.group();
     return new Membership(
         longValue(source, "id"),
-        member,
-        group,
+        Objects.requireNonNull(member, "member"),
+        Objects.requireNonNull(group, "group"),
         GroupRole.fromValue(nullableText(source, "role")),
         MembershipStatus.fromValue(nullableText(source, "status")),
         NotificationPreference.fromValue(nullableText(source, "notification")),
@@ -511,7 +515,7 @@ final class PageSeederParsers {
 
   private static OAuthClient toOAuthClient(JsonNode node) {
     JsonNode source = unwrap(node, "client");
-    Member member = source.has("member") ? toMember(source.get("member")) : null;
+    @Nullable Member member = source.has("member") ? toMember(source.get("member")) : null;
     return new OAuthClient(
         nullableLong(source, "id"),
         stringValue(source, "identifier"),
@@ -536,7 +540,7 @@ final class PageSeederParsers {
 
   private static Webhook toWebhook(JsonNode node) {
     JsonNode source = unwrap(node, "webhook");
-    OAuthClient client = source.has("client") ? toOAuthClient(source.get("client")) : null;
+    @Nullable OAuthClient client = source.has("client") ? toOAuthClient(source.get("client")) : null;
     return new Webhook(
         nullableLong(source, "id"),
         offsetDateTime(source, "created"),
@@ -557,16 +561,19 @@ final class PageSeederParsers {
 
   private static Version toVersion(JsonNode node) {
     JsonNode source = unwrap(node, "version");
+    int major = intValue(source, "major");
+    int build = intValue(source, "build");
+    @Nullable String version = nullableText(source, "string");
     return new Version(
-        intValue(source, "major"),
-        intValue(source, "build"),
-        nullableText(source, "string")
+        major,
+        build,
+        version == null ? major + "." + String.format("%04d", build) : version
     );
   }
 
-  private static @Nullable JsonNode unwrap(@Nullable JsonNode node, String alias) {
+  private static JsonNode unwrap(@Nullable JsonNode node, String alias) {
     if (node == null || node.isNull()) {
-      return node;
+      return MissingNode.getInstance();
     }
     if (node.has(alias)) {
       return node.get(alias);
@@ -819,7 +826,7 @@ final class PageSeederParsers {
     if (node.isValueNode()) {
       return new Content("text/plain", node.asText(""));
     }
-    return new Content(nullableText(node, "type"), commentContentValue(node));
+    return new Content(defaultText(node, "type", "text/plain"), commentContentValue(node));
   }
 
   private static String commentContentValue(JsonNode node) {
@@ -839,9 +846,9 @@ final class PageSeederParsers {
     if (node == null || node.isNull()) {
       return null;
     }
-    Group group = node.has("group") ? toGroup(node.get("group"), "group") : null;
-    ResourceUri uri = node.has("uri") ? toResourceUri(node.get("uri")) : null;
-    String fragmentId = node.has("fragment") ? commentFragmentId(node.get("fragment")) : null;
+    @Nullable Group group = node.has("group") ? toGroup(node.get("group"), "group") : null;
+    @Nullable ResourceUri uri = node.has("uri") ? toResourceUri(node.get("uri")) : null;
+    @Nullable String fragmentId = node.has("fragment") ? commentFragmentId(node.get("fragment")) : null;
     return new CommentContext(group, uri, fragmentId);
   }
 
@@ -859,9 +866,9 @@ final class PageSeederParsers {
     if (node == null || node.isNull()) {
       return null;
     }
-    String firstname = nullableText(node, "firstname");
-    String surname = nullableText(node, "surname");
-    String fullname = nullableText(node, "fullname");
+    @Nullable String firstname = nullableText(node, "firstname");
+    @Nullable String surname = nullableText(node, "surname");
+    @Nullable String fullname = nullableText(node, "fullname");
     if (fullname == null || fullname.isBlank()) {
       String combined = ((firstname == null ? "" : firstname) + " " + (surname == null ? "" : surname)).trim();
       fullname = combined;
@@ -871,8 +878,8 @@ final class PageSeederParsers {
         id,
         defaultText(node, "username", ""),
         nullableText(node, "email"),
-        firstname,
-        surname,
+        defaultText(node, "firstname", ""),
+        defaultText(node, "surname", ""),
         MemberStatus.fromValue(nullableText(node, "status")),
         false,
         false,
@@ -885,21 +892,23 @@ final class PageSeederParsers {
         false,
         offsetDateTime(node, "date")
     ) : null;
-    return new CommentUser(member, fullname);
+    return new CommentUser(member, fullname == null ? "" : fullname);
   }
 
   private static @Nullable CommentUser documentVersionAuthor(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return null;
     }
-    String firstname = nullableText(node, "firstname");
-    String surname = nullableText(node, "surname");
-    String fullname = nullableText(node, "fullname");
+    @Nullable String firstname = nullableText(node, "firstname");
+    @Nullable String surname = nullableText(node, "surname");
+    @Nullable String fullname = nullableText(node, "fullname");
     if (fullname == null || fullname.isBlank()) {
       fullname = ((firstname == null ? "" : firstname) + " " + (surname == null ? "" : surname)).trim();
     }
     long id = longValue(node, "id");
-    Member member = id > 0L ? new Member(id, "", null, firstname, surname) : null;
+    @Nullable Member member = id > 0L
+        ? new Member(id, "", null, defaultText(node, "firstname", ""), defaultText(node, "surname", ""))
+        : null;
     return new CommentUser(member, fullname == null ? "" : fullname);
   }
 
@@ -907,8 +916,12 @@ final class PageSeederParsers {
     if (node == null || node.isNull()) {
       return null;
     }
+    CommentUser user = toCommentUser(node);
+    if (user == null) {
+      return null;
+    }
     return new StampedCommentUser(
-        toCommentUser(node),
+        user,
         offsetDateTime(node, "date")
     );
   }

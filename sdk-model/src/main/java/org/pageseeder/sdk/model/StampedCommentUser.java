@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.OffsetDateTime;
 
 /**
@@ -8,5 +10,5 @@ import java.time.OffsetDateTime;
  * @param user the comment user
  * @param date the timestamp associated with the user
  */
-public record StampedCommentUser(CommentUser user, OffsetDateTime date) {
+public record StampedCommentUser(CommentUser user, @Nullable OffsetDateTime date) {
 }

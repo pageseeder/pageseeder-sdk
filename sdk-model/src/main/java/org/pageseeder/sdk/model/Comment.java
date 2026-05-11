@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -22,10 +24,11 @@ import java.util.List;
  * @param context      the comment context
  * @param attachments  the comment attachments
  */
-public record Comment(long id, long discussionId, String contentRole, String type, OffsetDateTime created,
-                      String title, CommentUser author, StampedCommentUser modifiedBy,
-                      StampedCommentUser assignedTo, String status, String priority, OffsetDateTime due,
-                      List<Content> content, CommentContext context, List<ResourceUri> attachments) {
+public record Comment(long id, long discussionId, @Nullable String contentRole, @Nullable String type,
+                      @Nullable OffsetDateTime created, @Nullable String title, @Nullable CommentUser author,
+                      @Nullable StampedCommentUser modifiedBy, @Nullable StampedCommentUser assignedTo,
+                      @Nullable String status, @Nullable String priority, @Nullable OffsetDateTime due,
+                      List<Content> content, @Nullable CommentContext context, List<ResourceUri> attachments) {
 
   /**
    * Creates a comment with immutable content and attachment lists.
@@ -71,10 +74,12 @@ public record Comment(long id, long discussionId, String contentRole, String typ
    * @param attachments  the comment attachments
    * @return a comment instance
    */
-  public static Comment fromParsed(long id, long discussionId, String contentRole, String type, OffsetDateTime created,
-                                   String title, CommentUser author, StampedCommentUser modifiedBy,
-                                   StampedCommentUser assignedTo, String status, String priority, OffsetDateTime due,
-                                   List<Content> content, CommentContext context, List<ResourceUri> attachments) {
+  public static Comment fromParsed(long id, long discussionId, @Nullable String contentRole, @Nullable String type,
+                                   @Nullable OffsetDateTime created, @Nullable String title,
+                                   @Nullable CommentUser author, @Nullable StampedCommentUser modifiedBy,
+                                   @Nullable StampedCommentUser assignedTo, @Nullable String status,
+                                   @Nullable String priority, @Nullable OffsetDateTime due, List<Content> content,
+                                   @Nullable CommentContext context, List<ResourceUri> attachments) {
     return new Comment(id, discussionId, contentRole, type, created, title, author, modifiedBy, assignedTo, status,
         priority, due, content, context, attachments);
   }

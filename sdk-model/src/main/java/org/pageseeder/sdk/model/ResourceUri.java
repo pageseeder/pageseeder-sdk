@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -26,10 +28,12 @@ import java.util.List;
  * @param external    whether the URI is external
  * @param sharing     the folder sharing status
  */
-public record ResourceUri(long id, String scheme, String host, int port, String path, String decodedPath, String title,
-                          String displayTitle, String docid, String description, String mediaType, String documentType,
-                          String urlType, OffsetDateTime created, OffsetDateTime modified, long size,
-                          List<String> labels, boolean external, GroupFolderSharing sharing) {
+public record ResourceUri(long id, @Nullable String scheme, @Nullable String host, int port, @Nullable String path,
+                          @Nullable String decodedPath, @Nullable String title, @Nullable String displayTitle,
+                          @Nullable String docid, @Nullable String description, @Nullable String mediaType,
+                          @Nullable String documentType, @Nullable String urlType, @Nullable OffsetDateTime created,
+                          @Nullable OffsetDateTime modified, long size, List<String> labels, boolean external,
+                          GroupFolderSharing sharing) {
 
   /**
    * Creates resource URI metadata without the newer server fields.
@@ -49,8 +53,9 @@ public record ResourceUri(long id, String scheme, String host, int port, String 
    * @param external    whether the URI is external
    * @param folder      whether the URI represents a folder
    */
-  public ResourceUri(long id, String scheme, String host, int port, String path, String title, String docid,
-                     String description, String mediaType, OffsetDateTime created, OffsetDateTime modified,
+  public ResourceUri(long id, @Nullable String scheme, @Nullable String host, int port, @Nullable String path,
+                     @Nullable String title, @Nullable String docid, @Nullable String description,
+                     @Nullable String mediaType, @Nullable OffsetDateTime created, @Nullable OffsetDateTime modified,
                      List<String> labels, boolean external, boolean folder) {
     this(id, scheme, host, port, path, null, title, null, docid, description, mediaType,
         folder && !external ? "folder" : null, null, created, modified, 0L, labels, external,

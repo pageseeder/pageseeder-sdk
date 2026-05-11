@@ -24,9 +24,10 @@ import java.util.List;
  * @param events      the event filters
  * @param client      the OAuth client associated with the webhook
  */
-public record Webhook(@Nullable Long id, OffsetDateTime created, OffsetDateTime modified, URI url, String server,
-                      String object, String format, boolean insecureSsl, String status, @Nullable String name,
-                      List<String> projects, List<String> groups, List<String> events, @Nullable OAuthClient client) {
+public record Webhook(@Nullable Long id, @Nullable OffsetDateTime created, @Nullable OffsetDateTime modified,
+                      @Nullable URI url, @Nullable String server, @Nullable String object, @Nullable String format,
+                      boolean insecureSsl, @Nullable String status, @Nullable String name, List<String> projects,
+                      List<String> groups, List<String> events, @Nullable OAuthClient client) {
 
   /**
    * Creates a webhook with immutable filter lists.

@@ -16,8 +16,9 @@ import java.util.List;
  * @param descriptions  the version descriptions
  * @param labels        the version labels
  */
-public record DocumentVersion(long id, String name, OffsetDateTime created, @Nullable String publicationId,
-                              @Nullable CommentUser author, List<String> descriptions, List<String> labels) {
+public record DocumentVersion(long id, @Nullable String name, @Nullable OffsetDateTime created,
+                              @Nullable String publicationId, @Nullable CommentUser author,
+                              List<String> descriptions, List<String> labels) {
 
   /**
    * Creates a document version with immutable description and label lists.

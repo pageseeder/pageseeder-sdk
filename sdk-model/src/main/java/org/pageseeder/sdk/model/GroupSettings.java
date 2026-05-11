@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Optional PageSeeder group configuration settings.
  *
@@ -15,10 +17,11 @@ package org.pageseeder.sdk.model;
  * @param indexVersion        the index version
  * @param message             the group message
  */
-public record GroupSettings(String visibility, String template, String detailsType, Boolean editUrls,
-                            String commenting, String moderation, String registration,
-                            GroupRole defaultRole, NotificationPreference defaultNotification,
-                            Integer indexVersion, String message) {
+public record GroupSettings(@Nullable String visibility, @Nullable String template, @Nullable String detailsType,
+                            @Nullable Boolean editUrls, @Nullable String commenting, @Nullable String moderation,
+                            @Nullable String registration, GroupRole defaultRole,
+                            NotificationPreference defaultNotification, @Nullable Integer indexVersion,
+                            @Nullable String message) {
 
   /**
    * Creates group settings, normalizing missing enum values to {@code UNKNOWN}.

@@ -30,7 +30,7 @@ import java.time.OffsetDateTime;
  * @param member             the member that owns the client
  */
 public record OAuthClient(@Nullable Long id, String identifier, boolean requiresConsent, boolean confidential,
-                          String name, GrantType grantType, @Nullable OffsetDateTime created,
+                          String name, @Nullable GrantType grantType, @Nullable OffsetDateTime created,
                           @Nullable OffsetDateTime modified, @Nullable OffsetDateTime lastToken,
                           @Nullable String appName, @Nullable String webhookSecret, @Nullable URI redirectUri,
                           @Nullable String description, @Nullable URI clientUri, @Nullable String scope,
