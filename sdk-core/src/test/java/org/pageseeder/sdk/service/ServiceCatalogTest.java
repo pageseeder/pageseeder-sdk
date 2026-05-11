@@ -22,49 +22,44 @@ final class ServiceCatalogTest {
   @Test
   void shouldReturnCanonicalEndpointInstances() {
     ServiceEndpoint endpoint = ServiceCatalog.endpoint("GET", "/version");
-
     assertEquals(endpoint, ServiceCatalog.find("get", "/version"));
     assertEquals(ServiceCatalog.VERSION, endpoint);
   }
 
   @Test
   void shouldExposeGroupRelationshipEndpoints() {
-    assertEquals(ServiceCatalog.endpoint("GET", "/groups/{group}/subgroups"), ServiceCatalog.GROUP_SUBGROUPS);
-    assertEquals(ServiceCatalog.endpoint("GET", "/groups/{group}/supergroups"), ServiceCatalog.GROUP_SUPERGROUPS);
+    assertEquals(ServiceCatalog.GROUP_SUBGROUPS, ServiceCatalog.endpoint("GET", "/groups/{group}/subgroups"));
+    assertEquals(ServiceCatalog.GROUP_SUPERGROUPS, ServiceCatalog.endpoint("GET", "/groups/{group}/supergroups"));
   }
 
   @Test
   void shouldExposeWebhookEndpoints() {
-    assertEquals(ServiceCatalog.endpoint("GET", "/clients/{client}/webhooks"), ServiceCatalog.CLIENT_WEBHOOKS);
-    assertEquals(ServiceCatalog.endpoint("GET", "/clients/{client}/webhooks/{webhook}"), ServiceCatalog.CLIENT_WEBHOOK);
+    assertEquals(ServiceCatalog.CLIENT_WEBHOOKS, ServiceCatalog.endpoint("GET", "/clients/{client}/webhooks"));
+    assertEquals(ServiceCatalog.CLIENT_WEBHOOK, ServiceCatalog.endpoint("GET", "/clients/{client}/webhooks/{webhook}"));
   }
 
   @Test
   void shouldExposeDocumentVersionEndpoints() {
-    assertEquals(ServiceCatalog.endpoint("GET", "/groups/{group}/uris/{uri}/versions"),
-        ServiceCatalog.GROUP_URI_VERSIONS);
-    assertEquals(ServiceCatalog.endpoint("GET", "/groups/{group}/versions"), ServiceCatalog.GROUP_VERSIONS);
+    assertEquals(ServiceCatalog.GROUP_URI_VERSIONS, ServiceCatalog.endpoint("GET", "/groups/{group}/uris/{uri}/versions"));
+    assertEquals(ServiceCatalog.GROUP_VERSIONS, ServiceCatalog.endpoint("GET", "/groups/{group}/versions"));
   }
 
   @Test
   void shouldExposeWorkflowEndpoints() {
-    assertEquals(ServiceCatalog.endpoint("GET", "/groups/{group}/uris/{uri}/workflow"),
-        ServiceCatalog.GROUP_URI_WORKFLOW);
-    assertEquals(ServiceCatalog.endpoint("GET", "/members/{member}/groups/{group}/uris/{uri}/workflow"),
-        ServiceCatalog.MEMBER_GROUP_URI_WORKFLOW);
+    assertEquals(ServiceCatalog.GROUP_URI_WORKFLOW, ServiceCatalog.endpoint("GET", "/groups/{group}/uris/{uri}/workflow"));
+    assertEquals(ServiceCatalog.MEMBER_GROUP_URI_WORKFLOW, ServiceCatalog.endpoint("GET", "/members/{member}/groups/{group}/uris/{uri}/workflow"));
   }
 
   @Test
   void shouldExposeMemberDataEndpoints() {
-    assertEquals(ServiceCatalog.endpoint("GET", "/member-data/{member}/data/{data}"), ServiceCatalog.MEMBER_DATA);
-    assertEquals(ServiceCatalog.endpoint("GET", "/members/{member}/data"), ServiceCatalog.MEMBER_DATA_LIST);
+    assertEquals(ServiceCatalog.MEMBER_DATA, ServiceCatalog.endpoint("GET", "/member-data/{member}/data/{data}"));
+    assertEquals(ServiceCatalog.MEMBER_DATA_LIST, ServiceCatalog.endpoint("GET", "/members/{member}/data"));
   }
 
   @Test
   void shouldExposeAuthenticatorEndpoints() {
-    assertEquals(ServiceCatalog.endpoint("GET", "/authenticators/{authenticator}"), ServiceCatalog.AUTHENTICATOR);
-    assertEquals(ServiceCatalog.endpoint("GET", "/members/{member}/authenticators"),
-        ServiceCatalog.MEMBER_AUTHENTICATORS);
-    assertEquals(ServiceCatalog.endpoint("GET", "/self/authenticators"), ServiceCatalog.SELF_AUTHENTICATORS);
+    assertEquals(ServiceCatalog.AUTHENTICATOR, ServiceCatalog.endpoint("GET", "/authenticators/{authenticator}"));
+    assertEquals(ServiceCatalog.MEMBER_AUTHENTICATORS, ServiceCatalog.endpoint("GET", "/members/{member}/authenticators"));
+    assertEquals(ServiceCatalog.SELF_AUTHENTICATORS, ServiceCatalog.endpoint("GET", "/self/authenticators"));
   }
 }
