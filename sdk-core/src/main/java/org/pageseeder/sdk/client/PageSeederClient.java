@@ -317,6 +317,7 @@ public final class PageSeederClient {
     return error.toServiceError();
   }
 
+  @SuppressWarnings("java:S6206") // Resource owner, not transparent data; close() is the primary contract.
   private static final class XmlErrorReader implements AutoCloseable {
 
     private final XMLStreamReader reader;
