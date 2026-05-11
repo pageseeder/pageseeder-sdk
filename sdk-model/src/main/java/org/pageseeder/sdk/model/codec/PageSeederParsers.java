@@ -117,10 +117,10 @@ final class PageSeederParsers {
   static ServiceError parseError(ObjectMapper mapper, byte[] body) {
     JsonNode root = readTree(mapper, body);
     JsonNode error = root.has("error") ? root.get("error") : root;
-    String id = text(error, "id");
-    String message = text(error, "message");
+    String id = nullableText(error, "id");
+    String message = nullableText(error, "message");
     if (message == null && error.has("description")) {
-      message = text(error, "description");
+      message = nullableText(error, "description");
     }
     return new ServiceError(id, message == null ? "Unknown service error" : message);
   }
@@ -1035,10 +1035,6 @@ final class PageSeederParsers {
   }
 
   private static @Nullable String nullableText(JsonNode node, String field) {
-    return text(node, field);
-  }
-
-  private static @Nullable String text(JsonNode node, String field) {
     JsonNode value = node.get(field);
     return value == null || value.isNull() ? null : value.asText();
   }
