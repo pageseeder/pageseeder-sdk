@@ -80,6 +80,7 @@ public record Comment(long id, long discussionId, String contentRole, String typ
   }
 
   private static <T> List<T> copyOf(List<T> values) {
+    //noinspection ConstantValue (Defensive check)
     return values == null ? List.of() : List.copyOf(values);
   }
 }

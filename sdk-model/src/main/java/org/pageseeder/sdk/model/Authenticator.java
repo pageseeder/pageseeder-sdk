@@ -38,6 +38,7 @@ public record Authenticator(long id, long memberId, String publicId, @Nullable S
    * @param parameters the authenticator parameters
    */
   public Authenticator {
+    //noinspection ConstantValue (Defensive check)
     parameters = parameters == null ? Map.of() : Map.copyOf(parameters);
   }
 }
