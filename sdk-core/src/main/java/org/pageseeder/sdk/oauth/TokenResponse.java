@@ -5,8 +5,8 @@ import org.jspecify.annotations.Nullable;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -267,7 +267,7 @@ public final class TokenResponse {
       mac.init(new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
       byte[] signature = mac.doFinal((segments[0] + "." + segments[1]).getBytes(StandardCharsets.UTF_8));
       byte[] actual = Base64.getUrlDecoder().decode(segments[2]);
-      return Arrays.equals(signature, actual);
+      return MessageDigest.isEqual(signature, actual);
     } catch (Exception ex) {
       return false;
     }
