@@ -10,14 +10,6 @@ import org.pageseeder.sdk.client.PageSeederClient;
 import org.pageseeder.sdk.model.codec.Decoders;
 import org.pageseeder.sdk.exception.ServiceError;
 import org.pageseeder.sdk.exception.ServiceErrorException;
-import org.pageseeder.sdk.model.Comment;
-import org.pageseeder.sdk.model.Group;
-import org.pageseeder.sdk.model.GroupType;
-import org.pageseeder.sdk.model.Member;
-import org.pageseeder.sdk.model.MemberStatus;
-import org.pageseeder.sdk.model.Membership;
-import org.pageseeder.sdk.model.MembershipDetail;
-import org.pageseeder.sdk.model.Version;
 import org.pageseeder.sdk.service.PayloadFormat;
 import org.pageseeder.sdk.service.ServiceCall;
 import org.pageseeder.sdk.service.ServiceCatalog;
@@ -52,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * <p>Add new samples under {@code src/test/resources/api/[service-id]/[http_code]_[test_name].[extension]}
  * and register the corresponding service contract in {@link ServiceContracts}.
  */
-public final class ServiceApiSampleTest {
+final class ServiceApiSampleTest {
 
   private static final Path API_FIXTURES_DIRECTORY = Paths.get("src/test/resources/api");
 
@@ -64,20 +56,20 @@ public final class ServiceApiSampleTest {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     this.server = HttpServer.create(new InetSocketAddress(0), 0);
     this.server.start();
     this.baseUri = URI.create("http://localhost:" + this.server.getAddress().getPort());
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     this.server.stop(0);
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("parameters")
-  public void shouldDecodeRecordedServiceOutput(ApiSample sample) {
+  void shouldDecodeRecordedServiceOutput(ApiSample sample) {
     ApiContract contract = ServiceContracts.contractFor(sample.serviceId());
     PageSeederClient client = PageSeederClient.builder()
         .apiOrigin(this.baseUri)
