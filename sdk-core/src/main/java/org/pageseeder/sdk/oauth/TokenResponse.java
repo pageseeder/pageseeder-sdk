@@ -216,7 +216,7 @@ public final class TokenResponse {
     Objects.requireNonNull(rawResponse, "rawResponse");
     Objects.requireNonNull(requestedAt, "requestedAt");
     Objects.requireNonNull(credentials, "credentials");
-    Map<String, String> parameters = parseJsonFlat(rawResponse);
+    Map<String, String> parameters = OAuthJson.parseFlatObject(rawResponse);
     AccessToken accessToken = null;
     Map<String, String> jwtClaims = null;
     if (statusCode == 200) {
@@ -244,6 +244,7 @@ public final class TokenResponse {
       try {
         expiresAt = requestedAt.plusSeconds(Long.parseLong(expiresIn));
       } catch (NumberFormatException ignored) {
+        // Ignore invalid expiration time, token will expire when it expires
       }
     }
     return new AccessToken(token, expiresAt);
@@ -254,19 +255,10 @@ public final class TokenResponse {
     if (idToken == null) return null;
     String[] segments = idToken.split("\\.");
     if (segments.length != 3) return null;
-    Map<String, String> header = parseBase64UrlJsonFlat(segments[0]);
+    Map<String, String> header = OAuthJson.parseBase64UrlFlatObject(segments[0]);
     if (!"JWT".equals(header.get("typ")) || !"HS256".equals(header.get("alg"))) return null;
     if (!signatureMatches(segments, credentials.clientSecret())) return null;
-    return parseBase64UrlJsonFlat(segments[1]);
-  }
-
-  private static Map<String, String> parseBase64UrlJsonFlat(String segment) {
-    try {
-      byte[] bytes = Base64.getUrlDecoder().decode(segment);
-      return parseJsonFlat(new String(bytes, StandardCharsets.UTF_8));
-    } catch (IllegalArgumentException ex) {
-      return Map.of();
-    }
+    return OAuthJson.parseBase64UrlFlatObject(segments[1]);
   }
 
   private static boolean signatureMatches(String[] segments, String clientSecret) {
@@ -279,117 +271,5 @@ public final class TokenResponse {
     } catch (Exception ex) {
       return false;
     }
-  }
-
-  /**
-   * Minimal flat JSON object scanner — handles string, number, and boolean values.
-   * Nested objects and arrays are stored as-is (raw JSON string).
-   */
-  static Map<String, String> parseJsonFlat(String json) {
-    Map<String, String> out = new LinkedHashMap<>();
-    int i = skipWs(json, 0);
-    if (i >= json.length() || json.charAt(i) != '{') return out;
-    i++;
-    while (true) {
-      i = skipWs(json, i);
-      if (i >= json.length() || json.charAt(i) != '"') break;
-      // read key
-      int keyStart = i + 1;
-      i = findEndQuote(json, keyStart);
-      if (i < 0) break;
-      String key = json.substring(keyStart, i);
-      i = skipWs(json, i + 1);
-      if (i >= json.length() || json.charAt(i) != ':') break;
-      i = skipWs(json, i + 1);
-      if (i >= json.length()) break;
-      // read value
-      char c = json.charAt(i);
-      if (c == '"') {
-        int valStart = i + 1;
-        int valEnd = findEndQuote(json, valStart);
-        if (valEnd < 0) break;
-        out.put(key, unescapeJsonString(json, valStart, valEnd));
-        i = valEnd + 1;
-      } else if (c == 'n' && json.startsWith("null", i)) {
-        i += 4;
-      } else {
-        // number, boolean, or nested structure
-        int end = i;
-        while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}'
-            && !Character.isWhitespace(json.charAt(end))) {
-          end++;
-        }
-        out.put(key, json.substring(i, end));
-        i = end;
-      }
-      i = skipWs(json, i);
-      if (i < json.length() && json.charAt(i) == ',') {
-        i++;
-      } else {
-        break;
-      }
-    }
-    return out;
-  }
-
-  private static int skipWs(String s, int i) {
-    while (i < s.length() && Character.isWhitespace(s.charAt(i))) i++;
-    return i;
-  }
-
-  private static int findEndQuote(String s, int start) {
-    for (int i = start; i < s.length(); i++) {
-      char c = s.charAt(i);
-      if (c == '\\') {
-        i++; // skip escaped character
-      } else if (c == '"') {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  private static String unescapeJsonString(String s, int start, int end) {
-    if (s.indexOf('\\', start) < 0 || s.indexOf('\\', start) >= end) {
-      return s.substring(start, end); // fast path: no escaping
-    }
-    StringBuilder sb = new StringBuilder(end - start);
-    for (int i = start; i < end; i++) {
-      char c = s.charAt(i);
-      if (c == '\\' && i + 1 < end) {
-        char next = s.charAt(++i);
-        switch (next) {
-          case '"' -> sb.append('"');
-          case '\\' -> sb.append('\\');
-          case '/' -> sb.append('/');
-          case 'n' -> sb.append('\n');
-          case 'r' -> sb.append('\r');
-          case 't' -> sb.append('\t');
-          case 'b' -> sb.append('\b');
-          case 'f' -> sb.append('\f');
-          case 'u' -> {
-            if (i + 4 < end) {
-              try {
-                sb.append((char) Integer.parseInt(s.substring(i + 1, i + 5), 16));
-                i += 4;
-              } catch (NumberFormatException ignored) {
-                sb.append('\\');
-                sb.append('u');
-              }
-            } else {
-              sb.append('\\');
-              sb.append('u');
-            }
-          }
-          default -> {
-            sb.append('\\');
-            sb.append(next);
-          }
-        }
-      } else {
-        sb.append(c);
-      }
-    }
-    return sb.toString();
   }
 }
