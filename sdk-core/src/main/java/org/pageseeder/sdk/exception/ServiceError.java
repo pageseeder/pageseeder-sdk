@@ -1,6 +1,5 @@
 package org.pageseeder.sdk.exception;
 
-import java.io.ObjectStreamField;
 import java.io.Serial;
 import java.io.Serializable;
 
