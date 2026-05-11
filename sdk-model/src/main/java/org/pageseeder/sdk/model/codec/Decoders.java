@@ -1,7 +1,5 @@
 package org.pageseeder.sdk.model.codec;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.sdk.client.BodyDecoder;
 import org.pageseeder.sdk.model.ResultPage;
