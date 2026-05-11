@@ -267,6 +267,9 @@ public final class PageSeederInstance {
     }
   }
 
+  /**
+   * Builder for custom {@link PageSeederInstance} definitions.
+   */
   public static final class Builder {
 
     private @Nullable URI websiteOrigin;

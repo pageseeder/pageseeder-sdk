@@ -43,10 +43,21 @@ public enum MemberStatus {
     this.parameter = parameter;
   }
 
+  /**
+   * Returns the service parameter value for this status.
+   *
+   * @return the service parameter value
+   */
   public String getParameter() {
     return parameter;
   }
 
+  /**
+   * Parses a PageSeeder member status value.
+   *
+   * @param value the value to parse
+   * @return the matching status, or {@link #UNKNOWN} when unknown
+   */
   public static MemberStatus fromValue(@Nullable String value) {
     if (value == null || value.isBlank()) {
       return UNKNOWN;

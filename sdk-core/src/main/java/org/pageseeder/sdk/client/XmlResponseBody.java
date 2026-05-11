@@ -46,6 +46,12 @@ public final class XmlResponseBody {
   private final byte[] body;
   private final @Nullable String mediaType;
 
+  /**
+   * Creates XML-specific decoding helpers.
+   *
+   * @param body      the raw response body
+   * @param mediaType the response media type, or {@code null} if unknown
+   */
   XmlResponseBody(byte[] body, @Nullable String mediaType) {
     this.body = body;
     this.mediaType = mediaType;

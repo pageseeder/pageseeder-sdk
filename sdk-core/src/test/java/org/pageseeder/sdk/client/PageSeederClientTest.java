@@ -196,7 +196,7 @@ final class PageSeederClientTest {
     ServiceErrorException ex = assertThrows(ServiceErrorException.class, () -> client.execute(call));
 
     assertEquals(404, ex.getStatusCode());
-    assertEquals("deadbeef", ex.getError().getId());
+    assertEquals("deadbeef", ex.getError().id());
   }
 
   @Test
@@ -210,8 +210,8 @@ final class PageSeederClientTest {
     ServiceErrorException ex = assertThrows(ServiceErrorException.class, () -> client.execute(call));
 
     assertEquals(404, ex.getStatusCode());
-    assertEquals("deadbeef", ex.getError().getId());
-    assertEquals("Missing member", ex.getError().getMessage());
+    assertEquals("deadbeef", ex.getError().id());
+    assertEquals("Missing member", ex.getError().message());
   }
 
   @Test

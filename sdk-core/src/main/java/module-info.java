@@ -1,3 +1,6 @@
+/**
+ * Core PageSeeder SDK module.
+ */
 module org.pageseeder.sdk.core {
     requires java.net.http;
     requires java.xml;

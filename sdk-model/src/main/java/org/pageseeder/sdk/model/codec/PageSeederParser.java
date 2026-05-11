@@ -68,5 +68,11 @@ public interface PageSeederParser {
    */
   ServiceError parseError(byte[] body);
 
+  /**
+   * Serializes a value using the parser's payload format.
+   *
+   * @param value the value to serialize
+   * @return the serialized payload bytes
+   */
   byte[] serialize(Object value);
 }

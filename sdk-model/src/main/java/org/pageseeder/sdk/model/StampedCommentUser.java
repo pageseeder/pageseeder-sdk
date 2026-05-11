@@ -10,10 +10,20 @@ import java.time.OffsetDateTime;
  */
 public record StampedCommentUser(CommentUser user, OffsetDateTime date) {
 
+  /**
+   * Returns the comment user.
+   *
+   * @return the comment user
+   */
   public CommentUser getUser() {
     return this.user;
   }
 
+  /**
+   * Returns the timestamp associated with the user.
+   *
+   * @return the timestamp associated with the user
+   */
   public OffsetDateTime getDate() {
     return this.date;
   }

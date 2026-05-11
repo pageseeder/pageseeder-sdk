@@ -34,10 +34,19 @@ public final class ServiceCatalog {
 
   private static final Set<ServiceEndpoint> ENDPOINTS = build();
 
+  /** Endpoint for retrieving a member by username. */
   public static final ServiceEndpoint MEMBER = endpoint("GET", "/members/{member}");
+
+  /** Endpoint for retrieving the memberships for a member. */
   public static final ServiceEndpoint MEMBER_MEMBERSHIPS = endpoint("GET", "/members/{member}/memberships");
+
+  /** Endpoint for retrieving a group by name. */
   public static final ServiceEndpoint GROUP = endpoint("GET", "/groups/{group}");
+
+  /** Endpoint for retrieving resource URI metadata. */
   public static final ServiceEndpoint RESOURCE_URI = endpoint("GET", "/uri/{uri}");
+
+  /** Endpoint for retrieving the PageSeeder server version. */
   public static final ServiceEndpoint VERSION = endpoint("GET", "/version");
 
   private ServiceCatalog() {

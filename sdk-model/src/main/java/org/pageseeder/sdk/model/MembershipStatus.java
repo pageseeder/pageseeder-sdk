@@ -1,15 +1,30 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Membership status.
  */
 public enum MembershipStatus {
+  /** Active membership. */
   ACTIVE,
+
+  /** Pending membership. */
   PENDING,
+
+  /** Inactive membership. */
   INACTIVE,
+
+  /** Unknown or unrecognized membership status. */
   UNKNOWN;
 
-  public static MembershipStatus fromValue(String value) {
+  /**
+   * Parses a PageSeeder membership status value.
+   *
+   * @param value the value to parse
+   * @return the matching status, or {@link #UNKNOWN} when unknown
+   */
+  public static MembershipStatus fromValue(@Nullable String value) {
     if (value == null || value.isBlank()) {
       return UNKNOWN;
     }

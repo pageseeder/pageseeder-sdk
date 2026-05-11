@@ -248,8 +248,8 @@ final class ServiceApiSampleTest {
     ServiceError payload = error.getError();
     switch (sample.testName()) {
       case "not_found":
-        assertEquals("0106", payload.getId());
-        assertEquals("Unable to find matching member.", payload.getMessage());
+        assertEquals("0106", payload.id());
+        assertEquals("Unable to find matching member.", payload.message());
         break;
       default:
         fail("No error assertions registered for sample " + sample);

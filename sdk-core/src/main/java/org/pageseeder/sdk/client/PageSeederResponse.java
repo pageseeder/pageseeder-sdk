@@ -32,6 +32,14 @@ public final class PageSeederResponse {
   private final byte[] body;
   private final @Nullable String mediaType;
 
+  /**
+   * Creates an SDK response wrapper.
+   *
+   * @param statusCode the HTTP status code
+   * @param headers    the response headers
+   * @param body       the raw response body
+   * @param mediaType  the response media type, or {@code null} if unknown
+   */
   public PageSeederResponse(int statusCode, Map<String, List<String>> headers, byte[] body,
                             @Nullable String mediaType) {
     this.statusCode = statusCode;
@@ -40,22 +48,47 @@ public final class PageSeederResponse {
     this.mediaType = mediaType;
   }
 
+  /**
+   * Returns the HTTP status code.
+   *
+   * @return the HTTP status code
+   */
   public int statusCode() {
     return this.statusCode;
   }
 
+  /**
+   * Returns the response headers.
+   *
+   * @return the response headers
+   */
   public Map<String, List<String>> headers() {
     return this.headers;
   }
 
+  /**
+   * Returns the raw response body.
+   *
+   * @return the response body bytes
+   */
   public byte[] body() {
     return this.body;
   }
 
+  /**
+   * Returns the response media type.
+   *
+   * @return the media type, or {@code null} if unknown
+   */
   public @Nullable String mediaType() {
     return this.mediaType;
   }
 
+  /**
+   * Decodes the response body as text using the charset from the media type, defaulting to UTF-8.
+   *
+   * @return the response body as text
+   */
   public String bodyAsString() {
     return new String(this.body, resolveCharset());
   }

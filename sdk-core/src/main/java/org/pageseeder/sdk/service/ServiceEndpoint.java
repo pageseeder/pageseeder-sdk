@@ -26,6 +26,12 @@ public record ServiceEndpoint(String method, PathTemplate pathTemplate) {
     this(method, new PathTemplate(pathTemplate));
   }
 
+  /**
+   * Creates an endpoint with a normalized, non-null method and path template.
+   *
+   * @param method       the HTTP method for this endpoint
+   * @param pathTemplate the URI path template for this endpoint
+   */
   public ServiceEndpoint {
     Objects.requireNonNull(method, "method");
     Objects.requireNonNull(pathTemplate, "pathTemplate");

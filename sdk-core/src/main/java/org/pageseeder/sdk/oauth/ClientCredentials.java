@@ -16,6 +16,12 @@ public final class ClientCredentials {
   private final String clientSecret;
   private final String basicAuthorization;
 
+  /**
+   * Creates OAuth client credentials.
+   *
+   * @param clientId     the OAuth client identifier
+   * @param clientSecret the OAuth client secret
+   */
   public ClientCredentials(String clientId, String clientSecret) {
     this.clientId = requireValidClientId(clientId);
     this.clientSecret = requireValidSecret(clientSecret);
@@ -24,14 +30,29 @@ public final class ClientCredentials {
         .encodeToString(userInfo.getBytes(StandardCharsets.UTF_8));
   }
 
+  /**
+   * Returns the OAuth client identifier.
+   *
+   * @return the client identifier
+   */
   public String clientId() {
     return this.clientId;
   }
 
+  /**
+   * Returns the OAuth client secret.
+   *
+   * @return the client secret
+   */
   public String clientSecret() {
     return this.clientSecret;
   }
 
+  /**
+   * Returns these credentials as an HTTP Basic authorization header value.
+   *
+   * @return the {@code Authorization} header value
+   */
   public String toBasicAuthorization() {
     return this.basicAuthorization;
   }

@@ -61,6 +61,11 @@ public final class PageSeederClient {
   private final boolean gzipEnabled;
   private final HttpClient httpClient;
 
+  /**
+   * Creates a client for the supplied PageSeeder instance.
+   *
+   * @param instance the PageSeeder instance
+   */
   public PageSeederClient(PageSeederInstance instance) {
     this(instance, null, null, null, true);
   }
@@ -78,30 +83,69 @@ public final class PageSeederClient {
     this.httpClient = HttpClient.newBuilder().connectTimeout(this.timeout).build();
   }
 
+  /**
+   * Returns a builder for configuring a PageSeeder client.
+   *
+   * @return a new client builder
+   */
   public static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Returns the PageSeeder instance used by this client.
+   *
+   * @return the PageSeeder instance
+   */
   public PageSeederInstance instance() {
     return this.instance;
   }
 
+  /**
+   * Returns the API root URI used by this client.
+   *
+   * @return the API root URI
+   */
   public URI apiRoot() {
     return this.instance.apiRoot();
   }
 
+  /**
+   * Returns a copy of this client with the supplied request timeout.
+   *
+   * @param timeout the request timeout
+   * @return the updated client
+   */
   public PageSeederClient withTimeout(Duration timeout) {
     return new PageSeederClient(this.instance, timeout, this.defaultFormat, this.credentials, this.gzipEnabled);
   }
 
+  /**
+   * Returns a copy of this client with the supplied default response format.
+   *
+   * @param defaultFormat the default payload format
+   * @return the updated client
+   */
   public PageSeederClient withDefaultFormat(PayloadFormat defaultFormat) {
     return new PageSeederClient(this.instance, this.timeout, defaultFormat, this.credentials, this.gzipEnabled);
   }
 
+  /**
+   * Returns a copy of this client with the supplied default credentials.
+   *
+   * @param credentials the default credentials, or {@code null} for none
+   * @return the updated client
+   */
   public PageSeederClient withCredentials(@Nullable Credentials credentials) {
     return new PageSeederClient(this.instance, this.timeout, this.defaultFormat, credentials, this.gzipEnabled);
   }
 
+  /**
+   * Returns a copy of this client with gzip response handling enabled or disabled.
+   *
+   * @param gzipEnabled whether to request and decode gzip responses
+   * @return the updated client
+   */
   public PageSeederClient withGzipEnabled(boolean gzipEnabled) {
     return new PageSeederClient(this.instance, this.timeout, this.defaultFormat, this.credentials, gzipEnabled);
   }
@@ -350,36 +394,77 @@ public final class PageSeederClient {
     private Builder() {
     }
 
+    /**
+     * Sets the PageSeeder instance.
+     *
+     * @param instance the PageSeeder instance
+     * @return this builder
+     */
     public Builder instance(PageSeederInstance instance) {
       this.instance = instance;
       return this;
     }
 
+    /**
+     * Sets the API origin used to create a default PageSeeder instance.
+     *
+     * @param apiOrigin the API origin
+     * @return this builder
+     */
     public Builder apiOrigin(URI apiOrigin) {
       this.apiOrigin = apiOrigin;
       return this;
     }
 
+    /**
+     * Sets the request timeout.
+     *
+     * @param timeout the request timeout
+     * @return this builder
+     */
     public Builder timeout(Duration timeout) {
       this.timeout = timeout;
       return this;
     }
 
+    /**
+     * Sets the default response payload format.
+     *
+     * @param defaultFormat the default payload format
+     * @return this builder
+     */
     public Builder defaultFormat(PayloadFormat defaultFormat) {
       this.defaultFormat = defaultFormat;
       return this;
     }
 
+    /**
+     * Sets the default credentials.
+     *
+     * @param credentials the default credentials
+     * @return this builder
+     */
     public Builder credentials(Credentials credentials) {
       this.credentials = credentials;
       return this;
     }
 
+    /**
+     * Enables or disables gzip response handling.
+     *
+     * @param gzipEnabled whether gzip response handling is enabled
+     * @return this builder
+     */
     public Builder gzipEnabled(boolean gzipEnabled) {
       this.gzipEnabled = gzipEnabled;
       return this;
     }
 
+    /**
+     * Builds the configured client.
+     *
+     * @return a PageSeeder client
+     */
     public PageSeederClient build() {
       PageSeederInstance resolved = this.instance != null ? this.instance
           : PageSeederInstance.of(Objects.requireNonNull(this.apiOrigin, "instance or apiOrigin is required"));

@@ -19,6 +19,11 @@ public final class JsonResponseBody {
 
   private final byte[] body;
 
+  /**
+   * Creates JSON decoding helpers for a response body.
+   *
+   * @param body the raw response body
+   */
   public JsonResponseBody(byte[] body) {
     this.body = body;
   }

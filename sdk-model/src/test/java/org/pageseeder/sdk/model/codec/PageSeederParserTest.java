@@ -132,8 +132,8 @@ final class PageSeederParserTest {
 
     assertEquals("/docs/guide.psml", xmlUri.getPath());
     assertEquals(List.of("guide", "published"), jsonUri.getLabels());
-    assertEquals("deadbeef", xmlError.getId());
-    assertEquals("Missing member", jsonError.getMessage());
+    assertEquals("deadbeef", xmlError.id());
+    assertEquals("Missing member", jsonError.message());
   }
 
   @Test

@@ -60,6 +60,12 @@ public enum NotificationPreference {
     return this.parameter;
   }
 
+  /**
+   * Parses a PageSeeder notification preference value.
+   *
+   * @param value the value to parse
+   * @return the matching preference, or {@link #UNKNOWN} when unknown
+   */
   public static NotificationPreference fromValue(@Nullable String value) {
     if (value == null || value.isBlank()) {
       return UNKNOWN;

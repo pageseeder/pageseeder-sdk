@@ -12,7 +12,17 @@ import java.util.List;
  */
 public abstract class Handler<T> extends DefaultHandler {
 
+  /**
+   * Returns all parsed items.
+   *
+   * @return the parsed items
+   */
   public abstract List<T> list();
 
+  /**
+   * Returns the current or last parsed item.
+   *
+   * @return the current or last parsed item, or {@code null} if none is available
+   */
   public abstract @Nullable T get();
 }

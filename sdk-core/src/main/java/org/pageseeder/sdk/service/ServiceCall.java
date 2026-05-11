@@ -25,6 +25,11 @@ public final class ServiceCall {
   private byte @Nullable[] rawBody;
   private @Nullable String contentType;
 
+  /**
+   * Creates a service call for the supplied endpoint.
+   *
+   * @param endpoint the service endpoint to call
+   */
   public ServiceCall(ServiceEndpoint endpoint) {
     this.endpoint = Objects.requireNonNull(endpoint, "endpoint");
   }

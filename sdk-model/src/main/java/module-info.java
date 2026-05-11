@@ -1,3 +1,6 @@
+/**
+ * PageSeeder SDK model and codec module.
+ */
 module org.pageseeder.sdk.model {
     requires transitive org.pageseeder.sdk.core;
     requires transitive com.fasterxml.jackson.databind;

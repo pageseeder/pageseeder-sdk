@@ -1,5 +1,6 @@
 package org.pageseeder.sdk.exception;
 
+import java.io.ObjectStreamField;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -19,11 +20,4 @@ public record ServiceError(String id, String message) implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public String getId() {
-    return this.id;
-  }
-
-  public String getMessage() {
-    return this.message;
-  }
 }

@@ -17,6 +17,11 @@ public final class Main {
 
   private final CliCommands commands = new CliCommands();
 
+  /**
+   * Runs the SDK command-line interface.
+   *
+   * @param args command-line arguments
+   */
   @SuppressWarnings("java:S106")
   public static void main(String[] args) {
     int exitCode = new Main().run(Arrays.asList(args), System.out, System.err);

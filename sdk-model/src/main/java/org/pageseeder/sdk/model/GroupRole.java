@@ -48,6 +48,12 @@ public enum GroupRole {
     this.parameter = p;
   }
 
+  /**
+   * Parses a PageSeeder group-role value.
+   *
+   * @param value the value to parse
+   * @return the matching role, or {@link #UNKNOWN} when unknown
+   */
   public static GroupRole fromValue(String value) {
     if (value == null || value.isBlank()) {
       return UNKNOWN;
@@ -59,6 +65,11 @@ public enum GroupRole {
     }
   }
 
+  /**
+   * Returns the service parameter value for this role.
+   *
+   * @return the service parameter value
+   */
   public String getParameter() {
     return this.parameter;
   }

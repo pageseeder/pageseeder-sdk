@@ -40,6 +40,9 @@ public final class ClientRegistration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientRegistration.class);
 
+  /**
+   * Default OpenID Connect scope requested when no explicit scope is configured.
+   */
   public static final String DEFAULT_OPENID_SCOPE = "openid email profile";
 
   private final String clientName;
@@ -53,6 +56,11 @@ public final class ClientRegistration {
   private final String scope;
   private final @Nullable String description;
 
+  /**
+   * Creates a client registration with the default OpenID Connect scope.
+   *
+   * @param clientName the client display name
+   */
   public ClientRegistration(String clientName) {
     this(clientName, null, null, null, null, null, null, null, DEFAULT_OPENID_SCOPE, null);
   }
@@ -73,46 +81,102 @@ public final class ClientRegistration {
     this.description = description;
   }
 
+  /**
+   * Returns the client display name.
+   *
+   * @return the client display name
+   */
   public String clientName() {
     return this.clientName;
   }
 
+  /**
+   * Returns the requested grant type.
+   *
+   * @return the grant type, or {@code null} if omitted
+   */
   public @Nullable GrantType grantType() {
     return this.grantType;
   }
 
+  /**
+   * Returns the redirect URI.
+   *
+   * @return the redirect URI, or {@code null} if omitted
+   */
   public @Nullable URI redirectUri() {
     return this.redirectUri;
   }
 
+  /**
+   * Returns the client application URI.
+   *
+   * @return the client URI, or {@code null} if omitted
+   */
   public @Nullable URI clientUri() {
     return this.clientUri;
   }
 
+  /**
+   * Returns the PageSeeder application name.
+   *
+   * @return the application name, or {@code null} if omitted
+   */
   public @Nullable String applicationName() {
     return this.applicationName;
   }
 
+  /**
+   * Returns the webhook secret.
+   *
+   * @return the webhook secret, or {@code null} if omitted
+   */
   public @Nullable String webhookSecret() {
     return this.webhookSecret;
   }
 
+  /**
+   * Returns the requested access-token lifetime.
+   *
+   * @return the access-token lifetime, or {@code null} if omitted
+   */
   public @Nullable Duration accessTokenLifetime() {
     return this.accessTokenLifetime;
   }
 
+  /**
+   * Returns the requested refresh-token lifetime.
+   *
+   * @return the refresh-token lifetime, or {@code null} if omitted
+   */
   public @Nullable Duration refreshTokenLifetime() {
     return this.refreshTokenLifetime;
   }
 
+  /**
+   * Returns the requested OAuth scope.
+   *
+   * @return the scope string
+   */
   public String scope() {
     return this.scope;
   }
 
+  /**
+   * Returns the client description.
+   *
+   * @return the description, or {@code null} if omitted
+   */
   public @Nullable String description() {
     return this.description;
   }
 
+  /**
+   * Returns a copy of this registration with the supplied grant type.
+   *
+   * @param grantType the grant type
+   * @return the updated registration
+   */
   public ClientRegistration withGrantType(GrantType grantType) {
     Objects.requireNonNull(grantType, "grantType");
     if (grantType == GrantType.REFRESH_TOKEN) {
@@ -122,57 +186,122 @@ public final class ClientRegistration {
         this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied redirect URI.
+   *
+   * @param redirectUri the redirect URI
+   * @return the updated registration
+   */
   public ClientRegistration withRedirectUri(URI redirectUri) {
     Objects.requireNonNull(redirectUri, "redirectUri");
     return new ClientRegistration(this.clientName, this.grantType, redirectUri, this.clientUri, this.applicationName,
         this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied client URI.
+   *
+   * @param clientUri the client application URI
+   * @return the updated registration
+   */
   public ClientRegistration withClientUri(URI clientUri) {
     Objects.requireNonNull(clientUri, "clientUri");
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, clientUri, this.applicationName,
         this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied PageSeeder application name.
+   *
+   * @param applicationName the PageSeeder application name
+   * @return the updated registration
+   */
   public ClientRegistration withApplicationName(String applicationName) {
     Objects.requireNonNull(applicationName, "applicationName");
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, applicationName,
         this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied webhook secret.
+   *
+   * @param webhookSecret the webhook secret
+   * @return the updated registration
+   */
   public ClientRegistration withWebhookSecret(String webhookSecret) {
     Objects.requireNonNull(webhookSecret, "webhookSecret");
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
         webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied access-token lifetime.
+   *
+   * @param accessTokenLifetime the access-token lifetime
+   * @return the updated registration
+   */
   public ClientRegistration withAccessTokenLifetime(Duration accessTokenLifetime) {
     Objects.requireNonNull(accessTokenLifetime, "accessTokenLifetime");
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
         this.webhookSecret, accessTokenLifetime, this.refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied refresh-token lifetime.
+   *
+   * @param refreshTokenLifetime the refresh-token lifetime
+   * @return the updated registration
+   */
   public ClientRegistration withRefreshTokenLifetime(Duration refreshTokenLifetime) {
     Objects.requireNonNull(refreshTokenLifetime, "refreshTokenLifetime");
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
         this.webhookSecret, this.accessTokenLifetime, refreshTokenLifetime, this.scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied OAuth scope.
+   *
+   * @param scope the OAuth scope
+   * @return the updated registration
+   */
   public ClientRegistration withScope(String scope) {
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
         this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, scope, this.description);
   }
 
+  /**
+   * Returns a copy of this registration with the supplied description.
+   *
+   * @param description the client description
+   * @return the updated registration
+   */
   public ClientRegistration withDescription(String description) {
     Objects.requireNonNull(description, "description");
     return new ClientRegistration(this.clientName, this.grantType, this.redirectUri, this.clientUri, this.applicationName,
         this.webhookSecret, this.accessTokenLifetime, this.refreshTokenLifetime, this.scope, description);
   }
 
+  /**
+   * Registers this OAuth client using a default HTTP client.
+   *
+   * @param instance       the PageSeeder instance
+   * @param credentials    credentials authorized to register clients
+   * @param memberUsername the PageSeeder member username that owns the client
+   * @return the created client credentials, or {@code null} if registration failed
+   */
   public @Nullable ClientCredentials register(PageSeederInstance instance, Credentials credentials, String memberUsername) {
     return register(HttpClient.newHttpClient(), instance, credentials, memberUsername);
   }
 
+  /**
+   * Registers this OAuth client using the supplied HTTP client.
+   *
+   * @param httpClient     the HTTP client to use
+   * @param instance       the PageSeeder instance
+   * @param credentials    credentials authorized to register clients
+   * @param memberUsername the PageSeeder member username that owns the client
+   * @return the created client credentials, or {@code null} if registration failed
+   */
   public @Nullable ClientCredentials register(HttpClient httpClient, PageSeederInstance instance, Credentials credentials,
                                               String memberUsername) {
     Objects.requireNonNull(httpClient, "httpClient");
