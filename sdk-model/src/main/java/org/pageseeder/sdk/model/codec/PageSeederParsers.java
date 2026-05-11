@@ -50,18 +50,13 @@ import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+@SuppressWarnings("java:S1192") // PageSeeder payload field names are clearer inline in this schema mapper.
 final class PageSeederParsers {
 
   private PageSeederParsers() {
@@ -146,18 +141,16 @@ final class PageSeederParsers {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static <T> T mapNode(JsonNode node, Class<T> type) {
     return mapNode(node, type, null);
   }
 
-  @SuppressWarnings("unchecked")
-  private static <T> T mapNode(JsonNode node, Class<T> type, String rootElementName) {
+  private static <T> T mapNode(JsonNode node, Class<T> type, @Nullable String rootElementName) {
     return mapNode(node, type, rootElementName, MappingContext.empty());
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> T mapNode(JsonNode node, Class<T> type, String rootElementName, MappingContext context) {
+  private static <T> T mapNode(JsonNode node, Class<T> type, @Nullable String rootElementName, MappingContext context) {
     if (type == Member.class) {
       return (T) toMember(node);
     }
@@ -209,7 +202,7 @@ final class PageSeederParsers {
     throw new ParsingException("Unsupported PageSeeder mapping type: " + type.getName());
   }
 
-  private record ListNode(JsonNode node, String rootElementName) {
+  private record ListNode(JsonNode node, @Nullable String rootElementName) {
   }
 
   private record MappingContext(@Nullable Member member, @Nullable Group group) {
@@ -219,7 +212,7 @@ final class PageSeederParsers {
     }
   }
 
-  private static ListNode findListNode(JsonNode root, String... aliases) {
+  private static @Nullable ListNode findListNode(JsonNode root, String... aliases) {
     if (root.has("result")) {
       return findListNode(root.get("result"), aliases);
     }
@@ -401,7 +394,7 @@ final class PageSeederParsers {
     );
   }
 
-  private static ConfiguredGroup toConfiguredGroup(JsonNode node, String rootElementName) {
+  private static ConfiguredGroup toConfiguredGroup(JsonNode node, @Nullable String rootElementName) {
     String elementName = groupElementName(node, rootElementName);
     JsonNode source = unwrapGroup(node);
     return new ConfiguredGroup(toGroup(source, elementName), toGroupSettings(source));
@@ -491,7 +484,7 @@ final class PageSeederParsers {
     return toGroup(source);
   }
 
-  private static ResourceUri toResourceUri(JsonNode node) {
+  private static ResourceUri toResourceUri(@Nullable JsonNode node) {
     JsonNode source = unwrap(node, "uri");
     return new ResourceUri(
         longValue(source, "id"),
@@ -571,7 +564,7 @@ final class PageSeederParsers {
     );
   }
 
-  private static JsonNode unwrap(JsonNode node, String alias) {
+  private static @Nullable JsonNode unwrap(@Nullable JsonNode node, String alias) {
     if (node == null || node.isNull()) {
       return node;
     }
@@ -595,7 +588,7 @@ final class PageSeederParsers {
     return source == node ? unwrap(node, "project") : source;
   }
 
-  private static @Nullable String groupElementName(JsonNode node, @Nullable String rootElementName) {
+  private static @Nullable String groupElementName(@Nullable JsonNode node, @Nullable String rootElementName) {
     if (rootElementName != null) {
       return rootElementName;
     }
@@ -608,7 +601,7 @@ final class PageSeederParsers {
     return null;
   }
 
-  private static String rootElementName(ObjectMapper mapper, byte[] body) {
+  private static @Nullable String rootElementName(ObjectMapper mapper, byte[] body) {
     if (!(mapper instanceof XmlMapper)) {
       return null;
     }
@@ -633,7 +626,7 @@ final class PageSeederParsers {
     return factory;
   }
 
-  private static List<String> labels(JsonNode node) {
+  private static List<String> labels(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return List.of();
     }
@@ -666,7 +659,7 @@ final class PageSeederParsers {
     return List.of(node.asText());
   }
 
-  private static List<MembershipDetail> details(JsonNode node) {
+  private static List<MembershipDetail> details(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return List.of();
     }
@@ -715,7 +708,7 @@ final class PageSeederParsers {
     return overrides.isEmpty() ? Set.of() : Set.copyOf(overrides);
   }
 
-  private static List<String> stringList(JsonNode node, String itemField) {
+  private static List<String> stringList(@Nullable JsonNode node, String itemField) {
     if (node == null || node.isNull()) {
       return List.of();
     }
@@ -740,7 +733,7 @@ final class PageSeederParsers {
     return tokens(node.asText(""), ",");
   }
 
-  private static void addStringListValue(List<String> values, JsonNode node, String itemField) {
+  private static void addStringListValue(List<String> values, @Nullable JsonNode node, String itemField) {
     if (node == null || node.isNull()) {
       return;
     }
@@ -757,14 +750,12 @@ final class PageSeederParsers {
     values.add(node.asText());
   }
 
-  private static Map<String, String> stringMap(JsonNode node) {
+  private static Map<String, String> stringMap(@Nullable JsonNode node) {
     if (node == null || node.isNull() || !node.isObject()) {
       return Map.of();
     }
-    Map<String, String> values = new java.util.LinkedHashMap<>();
-    Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-    while (fields.hasNext()) {
-      Map.Entry<String, JsonNode> field = fields.next();
+    Map<String, String> values = new LinkedHashMap<>();
+    for (Map.Entry<String, JsonNode> field : node.properties()) {
       JsonNode value = field.getValue();
       if (value != null && !value.isNull()) {
         values.put(field.getKey(), value.asText());
@@ -773,7 +764,7 @@ final class PageSeederParsers {
     return values.isEmpty() ? Map.of() : Map.copyOf(values);
   }
 
-  private static List<String> tokens(String value, String delimiter) {
+  private static List<String> tokens(@Nullable String value, String delimiter) {
     if (value == null || value.isBlank()) {
       return List.of();
     }
@@ -787,7 +778,7 @@ final class PageSeederParsers {
     return tokens.isEmpty() ? List.of() : List.copyOf(tokens);
   }
 
-  private static List<Content> contents(JsonNode node) {
+  private static List<Content> contents(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return List.of();
     }
@@ -802,7 +793,7 @@ final class PageSeederParsers {
     return content;
   }
 
-  private static List<Comment> comments(JsonNode node) {
+  private static List<Comment> comments(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return List.of();
     }
@@ -821,7 +812,7 @@ final class PageSeederParsers {
     return values.isEmpty() ? List.of() : List.copyOf(values);
   }
 
-  private static Content toCommentContent(JsonNode node) {
+  private static Content toCommentContent(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return new Content("text/plain", "");
     }
@@ -844,7 +835,7 @@ final class PageSeederParsers {
     return markup.isBlank() ? node.asText("") : markup;
   }
 
-  private static CommentContext toCommentContext(JsonNode node) {
+  private static @Nullable CommentContext toCommentContext(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return null;
     }
@@ -854,7 +845,7 @@ final class PageSeederParsers {
     return new CommentContext(group, uri, fragmentId);
   }
 
-  private static String commentFragmentId(JsonNode node) {
+  private static @Nullable String commentFragmentId(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return null;
     }
@@ -864,7 +855,7 @@ final class PageSeederParsers {
     return nullableText(node, "id");
   }
 
-  private static CommentUser toCommentUser(JsonNode node) {
+  private static @Nullable CommentUser toCommentUser(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return null;
     }
@@ -897,7 +888,7 @@ final class PageSeederParsers {
     return new CommentUser(member, fullname);
   }
 
-  private static CommentUser documentVersionAuthor(JsonNode node) {
+  private static @Nullable CommentUser documentVersionAuthor(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return null;
     }
@@ -912,7 +903,7 @@ final class PageSeederParsers {
     return new CommentUser(member, fullname == null ? "" : fullname);
   }
 
-  private static StampedCommentUser toStampedCommentUser(JsonNode node) {
+  private static @Nullable StampedCommentUser toStampedCommentUser(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return null;
     }
@@ -922,7 +913,7 @@ final class PageSeederParsers {
     );
   }
 
-  private static List<ResourceUri> attachments(JsonNode node) {
+  private static List<ResourceUri> attachments(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return List.of();
     }
@@ -941,7 +932,7 @@ final class PageSeederParsers {
     return values.isEmpty() ? List.of() : List.copyOf(values);
   }
 
-  private static ResourceUri toAttachment(JsonNode node) {
+  private static ResourceUri toAttachment(@Nullable JsonNode node) {
     if (node != null && node.has("uri")) {
       return toResourceUri(node.get("uri"));
     }
@@ -960,7 +951,7 @@ final class PageSeederParsers {
     );
   }
 
-  private static String detailValue(JsonNode node) {
+  private static String detailValue(@Nullable JsonNode node) {
     if (node == null || node.isNull()) {
       return "";
     }
@@ -975,7 +966,7 @@ final class PageSeederParsers {
     return value == null ? node.asText("") : value;
   }
 
-  private static String markup(JsonNode node, List<String> ignoredFields) {
+  private static String markup(@Nullable JsonNode node, List<String> ignoredFields) {
     if (node == null || node.isNull()) {
       return "";
     }
@@ -990,14 +981,12 @@ final class PageSeederParsers {
       return xml.toString();
     }
     StringBuilder xml = new StringBuilder();
-    Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-    while (fields.hasNext()) {
-      Map.Entry<String, JsonNode> field = fields.next();
+    for (Map.Entry<String, JsonNode> field : node.properties()) {
       String name = field.getKey();
       if (ignoredFields.contains(name)) {
         continue;
       }
-      if ("".equals(name)) {
+      if (name.isEmpty()) {
         xml.append(escapeXml(field.getValue().asText("")));
         continue;
       }
@@ -1006,7 +995,7 @@ final class PageSeederParsers {
     return xml.toString();
   }
 
-  private static void appendMarkupElement(StringBuilder xml, String name, JsonNode value) {
+  private static void appendMarkupElement(StringBuilder xml, String name, @Nullable JsonNode value) {
     if (value == null || value.isNull()) {
       return;
     }
@@ -1045,11 +1034,11 @@ final class PageSeederParsers {
     return value;
   }
 
-  private static String nullableText(JsonNode node, String field) {
+  private static @Nullable String nullableText(JsonNode node, String field) {
     return text(node, field);
   }
 
-  private static String text(JsonNode node, String field) {
+  private static @Nullable String text(JsonNode node, String field) {
     JsonNode value = node.get(field);
     return value == null || value.isNull() ? null : value.asText();
   }
@@ -1062,7 +1051,7 @@ final class PageSeederParsers {
     return Long.parseLong(value);
   }
 
-  private static Long nullableLong(JsonNode node, String field) {
+  private static @Nullable Long nullableLong(JsonNode node, String field) {
     String value = nullableText(node, field);
     if (value == null || value.isBlank()) {
       return null;
@@ -1078,7 +1067,7 @@ final class PageSeederParsers {
     return Integer.parseInt(value);
   }
 
-  private static Integer nullableInteger(JsonNode node, String field) {
+  private static @Nullable Integer nullableInteger(JsonNode node, String field) {
     String value = nullableText(node, field);
     if (value == null || value.isBlank()) {
       return null;
@@ -1098,18 +1087,17 @@ final class PageSeederParsers {
     }
     return "true".equalsIgnoreCase(value);
   }
-
-  private static Boolean nullableBoolean(JsonNode node, String field) {
+  private static @Nullable Boolean nullableBoolean(JsonNode node, String field) {
     String value = nullableText(node, field);
     return value == null || value.isBlank() ? null : Boolean.parseBoolean(value);
   }
 
-  private static OffsetDateTime offsetDateTime(JsonNode node, String field) {
+  private static @Nullable OffsetDateTime offsetDateTime(JsonNode node, String field) {
     String value = nullableText(node, field);
     return value == null || value.isBlank() ? null : OffsetDateTime.parse(value);
   }
 
-  private static URI uri(JsonNode node, String field) {
+  private static @Nullable URI uri(JsonNode node, String field) {
     String value = nullableText(node, field);
     return value == null || value.isBlank() ? null : URI.create(value);
   }
@@ -1119,7 +1107,7 @@ final class PageSeederParsers {
     return value == null || value.isBlank() ? Duration.ZERO : Duration.ofSeconds(Long.parseLong(value));
   }
 
-  private static GrantType grantType(JsonNode node, String field) {
+  private static @Nullable GrantType grantType(JsonNode node, String field) {
     String value = nullableText(node, field);
     if (value == null || value.isBlank()) {
       return null;
