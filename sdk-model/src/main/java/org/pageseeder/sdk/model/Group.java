@@ -1,5 +1,7 @@
 package org.pageseeder.sdk.model;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Immutable PageSeeder group.
  *
@@ -15,8 +17,9 @@ package org.pageseeder.sdk.model;
  * @param defaultRole         the default role for members
  * @param defaultNotification the default notification preference
  */
-public record Group(long id, String name, GroupType type, String title, String description, String owner, String access,
-                    boolean common, String relatedUrl, GroupRole defaultRole,
+public record Group(long id, String name, GroupType type, String title, String description, String owner,
+                    @Nullable String access,
+                    boolean common, @Nullable String relatedUrl, GroupRole defaultRole,
                     NotificationPreference defaultNotification) {
 
   /**
