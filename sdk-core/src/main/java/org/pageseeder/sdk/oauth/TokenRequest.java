@@ -21,6 +21,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("java:S1192") // OAuth parameter names are clearer inline in this small request builder.
 public final class TokenRequest {
 
   private static final String TOKEN_ENDPOINT = "token";
