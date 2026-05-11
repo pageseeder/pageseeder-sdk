@@ -359,27 +359,32 @@ public final class TokenResponse {
       if (c == '\\' && i + 1 < end) {
         char next = s.charAt(++i);
         switch (next) {
-          case '"': sb.append('"'); break;
-          case '\\': sb.append('\\'); break;
-          case '/': sb.append('/'); break;
-          case 'n': sb.append('\n'); break;
-          case 'r': sb.append('\r'); break;
-          case 't': sb.append('\t'); break;
-          case 'b': sb.append('\b'); break;
-          case 'f': sb.append('\f'); break;
-          case 'u':
+          case '"' -> sb.append('"');
+          case '\\' -> sb.append('\\');
+          case '/' -> sb.append('/');
+          case 'n' -> sb.append('\n');
+          case 'r' -> sb.append('\r');
+          case 't' -> sb.append('\t');
+          case 'b' -> sb.append('\b');
+          case 'f' -> sb.append('\f');
+          case 'u' -> {
             if (i + 4 < end) {
               try {
                 sb.append((char) Integer.parseInt(s.substring(i + 1, i + 5), 16));
                 i += 4;
               } catch (NumberFormatException ignored) {
-                sb.append('\\'); sb.append('u');
+                sb.append('\\');
+                sb.append('u');
               }
             } else {
-              sb.append('\\'); sb.append('u');
+              sb.append('\\');
+              sb.append('u');
             }
-            break;
-          default: sb.append('\\'); sb.append(next);
+          }
+          default -> {
+            sb.append('\\');
+            sb.append(next);
+          }
         }
       } else {
         sb.append(c);
