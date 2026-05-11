@@ -60,6 +60,44 @@ import javax.xml.stream.XMLStreamReader;
 @SuppressWarnings("java:S1192") // PageSeeder payload field names are clearer inline in this schema mapper.
 final class PageSeederParsers {
 
+  private static final Map<Class<?>, NodeMapper> NODE_MAPPERS = Map.ofEntries(
+      Map.entry(Member.class, (node, rootElementName, context) -> toMember(node)),
+      Map.entry(Authenticator.class, (node, rootElementName, context) -> toAuthenticator(node)),
+      Map.entry(MemberData.class, (node, rootElementName, context) -> toMemberData(node)),
+      Map.entry(Comment.class, (node, rootElementName, context) -> toComment(node)),
+      Map.entry(Group.class, (node, rootElementName, context) -> toGroup(node, rootElementName)),
+      Map.entry(ConfiguredGroup.class, (node, rootElementName, context) -> toConfiguredGroup(node, rootElementName)),
+      Map.entry(DocumentVersion.class, (node, rootElementName, context) -> toDocumentVersion(node)),
+      Map.entry(GroupFolder.class, (node, rootElementName, context) -> toGroupFolder(node)),
+      Map.entry(Membership.class, (node, rootElementName, context) -> toMembership(node, context)),
+      Map.entry(Subgroup.class, (node, rootElementName, context) -> toSubgroup(node)),
+      Map.entry(Supergroup.class, (node, rootElementName, context) -> toSupergroup(node)),
+      Map.entry(OAuthClient.class, (node, rootElementName, context) -> toOAuthClient(node)),
+      Map.entry(ResourceUri.class, (node, rootElementName, context) -> toResourceUri(node)),
+      Map.entry(Version.class, (node, rootElementName, context) -> toVersion(node)),
+      Map.entry(Webhook.class, (node, rootElementName, context) -> toWebhook(node)),
+      Map.entry(Workflow.class, (node, rootElementName, context) -> toWorkflow(node))
+  );
+
+  private static final Map<Class<?>, List<String>> NODE_ALIASES = Map.ofEntries(
+      Map.entry(Authenticator.class, List.of("authenticator")),
+      Map.entry(Member.class, List.of("member")),
+      Map.entry(MemberData.class, List.of("memberdata")),
+      Map.entry(Comment.class, List.of("comment")),
+      Map.entry(DocumentVersion.class, List.of("version")),
+      Map.entry(Group.class, List.of("group", "project")),
+      Map.entry(ConfiguredGroup.class, List.of("group", "project")),
+      Map.entry(GroupFolder.class, List.of("groupfolder")),
+      Map.entry(Membership.class, List.of("membership")),
+      Map.entry(Subgroup.class, List.of("subgroup")),
+      Map.entry(Supergroup.class, List.of("supergroup")),
+      Map.entry(OAuthClient.class, List.of("client")),
+      Map.entry(ResourceUri.class, List.of("uri")),
+      Map.entry(Version.class, List.of("version")),
+      Map.entry(Webhook.class, List.of("webhook")),
+      Map.entry(Workflow.class, List.of("workflow"))
+  );
+
   private PageSeederParsers() {
   }
 
@@ -155,55 +193,16 @@ final class PageSeederParsers {
 
   @SuppressWarnings("unchecked")
   private static <T> T mapNode(JsonNode node, Class<T> type, @Nullable String rootElementName, MappingContext context) {
-    if (type == Member.class) {
-      return (T) toMember(node);
+    @Nullable NodeMapper mapper = NODE_MAPPERS.get(type);
+    if (mapper == null) {
+      throw new ParsingException("Unsupported PageSeeder mapping type: " + type.getName());
     }
-    if (type == Authenticator.class) {
-      return (T) toAuthenticator(node);
-    }
-    if (type == MemberData.class) {
-      return (T) toMemberData(node);
-    }
-    if (type == Comment.class) {
-      return (T) toComment(node);
-    }
-    if (type == Group.class) {
-      return (T) toGroup(node, rootElementName);
-    }
-    if (type == ConfiguredGroup.class) {
-      return (T) toConfiguredGroup(node, rootElementName);
-    }
-    if (type == DocumentVersion.class) {
-      return (T) toDocumentVersion(node);
-    }
-    if (type == GroupFolder.class) {
-      return (T) toGroupFolder(node);
-    }
-    if (type == Membership.class) {
-      return (T) toMembership(node, context);
-    }
-    if (type == Subgroup.class) {
-      return (T) toSubgroup(node);
-    }
-    if (type == Supergroup.class) {
-      return (T) toSupergroup(node);
-    }
-    if (type == OAuthClient.class) {
-      return (T) toOAuthClient(node);
-    }
-    if (type == ResourceUri.class) {
-      return (T) toResourceUri(node);
-    }
-    if (type == Version.class) {
-      return (T) toVersion(node);
-    }
-    if (type == Webhook.class) {
-      return (T) toWebhook(node);
-    }
-    if (type == Workflow.class) {
-      return (T) toWorkflow(node);
-    }
-    throw new ParsingException("Unsupported PageSeeder mapping type: " + type.getName());
+    return (T) mapper.map(node, rootElementName, context);
+  }
+
+  private interface NodeMapper {
+
+    Object map(JsonNode node, @Nullable String rootElementName, MappingContext context);
   }
 
   private record ListNode(JsonNode node, @Nullable String rootElementName) {
@@ -216,7 +215,7 @@ final class PageSeederParsers {
     }
   }
 
-  private static @Nullable ListNode findListNode(JsonNode root, String... aliases) {
+  private static @Nullable ListNode findListNode(JsonNode root, List<String> aliases) {
     if (root.has("result")) {
       return findListNode(root.get("result"), aliases);
     }
@@ -236,23 +235,8 @@ final class PageSeederParsers {
     return null;
   }
 
-  private static String[] aliases(Class<?> type) {
-    if (type == Authenticator.class) return new String[] {"authenticator"};
-    if (type == Member.class) return new String[] {"member"};
-    if (type == MemberData.class) return new String[] {"memberdata"};
-    if (type == Comment.class) return new String[] {"comment"};
-    if (type == DocumentVersion.class) return new String[] {"version"};
-    if (type == Group.class || type == ConfiguredGroup.class) return new String[] {"group", "project"};
-    if (type == GroupFolder.class) return new String[] {"groupfolder"};
-    if (type == Membership.class) return new String[] {"membership"};
-    if (type == Subgroup.class) return new String[] {"subgroup"};
-    if (type == Supergroup.class) return new String[] {"supergroup"};
-    if (type == OAuthClient.class) return new String[] {"client"};
-    if (type == ResourceUri.class) return new String[] {"uri"};
-    if (type == Version.class) return new String[] {"version"};
-    if (type == Webhook.class) return new String[] {"webhook"};
-    if (type == Workflow.class) return new String[] {"workflow"};
-    return new String[] {type.getSimpleName().toLowerCase()};
+  private static List<String> aliases(Class<?> type) {
+    return NODE_ALIASES.getOrDefault(type, List.of(type.getSimpleName().toLowerCase(Locale.ROOT)));
   }
 
   private static MappingContext mappingContext(JsonNode root, Class<?> type, @Nullable String rootElementName) {
