@@ -8,6 +8,7 @@ import org.xml.sax.SAXParseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Convenience SAX handler with basic parsing state.
@@ -91,9 +92,7 @@ public abstract class BasicHandler<T> extends Handler<T> {
   }
 
   protected final void add(T item) {
-    if (item == null) {
-      throw new NullPointerException("Cannot add null item to list");
-    }
+    Objects.requireNonNull(item, "Cannot add null item to list");
     this.list.add(item);
   }
 
