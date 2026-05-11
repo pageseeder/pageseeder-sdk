@@ -301,14 +301,10 @@ public final class PageSeederClient {
   }
 
   private static @Nullable ServiceError parseXmlError(byte[] body) {
-    XMLStreamReader xml = null;
-    try {
-      xml = ERROR_XML_FACTORY.createXMLStreamReader(new ByteArrayInputStream(body));
-      return readXmlError(xml);
+    try (XmlErrorReader xml = XmlErrorReader.open(body)) {
+      return readXmlError(xml.reader());
     } catch (XMLStreamException ex) {
       LOGGER.debug("Unable to parse XML service error", ex);
-    } finally {
-      closeXmlErrorReader(xml);
     }
     return null;
   }
@@ -321,14 +317,29 @@ public final class PageSeederClient {
     return error.toServiceError();
   }
 
-  private static void closeXmlErrorReader(@Nullable XMLStreamReader xml) {
-    if (xml == null) {
-      return;
+  private static final class XmlErrorReader implements AutoCloseable {
+
+    private final XMLStreamReader reader;
+
+    private XmlErrorReader(XMLStreamReader reader) {
+      this.reader = reader;
     }
-    try {
-      xml.close();
-    } catch (XMLStreamException ex) {
-      LOGGER.debug("Unable to close XML service error reader", ex);
+
+    private static XmlErrorReader open(byte[] body) throws XMLStreamException {
+      return new XmlErrorReader(ERROR_XML_FACTORY.createXMLStreamReader(new ByteArrayInputStream(body)));
+    }
+
+    private XMLStreamReader reader() {
+      return this.reader;
+    }
+
+    @Override
+    public void close() {
+      try {
+        this.reader.close();
+      } catch (XMLStreamException ex) {
+        LOGGER.debug("Unable to close XML service error reader", ex);
+      }
     }
   }
 
