@@ -36,7 +36,7 @@ vendor = "Allette Systems"
 
 # Organization info
 [project.links]
-homepage = "https://github.com/pageseeder/sdk"
+homepage = "https://github.com/pageseeder/pageseeder-sdk"
 documentation = "https://dev.pageseeder.com"
 license = "https://www.apache.org/licenses/LICENSE-2.0.txt"
 
