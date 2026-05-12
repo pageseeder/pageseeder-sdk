@@ -1,4 +1,6 @@
+
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pageseeder_pageseeder-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
+[![Maven Central](https://img.shields.io/maven-central/v/org.pageseeder.sdk/pageseeder-sdk-core)](https://central.sonatype.com/artifact/org.pageseeder.sdk/pageseeder-sdk-core)
 
 # PageSeeder SDK
 
