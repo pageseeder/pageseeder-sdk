@@ -69,6 +69,9 @@ subprojects {
       toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
       }
+
+      withJavadocJar()
+      withSourcesJar()
     }
 
     val jacocoTestReport = tasks.named<JacocoReport>("jacocoTestReport") {
@@ -84,13 +87,6 @@ subprojects {
 
     tasks.withType<Test> {
       finalizedBy(jacocoTestReport)
-    }
-  }
-
-  pluginManager.withPlugin("java-library") {
-    configure<JavaPluginExtension> {
-      withJavadocJar()
-      withSourcesJar()
     }
   }
 
