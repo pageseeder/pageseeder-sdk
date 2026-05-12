@@ -51,11 +51,12 @@ owner = "pageseeder"
 name = "pageseeder-sdk"
 username = "pageseeder"
 branch = "main"
+skipTag = true
 skipRelease = true
 
 # Signing configuration
 [signing]
-enabled = true
+active = "ALWAYS"
 
 [signing.pgp]
 armored = true
@@ -63,6 +64,6 @@ mode = "FILE"
 
 # Maven deployment configuration
 [deploy.maven.mavenCentral.sonatype]
-enabled = true
+active = "ALWAYS"
 url = "https://central.sonatype.com/api/v1/publisher"
 stagingRepositories = ["build/staging-deploy"]
