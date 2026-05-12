@@ -46,20 +46,23 @@ groupId = "org.pageseeder.sdk"
 
 # Git configuration
 [release.github]
-active = "NEVER"
+enabled = true
 owner = "pageseeder"
 name = "pageseeder-sdk"
 username = "pageseeder"
 branch = "main"
+skipRelease = true
 
 # Signing configuration
 [signing]
-active = "ALWAYS"
+enabled = true
+
+[signing.pgp]
 armored = true
 mode = "FILE"
 
 # Maven deployment configuration
 [deploy.maven.mavenCentral.sonatype]
-active = "ALWAYS"
+enabled = true
 url = "https://central.sonatype.com/api/v1/publisher"
 stagingRepositories = ["build/staging-deploy"]

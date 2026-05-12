@@ -10,6 +10,9 @@ plugins {
 val globalVersion = file("version.txt").readText().trim()
 
 allprojects {
+  group   = "org.pageseeder.sdk"
+  version = globalVersion
+
   dependencyLocking {
     lockAllConfigurations()
   }
@@ -34,9 +37,6 @@ jreleaser {
 }
 
 subprojects {
-  group   = "org.pageseeder.sdk"
-  version = globalVersion
-
   repositories {
     mavenCentral()
   }
