@@ -53,7 +53,7 @@ final class VersionCommandTest {
         new PrintStream(err, true, StandardCharsets.UTF_8));
 
     assertEquals(0, exitCode);
-    assertEquals("5.9804\n", out.toString(StandardCharsets.UTF_8));
+    assertEquals("5.9804" + System.lineSeparator(), out.toString(StandardCharsets.UTF_8));
     assertEquals("", err.toString(StandardCharsets.UTF_8));
   }
 
