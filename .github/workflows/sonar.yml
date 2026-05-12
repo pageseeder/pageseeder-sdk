@@ -30,6 +30,8 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle', '**/*.lockfile', 'gradle/libs.versions.toml', 'gradle.properties', 'gradle/verification-metadata.xml') }}
           restore-keys: ${{ runner.os }}-gradle
+      - name: Regenerate verification metadata
+        run: ./gradlew --write-verification-metadata sha256 help
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
