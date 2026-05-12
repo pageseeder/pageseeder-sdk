@@ -132,7 +132,7 @@ subprojects {
 
       repositories {
         maven {
-          url = rootProject.layout.buildDirectory.dir("staging-deploy/${project.name}").get().asFile.toURI()
+          url = rootProject.layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
         }
       }
     }
