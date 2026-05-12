@@ -1,5 +1,5 @@
 [project]
-name = "sdk"
+name = "pageseeder-sdk"
 description = "Java API to connect to a PageSeeder server"
 longDescription = """
 # PageSeeder SDK

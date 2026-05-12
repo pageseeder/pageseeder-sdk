@@ -95,7 +95,7 @@ subprojects {
       publications {
         create<MavenPublication>("maven") {
           from(components["java"])
-          artifactId = project.name
+          artifactId = "pageseeder-${project.name}"
 
           pom {
             val title = project.findProperty("title")?.toString() ?: project.name
