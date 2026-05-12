@@ -1,4 +1,4 @@
-[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pageseeder_pageseeder-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
 
 # PageSeeder SDK
 
