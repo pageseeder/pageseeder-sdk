@@ -2,8 +2,8 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
-  alias(libs.plugins.jreleaser) apply false
   alias(libs.plugins.cyclonedx) apply false
+  alias(libs.plugins.jreleaser)
   alias(libs.plugins.sonar)
 }
 
@@ -27,6 +27,10 @@ sonar {
       }
     )
   }
+}
+
+jreleaser {
+  configFile.set(file("jreleaser.toml"))
 }
 
 subprojects {
