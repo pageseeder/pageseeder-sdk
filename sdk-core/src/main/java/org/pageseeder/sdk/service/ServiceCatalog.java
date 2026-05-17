@@ -107,6 +107,15 @@ public final class ServiceCatalog {
   /** Endpoint for Lucene predicate search within a project (via member). */
   public static final ServiceEndpoint MEMBER_PROJECT_SEARCH_PREDICATE = endpoint("GET", "/members/{member}/projects/{project}/search/predicate");
 
+  /** Endpoint for full-text question search across all content accessible to a member. */
+  public static final ServiceEndpoint MEMBER_SEARCH = endpoint("GET", "/members/{member}/search");
+
+  /** Endpoint for facet-extraction search across all content accessible to a member. */
+  public static final ServiceEndpoint MEMBER_SEARCH_FACETS = endpoint("GET", "/members/{member}/search/facets");
+
+  /** Endpoint for Lucene predicate search across all content accessible to a member. */
+  public static final ServiceEndpoint MEMBER_SEARCH_PREDICATE = endpoint("GET", "/members/{member}/search/predicate");
+
   private ServiceCatalog() {
   }
 
