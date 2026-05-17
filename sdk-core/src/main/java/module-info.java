@@ -13,6 +13,7 @@ module org.pageseeder.sdk.core {
     exports org.pageseeder.sdk.exception;
     exports org.pageseeder.sdk.oauth;
     exports org.pageseeder.sdk.service;
+    exports org.pageseeder.sdk.search;
     exports org.pageseeder.sdk.xml.sax;
     exports org.pageseeder.sdk.xml.stax;
 }

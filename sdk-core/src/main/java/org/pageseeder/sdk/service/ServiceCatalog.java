@@ -89,6 +89,24 @@ public final class ServiceCatalog {
   public static final ServiceEndpoint MEMBER_GROUP_URI_WORKFLOW =
       endpoint("GET", "/members/{member}/groups/{group}/uris/{uri}/workflow");
 
+  /** Endpoint for full-text question search within a group. */
+  public static final ServiceEndpoint GROUP_SEARCH = endpoint("GET", "/groups/{group}/search");
+
+  /** Endpoint for facet-extraction search within a group. */
+  public static final ServiceEndpoint GROUP_SEARCH_FACETS = endpoint("GET", "/groups/{group}/search/facets");
+
+  /** Endpoint for Lucene predicate search within a group. */
+  public static final ServiceEndpoint GROUP_SEARCH_PREDICATE = endpoint("GET", "/groups/{group}/search/predicate");
+
+  /** Endpoint for full-text question search within a project (via member). */
+  public static final ServiceEndpoint MEMBER_PROJECT_SEARCH = endpoint("GET", "/members/{member}/projects/{project}/search");
+
+  /** Endpoint for facet-extraction search within a project (via member). */
+  public static final ServiceEndpoint MEMBER_PROJECT_SEARCH_FACETS = endpoint("GET", "/members/{member}/projects/{project}/search/facets");
+
+  /** Endpoint for Lucene predicate search within a project (via member). */
+  public static final ServiceEndpoint MEMBER_PROJECT_SEARCH_PREDICATE = endpoint("GET", "/members/{member}/projects/{project}/search/predicate");
+
   private ServiceCatalog() {
   }
 
