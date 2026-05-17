@@ -23,4 +23,5 @@
  * PageSeederResponse response = client.execute(call);
  * }</pre>
  */
+@org.jspecify.annotations.NullMarked
 package org.pageseeder.sdk.search;
