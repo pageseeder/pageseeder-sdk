@@ -77,18 +77,18 @@ record FacetList(List<Facet> facets, int facetSize) implements Serializable {
    * @return A new {@code FacetList} including the specified facet.
    */
   public FacetList facet(String field, boolean flexible) {
-    List<Facet> without = facets.stream().filter(f -> !f.field().equals(field)).toList();
-    return new FacetList(Search.listWith(without, new Facet(field, flexible)), this.facetSize);
+    return facet(new Facet(field, flexible));
   }
 
   /**
-   * Append a facet to this list.
+   * Add or replace a facet; any existing facet for the same field is replaced.
    *
    * @param facet The facet to add.
    * @return A new {@code FacetList} including the specified facet.
    */
   public FacetList facet(Facet facet) {
-    return new FacetList(Search.listWith(facets, facet), this.facetSize);
+    List<Facet> without = facets.stream().filter(f -> !f.field().equals(facet.field())).toList();
+    return new FacetList(Search.listWith(without, facet), this.facetSize);
   }
 
   /**
