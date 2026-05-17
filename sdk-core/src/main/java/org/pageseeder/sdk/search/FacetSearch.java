@@ -85,9 +85,9 @@ public final class FacetSearch implements Serializable {
     return new FacetSearch(criteria.question(question), facets);
   }
 
-  /** @return The question text; empty string if not set. */
-  public String question() {
-    return criteria.question().question();
+  /** @return The current question. */
+  public Question question() {
+    return criteria.question();
   }
 
   // Facets

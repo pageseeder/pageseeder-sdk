@@ -89,9 +89,9 @@ public final class QuestionSearch implements Serializable {
     return new QuestionSearch(criteria.question(question), facets, page, sortFields);
   }
 
-  /** @return The question text; empty string if not set. */
-  public String question() {
-    return criteria.question().question();
+  /** @return The current question. */
+  public Question question() {
+    return criteria.question();
   }
 
   // Facets

@@ -87,9 +87,9 @@ public final class PredicateSearch implements Serializable {
     return new PredicateSearch(predicate, facets, page, sortFields);
   }
 
-  /** @return The predicate string; empty string if not set. */
-  public String predicate() {
-    return predicate.predicate();
+  /** @return The current predicate. */
+  public Predicate predicate() {
+    return predicate;
   }
 
   /**
