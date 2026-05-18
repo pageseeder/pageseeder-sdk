@@ -118,7 +118,7 @@ public final class QuestionSearch implements Serializable {
    * @return A new {@code QuestionSearch} with a standard facet on the given field.
    */
   public QuestionSearch facet(String field) {
-    return facet(new Facet(field, false));
+    return facet(Facet.of(field));
   }
 
   /**
@@ -127,7 +127,7 @@ public final class QuestionSearch implements Serializable {
    * @return A new {@code QuestionSearch} with the specified facet.
    */
   public QuestionSearch facet(String field, boolean flexible) {
-    return facet(new Facet(field, flexible));
+    return facet(Facet.of(field, flexible));
   }
 
   /**

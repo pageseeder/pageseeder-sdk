@@ -20,51 +20,115 @@ import java.util.Objects;
 /**
  * A facet to be computed and returned in the search results.
  *
- * <p>A simple facet is identified by a plain field name (e.g. {@code pstype}).
- * Range and interval facets embed their configuration in the definition string
- * via {@link #rangeFacet(String, String...)} or {@link #intervalFacet(String, boolean, boolean, String, String, String)}. Flexible facets count
- * hits independently of the active filters for that field, allowing the UI to
- * show how many results each value would yield if selected.</p>
+ * <p>{@link Field} facets are identified by a plain field name (e.g. {@code pstype}).
+ * {@link Range} facets embed their bucket configuration in an encoded definition
+ * via {@link #rangeFacet(String, String...)} or {@link #intervalFacet(String, boolean, boolean, String, String, String)}.
+ * Flexible facets count hits independently of the active filters for that field.</p>
  *
- * @param definition The field name or full facet definition string (range or interval).
- * @param flexible   {@code true} if this is a flexible facet.
+ * <p>Create instances using the static factory methods:</p>
+ * <pre>{@code
+ * Facet simple   = Facet.of("psstatus");
+ * Facet flexible = Facet.of("psstatus", true);
+ * Facet range    = Facet.rangeFacet("psdate", "2020", "2021", "2022");
+ * }</pre>
  *
  * @version 1.0.0
  * @since 1.0.0
  */
-public record Facet(String definition, boolean flexible) {
+public sealed interface Facet permits Facet.Field, Facet.Range {
 
   /**
-   * @param definition The field name or full facet definition string.
+   * The name of the index field this facet operates on.
+   *
+   * <p>For {@link Range} facets this is the substring that precedes the first colon
+   * in the definition.</p>
+   */
+  String field();
+
+  /**
+   * The full definition of this facet as expected by the PageSeeder search API.
+   *
+   * <p>For {@link Field} facets this is the plain field name; for {@link Complex}
+   * facets this is the encoded range or interval specification.</p>
+   */
+  String definition();
+
+  /** Whether this is a flexible facet. */
+  boolean flexible();
+
+  /** @return A copy of this facet with the flexible flag updated. */
+  Facet flexible(boolean flexible);
+
+  // Factory methods
+  // --------------------------------------------------------------------------
+
+  /** @return A standard non-flexible facet on the specified field. */
+  static Facet of(String field) {
+    return new Field(field, false);
+  }
+
+  /** @return A facet on the specified field with the given flexibility. */
+  static Facet of(String field, boolean flexible) {
+    return new Field(field, flexible);
+  }
+
+  // Permitted implementations
+  // --------------------------------------------------------------------------
+
+  /**
+   * A standard facet identified by a single index field name.
+   *
+   * @param field    The name of the index field.
+   * @param flexible {@code true} if this is a flexible facet.
+   */
+  record Field(String field, boolean flexible) implements Facet {
+
+    public Field {
+      Objects.requireNonNull(field);
+    }
+
+    @Override
+    public String definition() {
+      return field;
+    }
+
+    @Override
+    public Facet flexible(boolean flexible) {
+      return new Field(field, flexible);
+    }
+  }
+
+  /**
+   * A facet with an encoded definition for range or interval bucketing.
+   *
+   * <p>The definition encodes the field name followed by a colon and the bucket
+   * specification. Use {@link Facet#rangeFacet(String, String...)} or
+   * {@link Facet#intervalFacet(String, boolean, boolean, String, String, String)}
+   * to construct instances of this type.</p>
+   *
+   * @param definition The full facet definition string (field name + encoded bucket spec).
    * @param flexible   {@code true} if this is a flexible facet.
-   * @throws NullPointerException if {@code definition} is null.
    */
-  public Facet {
-    Objects.requireNonNull(definition);
-  }
+  record Range(String definition, boolean flexible) implements Facet {
 
-  /**
-   * @param flexible whether this facet should be flexible
-   * @return A new facet with the same definition but the updated flexible flag.
-   */
-  public Facet flexible(boolean flexible) {
-    return new Facet(definition, flexible);
-  }
+    public Range {
+      Objects.requireNonNull(definition);
+    }
 
-  /**
-   * Return the name of the field for this facet.
-   *
-   * <p>If the definition includes a colon, this is the substring that precedes it.</p>
-   *
-   * @return The name of the field for the facet
-   */
-  public String field() {
-    int colon = definition.indexOf(':');
-    return colon < 0 ? definition : definition.substring(0, colon);
+    @Override
+    public String field() {
+      int colon = definition.indexOf(':');
+      return colon < 0 ? definition : definition.substring(0, colon);
+    }
+
+    @Override
+    public Facet flexible(boolean flexible) {
+      return new Range(definition, flexible);
+    }
   }
 
   // Experimental facets
-  // ---------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 
   /**
    * Create a fully inclusive range facet for the specified field and boundary values.
@@ -73,7 +137,7 @@ public record Facet(String definition, boolean flexible) {
    * @param values The boundary values that define the range buckets.
    * @return A new range {@code Facet} for that field.
    */
-  public static Facet rangeFacet(String field, String... values) {
+  static Facet rangeFacet(String field, String... values) {
     return rangeFacet(field, true, true, values);
   }
 
@@ -86,9 +150,9 @@ public record Facet(String definition, boolean flexible) {
    * @param values       The boundary values that define the range buckets.
    * @return A new range {@code Facet} for that field.
    */
-  public static Facet rangeFacet(String field, boolean minInclusive, boolean maxInclusive, String... values) {
+  static Facet rangeFacet(String field, boolean minInclusive, boolean maxInclusive, String... values) {
     String definition = field + ':' + (minInclusive ? '[' : '{') + String.join(",", values) + (maxInclusive ? ']' : '}');
-    return new Facet(definition, false);
+    return new Range(definition, false);
   }
 
   /**
@@ -102,8 +166,8 @@ public record Facet(String definition, boolean flexible) {
    * @param interval     The size of each bucket.
    * @return A new interval {@code Facet} for that field.
    */
-  public static Facet intervalFacet(String field, boolean minInclusive, boolean maxInclusive, String from, String to, String interval) {
+  static Facet intervalFacet(String field, boolean minInclusive, boolean maxInclusive, String from, String to, String interval) {
     String definition = field + ':' + (minInclusive ? '[' : '{') + from + ";" + to + "|" + interval + (maxInclusive ? ']' : '}');
-    return new Facet(definition, false);
+    return new Range(definition, false);
   }
 }

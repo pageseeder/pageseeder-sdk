@@ -51,7 +51,7 @@ record FacetList(List<Facet> facets, int facetSize) implements Serializable {
    * @return A new {@code FacetList} for those fields.
    */
   public static FacetList of(String... fields) {
-    return new FacetList(Arrays.stream(fields).map(f -> new Facet(f, false)).toList(), -1);
+    return new FacetList(Arrays.stream(fields).map(Facet::of).toList(), -1);
   }
 
   /**
@@ -61,7 +61,7 @@ record FacetList(List<Facet> facets, int facetSize) implements Serializable {
    * @return A new flexible {@code FacetList} for those fields.
    */
   public static FacetList flexible(String... fields) {
-    return new FacetList(Arrays.stream(fields).map(f -> new Facet(f, true)).toList(), -1);
+    return new FacetList(Arrays.stream(fields).map(f -> Facet.of(f, true)).toList(), -1);
   }
 
   /** @return {@code true} if no facets are set. */
@@ -77,7 +77,7 @@ record FacetList(List<Facet> facets, int facetSize) implements Serializable {
    * @return A new {@code FacetList} including the specified facet.
    */
   public FacetList facet(String field, boolean flexible) {
-    return facet(new Facet(field, flexible));
+    return facet(Facet.of(field, flexible));
   }
 
   /**
@@ -110,9 +110,9 @@ record FacetList(List<Facet> facets, int facetSize) implements Serializable {
    */
   void toParameters(Map<String, String> parameters) {
     if (!isEmpty()) {
-      String regular = facets.stream().filter(f -> !f.flexible()).map(Facet::field).collect(Collectors.joining(","));
+      String regular = facets.stream().filter(f -> !f.flexible()).map(Facet::definition).collect(Collectors.joining(","));
       if (!regular.isEmpty()) parameters.put("facets", regular);
-      String flex = facets.stream().filter(Facet::flexible).map(Facet::field).collect(Collectors.joining(","));
+      String flex = facets.stream().filter(Facet::flexible).map(Facet::definition).collect(Collectors.joining(","));
       if (!flex.isEmpty()) parameters.put("flexiblefacets", flex);
     }
     if (this.facetSize > 0) parameters.put("facetsize", String.valueOf(this.facetSize));

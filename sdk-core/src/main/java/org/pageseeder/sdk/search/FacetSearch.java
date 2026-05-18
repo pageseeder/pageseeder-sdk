@@ -114,7 +114,7 @@ public final class FacetSearch implements Serializable {
    * @return A new {@code FacetSearch} with a standard facet on the given field.
    */
   public FacetSearch facet(String field) {
-    return facet(new Facet(field, false));
+    return facet(Facet.of(field));
   }
 
   /**
@@ -123,7 +123,7 @@ public final class FacetSearch implements Serializable {
    * @return A new {@code FacetSearch} with the specified facet.
    */
   public FacetSearch facet(String field, boolean flexible) {
-    return facet(new Facet(field, flexible));
+    return facet(Facet.of(field, flexible));
   }
 
   /**

@@ -129,7 +129,7 @@ public final class PredicateSearch implements Serializable {
    * @return A new {@code PredicateSearch} with a standard facet on the given field.
    */
   public PredicateSearch facet(String field) {
-    return facet(new Facet(field, false));
+    return facet(Facet.of(field));
   }
 
   /**
@@ -138,7 +138,7 @@ public final class PredicateSearch implements Serializable {
    * @return A new {@code PredicateSearch} with the specified facet.
    */
   public PredicateSearch facet(String field, boolean flexible) {
-    return facet(new Facet(field, flexible));
+    return facet(Facet.of(field, flexible));
   }
 
   /** @return The current facets. */
