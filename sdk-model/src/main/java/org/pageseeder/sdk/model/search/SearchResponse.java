@@ -38,6 +38,7 @@ public final class SearchResponse {
     this(indexes, reindexing, warning, suggestions, facets, results, false);
   }
 
+  @SuppressWarnings("java:S2583") // Defensive null-check
   private SearchResponse(List<String> indexes, boolean reindexing, @Nullable String warning,
                          List<SearchSuggestion> suggestions, List<SearchFacet> facets,
                          SearchResults results, boolean trusted) {
