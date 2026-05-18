@@ -2,9 +2,6 @@ package org.pageseeder.sdk.exception;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * PageSeeder service error returned by the API.
  *
