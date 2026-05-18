@@ -59,7 +59,10 @@ public final class PredicateSearch {
     return new PredicateSearch(Predicate.EMPTY, FacetList.EMPTY, Page.DEFAULT_PAGE, List.of());
   }
 
-  /** @return A predicate search with the specified Lucene predicate string. */
+  /**
+   * @param predicate The Lucene predicate string.
+   * @return A predicate search with the specified Lucene predicate string.
+   */
   public static PredicateSearch of(String predicate) {
     return create().predicate(predicate);
   }

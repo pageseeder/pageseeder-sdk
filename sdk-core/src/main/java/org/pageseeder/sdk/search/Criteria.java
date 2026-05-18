@@ -48,6 +48,18 @@ record Criteria(Question question, List<Filter> filters, List<RangeFilter> range
     return new Criteria(q, filters, ranges);
   }
 
+  Criteria questionField(String field) {
+    return question(question.field(field));
+  }
+
+  Criteria questionFields(List<String> fields) {
+    return question(question.fields(fields));
+  }
+
+  Criteria suggestSize(int suggestSize) {
+    return question(question.suggestSize(suggestSize));
+  }
+
   // Filters
   // --------------------------------------------------------------------------
 
@@ -140,7 +152,7 @@ record Criteria(Question question, List<Filter> filters, List<RangeFilter> range
     StringBuilder out = new StringBuilder();
     for (Filter f : filters) {
       if (!out.isEmpty()) out.append(',');
-      out.append(f.occur()).append(f.field()).append(':').append(f.value().replace(",", "\\,"));
+      out.append(f.occur()).append(f.field()).append(':').append(Search.escapeParameterValue(f.value()));
     }
     return out.toString();
   }
@@ -149,7 +161,7 @@ record Criteria(Question question, List<Filter> filters, List<RangeFilter> range
     StringBuilder out = new StringBuilder();
     for (RangeFilter f : ranges) {
       if (!out.isEmpty()) out.append(',');
-      out.append(f.field()).append(':').append(f.range().toString().replace(",", "\\,"));
+      out.append(f.field()).append(':').append(f.range().toParameterValue());
     }
     return out.toString();
   }

@@ -32,6 +32,24 @@ public final class Fields {
   /** Document type field (e.g. {@code default}, {@code references}). */
   public static final String TYPE = "pstype";
 
+  /** Document title field. */
+  public static final String TITLE = "pstitle";
+
+  /** Document content field. */
+  public static final String CONTENT = "pscontent";
+
+  /** Document filename field. */
+  public static final String FILENAME = "psfilename";
+
+  /** PageSeeder URI ID field. */
+  public static final String ID = "psid";
+
+  /** PageSeeder document ID field. */
+  public static final String DOCID = "psdocid";
+
+  /** Author field. */
+  public static final String AUTHOR = "psauthor";
+
   /** Status field (e.g. {@code Approved}, {@code Draft}). */
   public static final String STATUS = "psstatus";
 
@@ -55,4 +73,7 @@ public final class Fields {
 
   /** Last-modified date field — use with range filters. */
   public static final String MODIFIEDDATE = "psmodifieddate";
+
+  /** Resource size field — use with range filters. */
+  public static final String SIZE = "pssize";
 }

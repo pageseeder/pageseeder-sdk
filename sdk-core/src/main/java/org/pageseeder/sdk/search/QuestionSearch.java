@@ -61,7 +61,10 @@ public final class QuestionSearch {
     return new QuestionSearch(Criteria.EMPTY, FacetList.EMPTY, Page.DEFAULT_PAGE, List.of());
   }
 
-  /** @return A question search with the specified question text. */
+  /**
+   * @param question The question text for full-text search.
+   * @return A question search with the specified question text.
+   */
   public static QuestionSearch of(String question) {
     return create().question(question);
   }
@@ -83,6 +86,38 @@ public final class QuestionSearch {
    */
   public QuestionSearch question(Question question) {
     return new QuestionSearch(criteria.question(question), facets, page, sortFields);
+  }
+
+  /**
+   * @param field The field to add to the full-text search field list.
+   * @return A new {@code QuestionSearch} including the additional question field.
+   */
+  public QuestionSearch questionField(String field) {
+    return new QuestionSearch(criteria.questionField(field), facets, page, sortFields);
+  }
+
+  /**
+   * @param fields The fields to search for the question text.
+   * @return A new {@code QuestionSearch} with the updated question fields.
+   */
+  public QuestionSearch questionFields(String... fields) {
+    return questionFields(List.of(fields));
+  }
+
+  /**
+   * @param fields The fields to search for the question text.
+   * @return A new {@code QuestionSearch} with the updated question fields.
+   */
+  public QuestionSearch questionFields(List<String> fields) {
+    return new QuestionSearch(criteria.questionFields(fields), facets, page, sortFields);
+  }
+
+  /**
+   * @param suggestSize The maximum number of suggestions to return; negative to disable.
+   * @return A new {@code QuestionSearch} with the updated suggestion size.
+   */
+  public QuestionSearch suggestSize(int suggestSize) {
+    return new QuestionSearch(criteria.suggestSize(suggestSize), facets, page, sortFields);
   }
 
   /** @return The current question. */
@@ -281,31 +316,60 @@ public final class QuestionSearch {
   // Named filter shorthands (with prefix)
   // --------------------------------------------------------------------------
 
-  /** @return A new search with an additional filter on {@code pstype}. */
+  /**
+   * @param type The document type value to match.
+   * @return A new search with an additional filter on {@code pstype}.
+   */
   public QuestionSearch withType(String type) { return new QuestionSearch(criteria.withType(type), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psstatus}. */
+  /**
+   * @param status The status value to match.
+   * @return A new search with an additional filter on {@code psstatus}.
+   */
   public QuestionSearch withStatus(String status) { return new QuestionSearch(criteria.withStatus(status), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code pspriority}. */
+  /**
+   * @param priority The priority value to match.
+   * @return A new search with an additional filter on {@code pspriority}.
+   */
   public QuestionSearch withPriority(String priority) { return new QuestionSearch(criteria.withPriority(priority), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psmediatype}. */
+  /**
+   * @param mediaType The media type value to match.
+   * @return A new search with an additional filter on {@code psmediatype}.
+   */
   public QuestionSearch withMediaType(String mediaType) { return new QuestionSearch(criteria.withMediaType(mediaType), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psassignedto}. */
+  /**
+   * @param assignedTo The assigned member username to match.
+   * @return A new search with an additional filter on {@code psassignedto}.
+   */
   public QuestionSearch withAssignedTo(String assignedTo) { return new QuestionSearch(criteria.withAssignedTo(assignedTo), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psfolder}. */
+  /**
+   * @param folder The folder path to match.
+   * @return A new search with an additional filter on {@code psfolder}.
+   */
   public QuestionSearch withFolder(String folder) { return new QuestionSearch(criteria.withFolder(folder), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psdocumenttype}. */
+  /**
+   * @param documentType The PSML document type value to match.
+   * @return A new search with an additional filter on {@code psdocumenttype}.
+   */
   public QuestionSearch withDocumentType(String documentType) { return new QuestionSearch(criteria.withDocumentType(documentType), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psproperty-<property>}. */
+  /**
+   * @param property The property name without the {@code psproperty-} prefix.
+   * @param value    The property value to match.
+   * @return A new search with an additional filter on {@code psproperty-<property>}.
+   */
   public QuestionSearch withProperty(String property, String value) { return new QuestionSearch(criteria.withProperty(property, value), facets, page, sortFields); }
 
-  /** @return A new search with an additional filter on {@code psmetadata-<property>}. */
+  /**
+   * @param property The metadata property name without the {@code psmetadata-} prefix.
+   * @param value    The metadata value to match.
+   * @return A new search with an additional filter on {@code psmetadata-<property>}.
+   */
   public QuestionSearch withMetadata(String property, String value) { return new QuestionSearch(criteria.withMetadata(property, value), facets, page, sortFields); }
 
   // Named range shorthands (with prefix)

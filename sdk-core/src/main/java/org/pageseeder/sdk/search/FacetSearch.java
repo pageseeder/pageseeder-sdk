@@ -57,7 +57,10 @@ public final class FacetSearch {
     return new FacetSearch(Criteria.EMPTY, FacetList.EMPTY);
   }
 
-  /** @return A facet search with the specified question text. */
+  /**
+   * @param question The question text for full-text search.
+   * @return A facet search with the specified question text.
+   */
   public static FacetSearch of(String question) {
     return create().question(question);
   }
@@ -79,6 +82,38 @@ public final class FacetSearch {
    */
   public FacetSearch question(Question question) {
     return new FacetSearch(criteria.question(question), facets);
+  }
+
+  /**
+   * @param field The field to add to the full-text search field list.
+   * @return A new {@code FacetSearch} including the additional question field.
+   */
+  public FacetSearch questionField(String field) {
+    return new FacetSearch(criteria.questionField(field), facets);
+  }
+
+  /**
+   * @param fields The fields to search for the question text.
+   * @return A new {@code FacetSearch} with the updated question fields.
+   */
+  public FacetSearch questionFields(String... fields) {
+    return questionFields(List.of(fields));
+  }
+
+  /**
+   * @param fields The fields to search for the question text.
+   * @return A new {@code FacetSearch} with the updated question fields.
+   */
+  public FacetSearch questionFields(List<String> fields) {
+    return new FacetSearch(criteria.questionFields(fields), facets);
+  }
+
+  /**
+   * @param suggestSize The maximum number of suggestions to return; negative to disable.
+   * @return A new {@code FacetSearch} with the updated suggestion size.
+   */
+  public FacetSearch suggestSize(int suggestSize) {
+    return new FacetSearch(criteria.suggestSize(suggestSize), facets);
   }
 
   /** @return The current question. */
@@ -213,31 +248,60 @@ public final class FacetSearch {
   // Named filter shorthands (with prefix)
   // --------------------------------------------------------------------------
 
-  /** @return A new search with an additional filter on {@code pstype}. */
+  /**
+   * @param type The document type value to match.
+   * @return A new search with an additional filter on {@code pstype}.
+   */
   public FacetSearch withType(String type) { return new FacetSearch(criteria.withType(type), facets); }
 
-  /** @return A new search with an additional filter on {@code psstatus}. */
+  /**
+   * @param status The status value to match.
+   * @return A new search with an additional filter on {@code psstatus}.
+   */
   public FacetSearch withStatus(String status) { return new FacetSearch(criteria.withStatus(status), facets); }
 
-  /** @return A new search with an additional filter on {@code pspriority}. */
+  /**
+   * @param priority The priority value to match.
+   * @return A new search with an additional filter on {@code pspriority}.
+   */
   public FacetSearch withPriority(String priority) { return new FacetSearch(criteria.withPriority(priority), facets); }
 
-  /** @return A new search with an additional filter on {@code psmediatype}. */
+  /**
+   * @param mediaType The media type value to match.
+   * @return A new search with an additional filter on {@code psmediatype}.
+   */
   public FacetSearch withMediaType(String mediaType) { return new FacetSearch(criteria.withMediaType(mediaType), facets); }
 
-  /** @return A new search with an additional filter on {@code psassignedto}. */
+  /**
+   * @param assignedTo The assigned member username to match.
+   * @return A new search with an additional filter on {@code psassignedto}.
+   */
   public FacetSearch withAssignedTo(String assignedTo) { return new FacetSearch(criteria.withAssignedTo(assignedTo), facets); }
 
-  /** @return A new search with an additional filter on {@code psfolder}. */
+  /**
+   * @param folder The folder path to match.
+   * @return A new search with an additional filter on {@code psfolder}.
+   */
   public FacetSearch withFolder(String folder) { return new FacetSearch(criteria.withFolder(folder), facets); }
 
-  /** @return A new search with an additional filter on {@code psdocumenttype}. */
+  /**
+   * @param documentType The PSML document type value to match.
+   * @return A new search with an additional filter on {@code psdocumenttype}.
+   */
   public FacetSearch withDocumentType(String documentType) { return new FacetSearch(criteria.withDocumentType(documentType), facets); }
 
-  /** @return A new search with an additional filter on {@code psproperty-<property>}. */
+  /**
+   * @param property The property name without the {@code psproperty-} prefix.
+   * @param value    The property value to match.
+   * @return A new search with an additional filter on {@code psproperty-<property>}.
+   */
   public FacetSearch withProperty(String property, String value) { return new FacetSearch(criteria.withProperty(property, value), facets); }
 
-  /** @return A new search with an additional filter on {@code psmetadata-<property>}. */
+  /**
+   * @param property The metadata property name without the {@code psmetadata-} prefix.
+   * @param value    The metadata value to match.
+   * @return A new search with an additional filter on {@code psmetadata-<property>}.
+   */
   public FacetSearch withMetadata(String property, String value) { return new FacetSearch(criteria.withMetadata(property, value), facets); }
 
   // Named range shorthands (with prefix)

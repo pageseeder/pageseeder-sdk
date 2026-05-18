@@ -27,6 +27,10 @@
  * ServiceCall projectCall = query.toServiceCall(SearchScope.project("my-project", "jdoe"));
  * ServiceCall globalCall  = query.toServiceCall(SearchScope.global("jdoe"));
  * }</pre>
+ *
+ * <p>Values embedded in list parameters such as filters, ranges, and range-facet
+ * boundaries are escaped when they are serialized. Field names and Lucene predicates
+ * are passed through as supplied.</p>
  */
 @org.jspecify.annotations.NullMarked
 package org.pageseeder.sdk.search;

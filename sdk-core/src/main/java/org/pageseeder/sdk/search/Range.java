@@ -68,6 +68,35 @@ public record Range(String min, boolean minInclusive, String max, boolean maxInc
     return new Range(min, minInclusive, max, inclusive);
   }
 
+  /**
+   * @param from      The lower bound value.
+   * @param inclusive Whether the lower bound is inclusive
+   * @return A new open-ended {@code Range} starting at {@code from}.
+   */
+  public static Range from(String from, boolean inclusive) {
+    return new Range(from, inclusive, "", false);
+  }
+
+  /**
+   * @param to        The upper bound value.
+   * @param inclusive Whether the upper bound is inclusive
+   * @return A new open-ended {@code Range} ending at {@code to}.
+   */
+  public static Range to(String to, boolean inclusive) {
+    return new Range("", false, to, inclusive);
+  }
+
+  /**
+   * @param from          The lower bound value.
+   * @param to            The upper bound value.
+   * @param fromInclusive Whether the lower bound is inclusive
+   * @param toInclusive   Whether the upper bound is inclusive
+   * @return A new {@code Range} between {@code from} and {@code to}.
+   */
+  public static Range between(String from, String to, boolean fromInclusive, boolean toInclusive) {
+    return new Range(from, fromInclusive, to, toInclusive);
+  }
+
   // Date range factories
   // --------------------------------------------------------------------------
 
@@ -103,5 +132,13 @@ public record Range(String min, boolean minInclusive, String max, boolean maxInc
   @Override
   public String toString() {
     return (minInclusive ? "[" : "{") + min + ";" + max + (maxInclusive ? "]" : "}");
+  }
+
+  String toParameterValue() {
+    return (minInclusive ? "[" : "{")
+        + Search.escapeParameterValue(min)
+        + ";"
+        + Search.escapeParameterValue(max)
+        + (maxInclusive ? "]" : "}");
   }
 }

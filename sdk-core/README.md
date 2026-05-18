@@ -9,6 +9,7 @@ The foundation module of the PageSeeder SDK. Provides the HTTP client, service c
 | `org.pageseeder.sdk` | `PageSeederInstance` |
 | `org.pageseeder.sdk.client` | `PageSeederClient`, `PageSeederResponse`, `XmlResponseBody`, `BodyDecoder<T>` |
 | `org.pageseeder.sdk.service` | `ServiceCall`, `ServiceCatalog`, `ServiceEndpoint`, `PathTemplate` |
+| `org.pageseeder.sdk.search` | `QuestionSearch`, `FacetSearch`, `PredicateSearch`, `SearchScope`, `Facet`, `Filter`, `Range` |
 | `org.pageseeder.sdk.auth` | `Credentials`, `BearerToken`, `SessionCookie`, `BasicCredentials` |
 | `org.pageseeder.sdk.oauth` | `TokenRequest`, `TokenResponse`, `AuthorizationRequest`, `ClientRegistration` |
 | `org.pageseeder.sdk.exception` | `ServiceError`, `ServiceErrorException`, `HttpStatusException`, `TransportException`, `ParsingException` |
@@ -72,14 +73,44 @@ List<Element> els = response.xml().elements("member");
 
 ```java
 ServiceCall call = ServiceCall.of(ServiceCatalog.endpoint("GET", "/members"))
-    .parameter("q", "john")
-    .parameter("max", 20);
+    .query("q", "john")
+    .query("max", "20");
 
 // Form body (POST)
 ServiceCall post = ServiceCall.of(ServiceCatalog.endpoint("POST", "/groups/{group}/comments"))
     .pathVariable("group", "my-project")
-    .formParameter("title", "Hello")
-    .formParameter("content", "World");
+    .form("title", "Hello")
+    .form("content", "World");
+```
+
+### Search builders
+
+The `org.pageseeder.sdk.search` package provides immutable builders for the PageSeeder search services. Build the query first, then bind it to a group, project, or member-wide scope to get an executable `ServiceCall`.
+
+```java
+ServiceCall call = QuestionSearch.of("annual report")
+    .questionFields(Fields.TITLE, Fields.CONTENT)
+    .withType("document")
+    .withStatus("Approved")
+    .facet(Fields.STATUS)
+    .facet(Fields.PRIORITY, true)
+    .page(2)
+    .pageSize(25)
+    .sortField("-" + Fields.MODIFIEDDATE)
+    .toServiceCall(SearchScope.group("my-project-docs"));
+```
+
+Facet extraction and Lucene predicate searches use the same scope model:
+
+```java
+ServiceCall facets = FacetSearch.of("annual report")
+    .facet(Facet.rangeFacet(Fields.DATE, "2024", "2025", "2026"))
+    .toServiceCall(SearchScope.project("my-project", "jdoe", "drafts", "published"));
+
+ServiceCall predicate = PredicateSearch.of("pstitle:report AND pstype:document")
+    .defaultField(Fields.CONTENT)
+    .pageSize(50)
+    .toServiceCall(SearchScope.global("jdoe"));
 ```
 
 ### Using an endpoint not in ServiceCatalog

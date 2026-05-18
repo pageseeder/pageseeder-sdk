@@ -16,6 +16,7 @@
 package org.pageseeder.sdk.search;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Defines where a search is executed.
@@ -38,7 +39,16 @@ public sealed interface SearchScope permits SearchScope.Group, SearchScope.Proje
    *
    * @param group The name of the group.
    */
-  record Group(String group) implements SearchScope {}
+  record Group(String group) implements SearchScope {
+    /**
+     * Creates a group search scope.
+     *
+     * @param group The group name.
+     */
+    public Group {
+      Objects.requireNonNull(group, "group");
+    }
+  }
 
   /**
    * A scope targeting a project, optionally restricted to specific groups within it.
@@ -48,7 +58,16 @@ public sealed interface SearchScope permits SearchScope.Group, SearchScope.Proje
    * @param groups  Specific groups within the project to search; empty means all groups.
    */
   record Project(String project, String member, List<String> groups) implements SearchScope {
+    /**
+     * Creates a project search scope.
+     *
+     * @param project The project name.
+     * @param member  The member making the search.
+     * @param groups  Specific groups within the project to search.
+     */
     public Project {
+      Objects.requireNonNull(project, "project");
+      Objects.requireNonNull(member, "member");
       groups = List.copyOf(groups);
     }
   }
@@ -58,24 +77,58 @@ public sealed interface SearchScope permits SearchScope.Group, SearchScope.Proje
    *
    * @param member The member making the search.
    */
-  record Global(String member) implements SearchScope {}
+  record Global(String member) implements SearchScope {
+    /**
+     * Creates a member-wide search scope.
+     *
+     * @param member The member making the search.
+     */
+    public Global {
+      Objects.requireNonNull(member, "member");
+    }
+  }
 
-  /** @return A scope targeting the specified group. */
+  /**
+   * @param group The group name.
+   * @return A scope targeting the specified group.
+   */
   static SearchScope group(String group) {
     return new Group(group);
   }
 
-  /** @return A scope targeting all groups in the specified project. */
+  /**
+   * @param project The project name.
+   * @param member  The member making the search.
+   * @return A scope targeting all groups in the specified project.
+   */
   static SearchScope project(String project, String member) {
     return new Project(project, member, List.of());
   }
 
-  /** @return A scope targeting specific groups within the specified project. */
+  /**
+   * @param project The project name.
+   * @param member  The member making the search.
+   * @param groups  The groups within the project to search.
+   * @return A scope targeting specific groups within the specified project.
+   */
   static SearchScope project(String project, String member, List<String> groups) {
     return new Project(project, member, groups);
   }
 
-  /** @return A scope covering all content accessible to the specified member. */
+  /**
+   * @param project The project name.
+   * @param member  The member making the search.
+   * @param groups  The groups within the project to search.
+   * @return A scope targeting specific groups within the specified project.
+   */
+  static SearchScope project(String project, String member, String... groups) {
+    return new Project(project, member, List.of(groups));
+  }
+
+  /**
+   * @param member The member making the search.
+   * @return A scope covering all content accessible to the specified member.
+   */
   static SearchScope global(String member) {
     return new Global(member);
   }

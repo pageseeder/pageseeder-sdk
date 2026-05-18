@@ -21,8 +21,8 @@ import java.util.Objects;
  * A range-based search filter on a PageSeeder group index.
  *
  * <p>Associates an index field with a {@link Range}, restricting results to
- * documents whose field value falls within that range. Unlike a {@link Filter},
- * only one range per field is permitted in a {@link RangeFilterList}.</p>
+ * documents whose field value falls within that range. When added through
+ * the fluent search builders, only one range per field is kept.</p>
  *
  * @param field The name of the index field.
  * @param range The range of values the field must fall within.

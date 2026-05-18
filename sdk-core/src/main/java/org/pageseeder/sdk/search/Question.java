@@ -51,6 +51,67 @@ public record Question(String question, List<String> fields, int suggestSize) {
     fields = List.copyOf(Objects.requireNonNull(fields));
   }
 
+  /**
+   * Create a question using the server's default full-text fields and suggestions disabled.
+   *
+   * @param question The question text for full-text search.
+   * @return A new question.
+   */
+  public static Question of(String question) {
+    return new Question(question, List.of(), -1);
+  }
+
+  /**
+   * Create a question restricted to the specified fields.
+   *
+   * @param question The question text for full-text search.
+   * @param fields   The fields to search.
+   * @return A new question.
+   */
+  public static Question of(String question, String... fields) {
+    return new Question(question, List.of(fields), -1);
+  }
+
+  /**
+   * @param question The replacement question text.
+   * @return A new {@code Question} with the updated text.
+   */
+  public Question question(String question) {
+    return new Question(question, fields, suggestSize);
+  }
+
+  /**
+   * @param field The field to add to the field list.
+   * @return A new {@code Question} including the additional field.
+   */
+  public Question field(String field) {
+    return new Question(question, Search.listWith(fields, field), suggestSize);
+  }
+
+  /**
+   * @param fields The replacement field list.
+   * @return A new {@code Question} with the updated fields.
+   */
+  public Question fields(String... fields) {
+    return fields(List.of(fields));
+  }
+
+  /**
+   * @param fields The replacement field list.
+   * @return A new {@code Question} with the updated fields.
+   */
+  public Question fields(List<String> fields) {
+    return new Question(question, fields, suggestSize);
+  }
+
+  /**
+   * @param suggestSize The maximum number of suggestions to return; negative to disable.
+   * @return A new {@code Question} with the updated suggestion size.
+   */
+  public Question suggestSize(int suggestSize) {
+    return new Question(question, fields, suggestSize);
+  }
+
   void toParameters(Map<String, String> parameters) {
     if (!question.isEmpty()) {
       parameters.put("question", question);

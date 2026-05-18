@@ -15,7 +15,9 @@
  */
 package org.pageseeder.sdk.search;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * A facet to be computed and returned in the search results.
@@ -42,32 +44,46 @@ public sealed interface Facet permits Facet.Field, Facet.Range {
    *
    * <p>For {@link Range} facets this is the substring that precedes the first colon
    * in the definition.</p>
+   *
+   * @return The index field name.
    */
   String field();
 
   /**
    * The full definition of this facet as expected by the PageSeeder search API.
    *
-   * <p>For {@link Field} facets this is the plain field name; for {@link Complex}
+   * <p>For {@link Field} facets this is the plain field name; for {@link Range}
    * facets this is the encoded range or interval specification.</p>
+   *
+   * @return The serialized facet definition.
    */
   String definition();
 
-  /** Whether this is a flexible facet. */
+  /** @return {@code true} when this is a flexible facet. */
   boolean flexible();
 
-  /** @return A copy of this facet with the flexible flag updated. */
+  /**
+   * @param flexible Whether the new facet should be flexible.
+   * @return A copy of this facet with the flexible flag updated.
+   */
   Facet flexible(boolean flexible);
 
   // Factory methods
   // --------------------------------------------------------------------------
 
-  /** @return A standard non-flexible facet on the specified field. */
+  /**
+   * @param field The index field name.
+   * @return A standard non-flexible facet on the specified field.
+   */
   static Facet of(String field) {
     return new Field(field, false);
   }
 
-  /** @return A facet on the specified field with the given flexibility. */
+  /**
+   * @param field    The index field name.
+   * @param flexible Whether the facet should be flexible.
+   * @return A facet on the specified field with the given flexibility.
+   */
   static Facet of(String field, boolean flexible) {
     return new Field(field, flexible);
   }
@@ -83,6 +99,12 @@ public sealed interface Facet permits Facet.Field, Facet.Range {
    */
   record Field(String field, boolean flexible) implements Facet {
 
+    /**
+     * Creates a standard field facet.
+     *
+     * @param field    The name of the index field.
+     * @param flexible {@code true} if this is a flexible facet.
+     */
     public Field {
       Objects.requireNonNull(field);
     }
@@ -111,6 +133,12 @@ public sealed interface Facet permits Facet.Field, Facet.Range {
    */
   record Range(String definition, boolean flexible) implements Facet {
 
+    /**
+     * Creates a range or interval facet from a serialized definition.
+     *
+     * @param definition The full facet definition string.
+     * @param flexible   {@code true} if this is a flexible facet.
+     */
     public Range {
       Objects.requireNonNull(definition);
     }
@@ -151,7 +179,51 @@ public sealed interface Facet permits Facet.Field, Facet.Range {
    * @return A new range {@code Facet} for that field.
    */
   static Facet rangeFacet(String field, boolean minInclusive, boolean maxInclusive, String... values) {
-    String definition = field + ':' + (minInclusive ? '[' : '{') + String.join(",", values) + (maxInclusive ? ']' : '}');
+    String definition = field + ':' + (minInclusive ? '[' : '{')
+        + Arrays.stream(values).map(Search::escapeParameterValue).collect(Collectors.joining(";"))
+        + (maxInclusive ? ']' : '}');
+    return new Range(definition, false);
+  }
+
+  /**
+   * Create a fully inclusive interval facet that groups values into fixed-width buckets.
+   *
+   * @param field    The name of the index field.
+   * @param from     The start of the overall range.
+   * @param to       The end of the overall range.
+   * @param interval The size of each bucket.
+   * @return A new interval {@code Facet} for that field.
+   */
+  static Facet intervalFacet(String field, String from, String to, String interval) {
+    return intervalFacet(field, true, true, from, to, interval);
+  }
+
+  /**
+   * Create a fully inclusive open-ended interval facet that groups values into fixed-width buckets.
+   *
+   * @param field    The name of the index field.
+   * @param from     The start value to measure intervals from.
+   * @param interval The size of each bucket.
+   * @return A new interval {@code Facet} for that field.
+   */
+  static Facet intervalFacet(String field, String from, String interval) {
+    return intervalFacet(field, true, true, from, interval);
+  }
+
+  /**
+   * Create an open-ended interval facet that groups values into fixed-width buckets.
+   *
+   * @param field        The name of the index field.
+   * @param minInclusive {@code true} if the lower bound is inclusive.
+   * @param maxInclusive {@code true} if the upper bound is inclusive.
+   * @param from         The start value to measure intervals from.
+   * @param interval     The size of each bucket.
+   * @return A new interval {@code Facet} for that field.
+   */
+  static Facet intervalFacet(String field, boolean minInclusive, boolean maxInclusive, String from, String interval) {
+    String definition = field + ':' + (minInclusive ? '[' : '{')
+        + Search.escapeParameterValue(from) + "|" + Search.escapeParameterValue(interval)
+        + (maxInclusive ? ']' : '}');
     return new Range(definition, false);
   }
 
@@ -167,7 +239,9 @@ public sealed interface Facet permits Facet.Field, Facet.Range {
    * @return A new interval {@code Facet} for that field.
    */
   static Facet intervalFacet(String field, boolean minInclusive, boolean maxInclusive, String from, String to, String interval) {
-    String definition = field + ':' + (minInclusive ? '[' : '{') + from + ";" + to + "|" + interval + (maxInclusive ? ']' : '}');
+    String definition = field + ':' + (minInclusive ? '[' : '{')
+        + Search.escapeParameterValue(from) + ";" + Search.escapeParameterValue(to) + "|" + Search.escapeParameterValue(interval)
+        + (maxInclusive ? ']' : '}');
     return new Range(definition, false);
   }
 }

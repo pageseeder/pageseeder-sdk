@@ -48,6 +48,21 @@ public final class Search {
   }
 
   /**
+   * Escape a value embedded inside a PageSeeder search list parameter.
+   *
+   * <p>The search API uses comma, semicolon, and pipe as parameter-level separators
+   * in facets, filters, and ranges. A literal backslash must be escaped first so it
+   * cannot accidentally escape the next character.</p>
+   */
+  static String escapeParameterValue(String value) {
+    return value
+        .replace("\\", "\\\\")
+        .replace(",", "\\,")
+        .replace(";", "\\;")
+        .replace("|", "\\|");
+  }
+
+  /**
    * Dispatch a scope to the correct endpoint and apply parameters.
    *
    * <p>Selects the group, project, or global endpoint based on the scope type, wires the
