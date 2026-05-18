@@ -36,9 +36,6 @@ import java.util.Objects;
  */
 public record Question(String question, List<String> fields, int suggestSize) implements Serializable {
 
-  @SuppressWarnings("java:S2057")
-  private static final long serialVersionUID = 20260418L;
-
   /**
    * An empty question (no search terms).
    */

@@ -33,9 +33,6 @@ import java.util.Map;
  */
 public record Page(int number, int size) implements Serializable {
 
-  @SuppressWarnings("java:S2057")
-  private static final long serialVersionUID = 20260418L;
-
   /**
    * The default page number is 1.
    */

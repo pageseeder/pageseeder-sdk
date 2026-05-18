@@ -36,9 +36,6 @@ import java.util.Objects;
  */
 public record Predicate(String predicate, String defaultField) implements Serializable {
 
-  @SuppressWarnings("java:S2057")
-  private static final long serialVersionUID = 20260418L;
-
   /**
    * An empty predicate with no search terms and no default field.
    */

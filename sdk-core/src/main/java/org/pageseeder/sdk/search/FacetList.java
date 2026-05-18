@@ -32,9 +32,6 @@ import java.util.stream.Collectors;
  */
 record FacetList(List<Facet> facets, int facetSize) implements Serializable {
 
-  @SuppressWarnings("java:S2057")
-  private static final long serialVersionUID = 20260518L;
-
   /**
    * An empty list of facets.
    */
