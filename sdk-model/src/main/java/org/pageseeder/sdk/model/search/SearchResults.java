@@ -8,13 +8,10 @@ import java.util.Objects;
 /**
  * The paged hit section of a search response.
  *
- * @param page         the current page number
- * @param pageSize     the requested page size
- * @param totalPages   the total number of pages
- * @param totalResults the total number of matching results
- * @param firstResult  the first result index in this page
- * @param lastResult   the last result index in this page
- * @param hits         the returned hits
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class SearchResults {
 

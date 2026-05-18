@@ -7,6 +7,11 @@ import java.util.Objects;
  *
  * @param text        the term text
  * @param cardinality the number of matching results
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public record SearchFacetTerm(String text, int cardinality) {
 

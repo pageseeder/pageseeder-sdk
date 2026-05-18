@@ -8,12 +8,10 @@ import java.util.Objects;
 /**
  * A PageSeeder search response.
  *
- * @param indexes     the index identifiers listed by the response
- * @param reindexing  whether the response indicated that reindexing is in progress
- * @param warning     the response warning, when present
- * @param suggestions the suggested questions
- * @param facets      the returned facets
- * @param results     the paged search results
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class SearchResponse {
 

@@ -19,7 +19,12 @@ import java.util.Objects;
 /**
  * XML decoder for PageSeeder search responses.
  *
- * <p>Most callers should use {@code Decoders.search()}.</p>
+ * <p>Most callers should use {@code Decoders.search()}.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class SearchResponseXmlDecoder implements BodyDecoder<SearchResponse> {
 
@@ -143,7 +148,7 @@ public final class SearchResponseXmlDecoder implements BodyDecoder<SearchRespons
           skipElement(xml);
         }
       } else if (event == XMLStreamConstants.END_ELEMENT && "facet".equals(xml.getLocalName())) {
-        return SearchFacet.trusted(name, type, flexible, hasResults, totalTerms, dataType, terms);
+        return new SearchFacet(name, type, flexible, hasResults, totalTerms, dataType, terms);
       }
     }
     throw new XMLStreamException("Unexpected end of facet");

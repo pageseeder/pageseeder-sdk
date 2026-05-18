@@ -8,6 +8,11 @@ import java.util.Objects;
  * @param name  the index field name
  * @param kind  whether the value came from a field or extract element
  * @param value the field value
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public record SearchField(String name, SearchFieldKind kind, String value) {
 

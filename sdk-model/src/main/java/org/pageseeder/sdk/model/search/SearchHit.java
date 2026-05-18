@@ -12,6 +12,11 @@ import java.util.Objects;
 
 /**
  * A single search hit.
+ *
+ * @author Christophe Lauret
+ *
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class SearchHit {
 
