@@ -55,26 +55,44 @@ public final class SearchResponse {
     return new SearchResponse(indexes, reindexing, warning, suggestions, facets, results, true);
   }
 
+  /**
+   * @return the index identifiers listed by the response
+   */
   public List<String> indexes() {
     return this.indexes;
   }
 
+  /**
+   * @return whether the response indicated that reindexing is in progress
+   */
   public boolean reindexing() {
     return this.reindexing;
   }
 
+  /**
+   * @return the response warning, or {@code null} when no warning was returned
+   */
   public @Nullable String warning() {
     return this.warning;
   }
 
+  /**
+   * @return the suggested questions returned by the search service
+   */
   public List<SearchSuggestion> suggestions() {
     return this.suggestions;
   }
 
+  /**
+   * @return the facets returned by the search service
+   */
   public List<SearchFacet> facets() {
     return this.facets;
   }
 
+  /**
+   * @return the paged search results
+   */
   public SearchResults results() {
     return this.results;
   }

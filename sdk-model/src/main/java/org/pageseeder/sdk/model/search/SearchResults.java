@@ -60,30 +60,51 @@ public final class SearchResults {
     return new SearchResults(page, pageSize, totalPages, totalResults, firstResult, lastResult, hits, true);
   }
 
+  /**
+   * @return the current page number
+   */
   public int page() {
     return this.page;
   }
 
+  /**
+   * @return the requested page size
+   */
   public int pageSize() {
     return this.pageSize;
   }
 
+  /**
+   * @return the total number of pages
+   */
   public int totalPages() {
     return this.totalPages;
   }
 
+  /**
+   * @return the total number of matching results
+   */
   public int totalResults() {
     return this.totalResults;
   }
 
+  /**
+   * @return the first result index in this page
+   */
   public int firstResult() {
     return this.firstResult;
   }
 
+  /**
+   * @return the last result index in this page
+   */
   public int lastResult() {
     return this.lastResult;
   }
 
+  /**
+   * @return the returned search hits
+   */
   public List<SearchHit> hits() {
     return this.hits;
   }
