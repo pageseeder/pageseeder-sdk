@@ -48,6 +48,9 @@ final class SearchTest {
   void facetSearchSupportsQuestionFieldsSuggestionsAndRangeFacets() {
     Facet rangeFacet = Facet.rangeFacet(Fields.DATE, "2020", "2021", "2022");
     Facet intervalFacet = Facet.intervalFacet(Fields.MODIFIEDDATE, "2020-01-01T00:00:00Z", "1M");
+    Facet exclusiveRangeFacet = Facet.rangeFacet(Fields.SIZE, false, false, "0", "10", "20");
+    Facet exclusiveOpenIntervalFacet = Facet.intervalFacet(Fields.TITLE, false, false, "a", "1");
+    Facet exclusiveBoundedIntervalFacet = Facet.intervalFacet(Fields.SIZE, false, false, "0", "100", "10");
 
     FacetSearch search = FacetSearch.of("minutes")
         .questionField(Fields.CONTENT)
@@ -61,6 +64,9 @@ final class SearchTest {
     assertEquals("0", parameters.get("suggestsize"));
     assertEquals("psdate:[2020;2021;2022]", parameters.get("facets"));
     assertEquals("psmodifieddate:[2020-01-01T00:00:00Z|1M]", parameters.get("flexiblefacets"));
+    assertEquals("pssize:{0;10;20}", exclusiveRangeFacet.definition());
+    assertEquals("pstitle:{a|1}", exclusiveOpenIntervalFacet.definition());
+    assertEquals("pssize:{0;100|10}", exclusiveBoundedIntervalFacet.definition());
   }
 
   @Test
@@ -134,5 +140,152 @@ final class SearchTest {
     assertThrows(IllegalArgumentException.class, () -> new Page(0, 100));
     assertThrows(NullPointerException.class, () -> SearchScope.group(null));
     assertThrows(NullPointerException.class, () -> SearchScope.project("project", "member", "group-a", null));
+  }
+
+  @Test
+  void questionSearchCoversFluentAccessorsAndNamedShorthands() {
+    LocalDateTime from = LocalDateTime.of(2026, 3, 1, 10, 0);
+    LocalDateTime to = LocalDateTime.of(2026, 3, 31, 17, 0);
+    Question question = Question.of("policy").question("policy update").fields(Fields.TITLE).suggestSize(3);
+
+    QuestionSearch search = QuestionSearch.create()
+        .question(question)
+        .filters(List.of(new Filter(Fields.STATUS, "Draft")))
+        .filter(Fields.PRIORITY, "High", Filter.Occur.MUST)
+        .ranges(List.of(new RangeFilter(Fields.SIZE, Range.from("100", true))))
+        .range(Fields.SIZE, Range.between("100", "200", true, true))
+        .withType("document")
+        .withStatus("Approved")
+        .withPriority("Low")
+        .withMediaType("application/pdf")
+        .withAssignedTo("jsmith")
+        .withFolder("/reports")
+        .withDocumentType("minutes")
+        .withProperty("year", "2026")
+        .withMetadata("department", "finance")
+        .withBetween(from, to)
+        .page(new Page(3, 15))
+        .sortFields(Fields.TITLE, Fields.DATE)
+        .sortFields(List.of("-" + Fields.DATE));
+
+    assertEquals(question, search.question());
+    assertEquals(new Page(3, 15), search.page());
+    assertEquals(List.of("-" + Fields.DATE), search.sortFields());
+    assertEquals("policy updatepsstatus:Draft,+pspriority:High,pstype:document,psstatus:Approved,pspriority:Low,"
+        + "psmediatype:application/pdf,psassignedto:jsmith,psfolder:/reports,psdocumenttype:minutes,"
+        + "psproperty-year:2026,psmetadata-department:finance"
+        + "pssize:[100;200],psmodifieddate:[" + Search.format(from) + ";" + Search.format(to) + "]",
+        search.toString());
+  }
+
+  @Test
+  void facetSearchCoversFluentAccessorsAndNamedShorthands() {
+    LocalDateTime from = LocalDateTime.of(2026, 4, 1, 10, 0);
+    LocalDateTime to = LocalDateTime.of(2026, 4, 30, 17, 0);
+    Question question = Question.of("agenda", Fields.TITLE);
+
+    FacetSearch search = FacetSearch.create()
+        .question(question)
+        .facets(List.of(Facet.of(Fields.STATUS)))
+        .facet(Fields.STATUS, true)
+        .facetSize(0)
+        .filters(List.of(new Filter(Fields.STATUS, "Draft")))
+        .filter(Fields.PRIORITY, "High", Filter.Occur.MUST_NOT)
+        .ranges(List.of(new RangeFilter(Fields.SIZE, Range.to("500", true))))
+        .range(Fields.SIZE, Range.between("100", "500", true, true))
+        .withType("document")
+        .withStatus("Approved")
+        .withPriority("Low")
+        .withMediaType("application/pdf")
+        .withAssignedTo("jsmith")
+        .withFolder("/reports")
+        .withDocumentType("minutes")
+        .withProperty("year", "2026")
+        .withMetadata("department", "finance")
+        .withFrom(from)
+        .withTo(to);
+
+    assertEquals(question, search.question());
+    assertEquals(List.of(Facet.of(Fields.STATUS, true)), search.facets());
+    assertEquals(0, search.facetSize());
+    assertEquals("agendapsstatus:Draft,-pspriority:High,pstype:document,psstatus:Approved,pspriority:Low,"
+        + "psmediatype:application/pdf,psassignedto:jsmith,psfolder:/reports,psdocumenttype:minutes,"
+        + "psproperty-year:2026,psmetadata-department:finance"
+        + "pssize:[100;500],psmodifieddate:[" + Search.format(from) + ";" + Search.format(to) + "]",
+        search.toString());
+  }
+
+  @Test
+  void predicateSearchCoversFluentAccessors() {
+    Predicate predicate = new Predicate("pstitle:agenda", Fields.TITLE);
+
+    PredicateSearch search = PredicateSearch.create()
+        .predicate(predicate)
+        .predicate("pstitle:minutes")
+        .defaultField(Fields.CONTENT)
+        .facets(List.of(Facet.of(Fields.STATUS)))
+        .facet(Fields.PRIORITY, true)
+        .facetSize(10)
+        .page(new Page(4, 40))
+        .sortField(Fields.TITLE)
+        .sortFields(List.of("-" + Fields.DATE));
+
+    assertEquals(new Predicate("pstitle:minutes", Fields.CONTENT), search.predicate());
+    assertEquals(List.of(Facet.of(Fields.STATUS), Facet.of(Fields.PRIORITY, true)), search.facets());
+    assertEquals(10, search.facetSize());
+    assertEquals(new Page(4, 40), search.page());
+    assertEquals(List.of("-" + Fields.DATE), search.sortFields());
+    assertEquals("Predicate[predicate=pstitle:minutes, defaultField=pscontent]", search.toString());
+  }
+
+  @Test
+  void searchScopeFactoriesCoverAllProjectOverloads() {
+    ServiceCall allProjectGroups = QuestionSearch.create()
+        .toServiceCall(SearchScope.project("project-a", "jsmith"));
+    ServiceCall listedProjectGroups = FacetSearch.create()
+        .toServiceCall(SearchScope.project("project-a", "jsmith", List.of("group-a")));
+
+    assertEquals(ServiceCatalog.MEMBER_PROJECT_SEARCH, allProjectGroups.endpoint());
+    assertEquals(Map.of("project", "project-a", "member", "jsmith"), allProjectGroups.pathVariables());
+    assertEquals(null, allProjectGroups.queryParameters().asMap().get("groups"));
+    assertEquals(ServiceCatalog.MEMBER_PROJECT_SEARCH_FACETS, listedProjectGroups.endpoint());
+    assertEquals(List.of("group-a"), listedProjectGroups.queryParameters().asMap().get("groups"));
+  }
+
+  @Test
+  void valueObjectsExposeReadableRepresentationsAndFactories() {
+    Filter mustFilter = new Filter(Fields.STATUS, "Approved", Filter.Occur.MUST);
+    Facet flexibleFacet = Facet.of(Fields.STATUS).flexible(true);
+    Facet rawRangeFacet = new Facet.Range("custom-field", false);
+    Range range = Range.from("A", true).max("Z", false).min("B", false);
+    Range dateFrom = Range.from(LocalDateTime.of(2026, 5, 1, 9, 0), true);
+    Range dateTo = Range.to(LocalDateTime.of(2026, 5, 2, 9, 0), false);
+
+    assertEquals("+psstatus:Approved", mustFilter.toString());
+    assertEquals(Fields.STATUS, flexibleFacet.field());
+    assertEquals(Fields.STATUS, flexibleFacet.definition());
+    assertEquals("custom-field", rawRangeFacet.field());
+    assertEquals("{B;Z}", range.toString());
+    assertEquals("[" + Search.format(LocalDateTime.of(2026, 5, 1, 9, 0)) + ";}", dateFrom.toString());
+    assertEquals("{;" + Search.format(LocalDateTime.of(2026, 5, 2, 9, 0)) + "}", dateTo.toString());
+    assertEquals("psstatus:[Approved;Approved]", new RangeFilter(Fields.STATUS, Range.between("Approved", "Approved", true, true)).toString());
+  }
+
+  @Test
+  void facetListCoversFactoriesReplacementAndDefaultFacetSize() {
+    FacetList list = FacetList.of(Fields.STATUS, Fields.PRIORITY)
+        .facet(Fields.STATUS, true)
+        .facetSize(5)
+        .facetSize(5);
+    FacetList flexible = FacetList.flexible(Fields.AUTHOR);
+
+    Map<String, String> parameters = new java.util.LinkedHashMap<>();
+    list.toParameters(parameters);
+    flexible.toParameters(parameters);
+
+    assertEquals(List.of(Facet.of(Fields.PRIORITY), Facet.of(Fields.STATUS, true)), list.facets());
+    assertEquals("pspriority", parameters.get("facets"));
+    assertEquals("psauthor", parameters.get("flexiblefacets"));
+    assertEquals("5", parameters.get("facetsize"));
   }
 }
