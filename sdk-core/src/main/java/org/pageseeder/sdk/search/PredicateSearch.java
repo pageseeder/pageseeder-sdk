@@ -181,6 +181,14 @@ public final class PredicateSearch implements Serializable {
   }
 
   /**
+   * @param field The field to add to the sort order.
+   * @return A new {@code PredicateSearch} with this additional sort field.
+   */
+  public PredicateSearch sortField(String field) {
+    return new PredicateSearch(predicate, facets, page, Search.listWith(sortFields, field));
+  }
+
+  /**
    * @param fields The fields to sort results by.
    * @return A new {@code PredicateSearch} with the updated sort fields.
    */

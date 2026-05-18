@@ -254,6 +254,14 @@ public final class QuestionSearch implements Serializable {
   // --------------------------------------------------------------------------
 
   /**
+   * @param field The field to add to the sort order.
+   * @return A new {@code QuestionSearch} with this additional sort field.
+   */
+  public QuestionSearch sortField(String field) {
+    return new QuestionSearch(criteria, facets, page, Search.listWith(sortFields, field));
+  }
+
+  /**
    * @param fields The fields to sort results by.
    * @return A new {@code QuestionSearch} with the updated sort fields.
    */
