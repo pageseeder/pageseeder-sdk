@@ -316,7 +316,11 @@ public final class QuestionSearch implements Serializable {
   // --------------------------------------------------------------------------
 
   /**
-   * Set the lower bound for a date range filter on the modified date.
+   * Set the lower bound (inclusive) of the {@code psmodifieddate} range filter.
+   *
+   * <p>If an upper bound was already set via {@link #withTo} or {@link #withBetween},
+   * only the lower bound is updated; the existing upper bound is preserved.
+   * To replace the range entirely, use {@link #withBetween}.</p>
    *
    * @param from The lower bound (inclusive).
    * @return A new {@code QuestionSearch} with the updated date range.
@@ -324,7 +328,11 @@ public final class QuestionSearch implements Serializable {
   public QuestionSearch withFrom(LocalDateTime from) { return new QuestionSearch(criteria.withFrom(from), facets, page, sortFields); }
 
   /**
-   * Set the upper bound for a date range filter on the modified date.
+   * Set the upper bound (inclusive) of the {@code psmodifieddate} range filter.
+   *
+   * <p>If a lower bound was already set via {@link #withFrom} or {@link #withBetween},
+   * only the upper bound is updated; the existing lower bound is preserved.
+   * To replace the range entirely, use {@link #withBetween}.</p>
    *
    * @param to The upper bound (inclusive).
    * @return A new {@code QuestionSearch} with the updated date range.
@@ -332,7 +340,8 @@ public final class QuestionSearch implements Serializable {
   public QuestionSearch withTo(LocalDateTime to) { return new QuestionSearch(criteria.withTo(to), facets, page, sortFields); }
 
   /**
-   * Set a date range filter on the modified date.
+   * Set the {@code psmodifieddate} range filter, replacing any bound previously set by
+   * {@link #withFrom} or {@link #withTo}.
    *
    * @param from The lower bound (inclusive).
    * @param to   The upper bound (inclusive).

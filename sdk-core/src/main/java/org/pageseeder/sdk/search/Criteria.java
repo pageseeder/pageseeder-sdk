@@ -102,18 +102,21 @@ record Criteria(Question question, List<Filter> filters, List<RangeFilter> range
   // Named range shorthands
   // --------------------------------------------------------------------------
 
+  /** Updates only the lower bound of the {@code psmodifieddate} range, preserving any existing upper bound. */
   Criteria withFrom(LocalDateTime from) {
     Range existing = rangeOf("psmodifieddate");
     Range range = existing != null ? existing.min(Search.format(from), true) : Range.from(from, true);
     return range("psmodifieddate", range);
   }
 
+  /** Updates only the upper bound of the {@code psmodifieddate} range, preserving any existing lower bound. */
   Criteria withTo(LocalDateTime to) {
     Range existing = rangeOf("psmodifieddate");
     Range range = existing != null ? existing.max(Search.format(to), true) : Range.to(to, true);
     return range("psmodifieddate", range);
   }
 
+  /** Replaces any existing {@code psmodifieddate} range entirely. */
   Criteria withBetween(LocalDateTime from, LocalDateTime to) {
     return range("psmodifieddate", Range.between(from, to, true, true));
   }

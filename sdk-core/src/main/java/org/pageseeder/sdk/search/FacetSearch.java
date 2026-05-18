@@ -248,7 +248,11 @@ public final class FacetSearch implements Serializable {
   // --------------------------------------------------------------------------
 
   /**
-   * Set the lower bound for a date range filter on the modified date.
+   * Set the lower bound (inclusive) of the {@code psmodifieddate} range filter.
+   *
+   * <p>If an upper bound was already set via {@link #withTo} or {@link #withBetween},
+   * only the lower bound is updated; the existing upper bound is preserved.
+   * To replace the range entirely, use {@link #withBetween}.</p>
    *
    * @param from The lower bound (inclusive).
    * @return A new {@code FacetSearch} with the updated date range.
@@ -256,7 +260,11 @@ public final class FacetSearch implements Serializable {
   public FacetSearch withFrom(LocalDateTime from) { return new FacetSearch(criteria.withFrom(from), facets); }
 
   /**
-   * Set the upper bound for a date range filter on the modified date.
+   * Set the upper bound (inclusive) of the {@code psmodifieddate} range filter.
+   *
+   * <p>If a lower bound was already set via {@link #withFrom} or {@link #withBetween},
+   * only the upper bound is updated; the existing lower bound is preserved.
+   * To replace the range entirely, use {@link #withBetween}.</p>
    *
    * @param to The upper bound (inclusive).
    * @return A new {@code FacetSearch} with the updated date range.
@@ -264,7 +272,8 @@ public final class FacetSearch implements Serializable {
   public FacetSearch withTo(LocalDateTime to) { return new FacetSearch(criteria.withTo(to), facets); }
 
   /**
-   * Set a date range filter on the modified date.
+   * Set the {@code psmodifieddate} range filter, replacing any bound previously set by
+   * {@link #withFrom} or {@link #withTo}.
    *
    * @param from The lower bound (inclusive).
    * @param to   The upper bound (inclusive).
