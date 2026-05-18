@@ -83,13 +83,13 @@ record Criteria(Question question, List<Filter> filters, List<RangeFilter> range
   // Named filter shorthands
   // --------------------------------------------------------------------------
 
-  Criteria withType(String type)           { return filter("pstype", type); }
-  Criteria withStatus(String status)       { return filter("psstatus", status); }
-  Criteria withPriority(String priority)   { return filter("pspriority", priority); }
-  Criteria withMediaType(String mediaType) { return filter("psmediatype", mediaType); }
-  Criteria withAssignedTo(String member)   { return filter("psassignedto", member); }
-  Criteria withFolder(String folder)       { return filter("psfolder", folder); }
-  Criteria withDocumentType(String type)   { return filter("psdocumenttype", type); }
+  Criteria withType(String type)           { return filter(Fields.TYPE, type); }
+  Criteria withStatus(String status)       { return filter(Fields.STATUS, status); }
+  Criteria withPriority(String priority)   { return filter(Fields.PRIORITY, priority); }
+  Criteria withMediaType(String mediaType) { return filter(Fields.MEDIATYPE, mediaType); }
+  Criteria withAssignedTo(String member)   { return filter(Fields.ASSIGNEDTO, member); }
+  Criteria withFolder(String folder)       { return filter(Fields.FOLDER, folder); }
+  Criteria withDocumentType(String type)   { return filter(Fields.DOCUMENTTYPE, type); }
 
   Criteria withProperty(String property, String value) {
     return filter("psproperty-" + property, value);
@@ -104,21 +104,21 @@ record Criteria(Question question, List<Filter> filters, List<RangeFilter> range
 
   /** Updates only the lower bound of the {@code psmodifieddate} range, preserving any existing upper bound. */
   Criteria withFrom(LocalDateTime from) {
-    Range existing = rangeOf("psmodifieddate");
+    Range existing = rangeOf(Fields.MODIFIEDDATE);
     Range range = existing != null ? existing.min(Search.format(from), true) : Range.from(from, true);
-    return range("psmodifieddate", range);
+    return range(Fields.MODIFIEDDATE, range);
   }
 
   /** Updates only the upper bound of the {@code psmodifieddate} range, preserving any existing lower bound. */
   Criteria withTo(LocalDateTime to) {
-    Range existing = rangeOf("psmodifieddate");
+    Range existing = rangeOf(Fields.MODIFIEDDATE);
     Range range = existing != null ? existing.max(Search.format(to), true) : Range.to(to, true);
-    return range("psmodifieddate", range);
+    return range(Fields.MODIFIEDDATE, range);
   }
 
   /** Replaces any existing {@code psmodifieddate} range entirely. */
   Criteria withBetween(LocalDateTime from, LocalDateTime to) {
-    return range("psmodifieddate", Range.between(from, to, true, true));
+    return range(Fields.MODIFIEDDATE, Range.between(from, to, true, true));
   }
 
   private @Nullable Range rangeOf(String field) {

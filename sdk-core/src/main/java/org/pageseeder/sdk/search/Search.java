@@ -80,13 +80,18 @@ public final class Search {
   }
 
   /**
-   * Format the date time as a string for use in search filters and ranges.
+   * Format a datetime as a PageSeeder range value string.
    *
-   * <p>The date time string is serialised using ISO 8601 in universal time (UTC).</p>
+   * <p>Use this method when constructing a {@link Range} with raw string bounds rather than
+   * the {@code LocalDateTime} factory methods ({@link Range#from}, {@link Range#to},
+   * {@link Range#between}). The output is ISO 8601 in UTC, truncated to seconds —
+   * the format PageSeeder expects for datetime range parameters.</p>
    *
-   * @param datetime The datetime instance to format
+   * <p>Example: {@code 2024-06-01T00:00:00} in the system timezone becomes
+   * {@code 2024-05-31T14:00:00Z} if the system is UTC+10.</p>
    *
-   * @return The corresponding string format.
+   * @param datetime The datetime to format (interpreted in the system default timezone).
+   * @return The corresponding UTC string, e.g. {@code "2024-06-01T00:00:00Z"}.
    */
   public static String format(LocalDateTime datetime) {
     return datetime.atZone(ZoneId.systemDefault())
