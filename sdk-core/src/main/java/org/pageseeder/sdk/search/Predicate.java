@@ -15,7 +15,6 @@
  */
 package org.pageseeder.sdk.search;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,7 +33,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 1.0.0
  */
-public record Predicate(String predicate, String defaultField) implements Serializable {
+public record Predicate(String predicate, String defaultField) {
 
   /**
    * An empty predicate with no search terms and no default field.

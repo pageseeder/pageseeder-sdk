@@ -15,7 +15,6 @@
  */
 package org.pageseeder.sdk.search;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
-public record Page(int number, int size) implements Serializable {
+public record Page(int number, int size) {
 
   /**
    * The default page number is 1.

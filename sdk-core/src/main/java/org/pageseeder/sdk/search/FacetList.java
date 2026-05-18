@@ -15,7 +15,6 @@
  */
 package org.pageseeder.sdk.search;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
-record FacetList(List<Facet> facets, int facetSize) implements Serializable {
+record FacetList(List<Facet> facets, int facetSize) {
 
   /**
    * An empty list of facets.

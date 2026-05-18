@@ -18,7 +18,6 @@ package org.pageseeder.sdk.search;
 import org.pageseeder.sdk.service.ServiceCall;
 import org.pageseeder.sdk.service.ServiceCatalog;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,10 +42,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
-public final class QuestionSearch implements Serializable {
-
-  @SuppressWarnings("java:S2057")
-  private static final long serialVersionUID = 20260518L;
+public final class QuestionSearch {
 
   private final Criteria criteria;
   private final FacetList facets;
