@@ -15,6 +15,9 @@
  */
 package org.pageseeder.sdk.search;
 
+import org.pageseeder.sdk.service.ServiceCall;
+import org.pageseeder.sdk.service.ServiceEndpoint;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -22,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility methods shared across PageSeeder search services.
@@ -41,6 +45,38 @@ public final class Search {
     var updated = new ArrayList<>(list);
     updated.add(element);
     return List.copyOf(updated);
+  }
+
+  /**
+   * Dispatch a scope to the correct endpoint and apply parameters.
+   *
+   * <p>Selects the group, project, or global endpoint based on the scope type, wires the
+   * required path variables, injects a {@code groups} query parameter for project-scoped
+   * searches when the group list is non-empty, and applies all remaining parameters.</p>
+   */
+  static ServiceCall buildCall(SearchScope scope,
+                               ServiceEndpoint groupEndpoint,
+                               ServiceEndpoint projectEndpoint,
+                               ServiceEndpoint globalEndpoint,
+                               Map<String, String> params) {
+    ServiceCall call;
+    if (scope instanceof SearchScope.Group g) {
+      call = ServiceCall.of(groupEndpoint)
+          .pathVariable("group", g.group());
+    } else if (scope instanceof SearchScope.Project p) {
+      if (!p.groups().isEmpty())
+        params.put("groups", String.join(",", p.groups()));
+      call = ServiceCall.of(projectEndpoint)
+          .pathVariable("member", p.member())
+          .pathVariable("project", p.project());
+    } else if (scope instanceof SearchScope.Global gl) {
+      call = ServiceCall.of(globalEndpoint)
+          .pathVariable("member", gl.member());
+    } else {
+      throw new IllegalArgumentException("Unknown scope type: " + scope.getClass().getName());
+    }
+    params.forEach(call::query);
+    return call;
   }
 
   /**

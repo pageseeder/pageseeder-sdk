@@ -219,25 +219,11 @@ public final class PredicateSearch implements Serializable {
    * @return A fully configured {@code ServiceCall}.
    */
   public ServiceCall toServiceCall(SearchScope scope) {
-    Map<String, String> params = toParameters();
-    ServiceCall call;
-    if (scope instanceof SearchScope.Group g) {
-      call = ServiceCall.of(ServiceCatalog.GROUP_SEARCH_PREDICATE)
-          .pathVariable("group", g.group());
-    } else if (scope instanceof SearchScope.Project p) {
-      if (!p.groups().isEmpty())
-        params.put("groups", String.join(",", p.groups()));
-      call = ServiceCall.of(ServiceCatalog.MEMBER_PROJECT_SEARCH_PREDICATE)
-          .pathVariable("member", p.member())
-          .pathVariable("project", p.project());
-    } else if (scope instanceof SearchScope.Global gl) {
-      call = ServiceCall.of(ServiceCatalog.MEMBER_SEARCH_PREDICATE)
-          .pathVariable("member", gl.member());
-    } else {
-      throw new IllegalArgumentException("Unknown scope type: " + scope.getClass().getName());
-    }
-    params.forEach(call::query);
-    return call;
+    return Search.buildCall(scope,
+        ServiceCatalog.GROUP_SEARCH_PREDICATE,
+        ServiceCatalog.MEMBER_PROJECT_SEARCH_PREDICATE,
+        ServiceCatalog.MEMBER_SEARCH_PREDICATE,
+        toParameters());
   }
 
   Map<String, String> toParameters() {
