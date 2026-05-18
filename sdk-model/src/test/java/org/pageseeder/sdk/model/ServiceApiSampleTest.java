@@ -319,11 +319,14 @@ final class ServiceApiSampleTest {
           ServiceApiSampleTest::assertMembership,
           null));
       contracts.put("get_group", success(
-          sample -> ServiceCall.of(sample.testName().startsWith("project")
-                  ? ServiceCatalog.endpoint("GET", "/projects/{group}")
-                  : ServiceCatalog.GROUP)
-              .pathVariable("group", sampleEntityGroup(sample))
-              .accept(sample.format()),
+          sample -> {
+            boolean project = sample.testName().startsWith("project");
+            return ServiceCall.of(project
+                    ? ServiceCatalog.endpoint("GET", "/projects/{project}")
+                    : ServiceCatalog.GROUP)
+                .pathVariable(project ? "project" : "group", sampleEntityGroup(sample))
+                .accept(sample.format());
+          },
           Group.class,
           ServiceApiSampleTest::assertGroup,
           null));
