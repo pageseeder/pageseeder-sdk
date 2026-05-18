@@ -3,6 +3,9 @@ package org.pageseeder.sdk.model.codec;
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.sdk.client.BodyDecoder;
 import org.pageseeder.sdk.model.ResultPage;
+import org.pageseeder.sdk.model.search.SearchDecodeOptions;
+import org.pageseeder.sdk.model.search.SearchResponse;
+import org.pageseeder.sdk.model.search.SearchResponseXmlDecoder;
 
 import java.util.List;
 
@@ -60,6 +63,25 @@ public final class Decoders {
    */
   public static <T> BodyDecoder<ResultPage<T>> page(Class<T> type) {
     return (body, mediaType) -> parserFor(mediaType).parseResultPage(body, type);
+  }
+
+  /**
+   * Returns a decoder for PageSeeder search responses.
+   *
+   * @return a decoder for search responses
+   */
+  public static BodyDecoder<SearchResponse> search() {
+    return search(SearchDecodeOptions.defaults());
+  }
+
+  /**
+   * Returns a decoder for PageSeeder search responses.
+   *
+   * @param options the search decoding options
+   * @return a decoder for search responses
+   */
+  public static BodyDecoder<SearchResponse> search(SearchDecodeOptions options) {
+    return new SearchResponseXmlDecoder(options);
   }
 
   private static PageSeederParser parserFor(@Nullable String mediaType) {

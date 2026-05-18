@@ -11,5 +11,6 @@ module org.pageseeder.sdk.model {
 
   exports org.pageseeder.sdk.model;
   exports org.pageseeder.sdk.model.codec;
+  exports org.pageseeder.sdk.model.search;
   exports org.pageseeder.sdk.model.util;
 }
