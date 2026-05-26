@@ -78,6 +78,7 @@ public final class ServiceCall {
    * @return {@code this} for chaining.
    */
   public ServiceCall form(String name, String value) {
+    // TODO throw error when endpoint method does not support body
     this.form.add(name, value);
     return this;
   }
@@ -113,6 +114,7 @@ public final class ServiceCall {
    * @return {@code this} for chaining.
    */
   public ServiceCall rawBody(byte[] body, String contentType) {
+    // TODO throw error when endpoint method does not support body
     this.rawBody = body;
     this.contentType = contentType;
     return this;
@@ -126,6 +128,7 @@ public final class ServiceCall {
    * @return {@code this} for chaining.
    */
   public ServiceCall rawBody(String body, String contentType) {
+    // TODO throw error when endpoint method does not support body
     return rawBody(body.getBytes(StandardCharsets.UTF_8), contentType);
   }
 
