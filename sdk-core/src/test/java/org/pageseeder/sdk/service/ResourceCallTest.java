@@ -126,7 +126,7 @@ final class ResourceCallTest {
   // --- fetch integration ---
 
   @Test
-  void fetchSendsGetToWebsiteRoot() throws Exception {
+  void fetchSendsGetToWebsiteRoot() {
     AtomicReference<String> method = new AtomicReference<>();
     AtomicReference<String> path = new AtomicReference<>();
     this.server.createContext("/ps/docid/XYZ-1", exchange -> {
@@ -142,7 +142,7 @@ final class ResourceCallTest {
   }
 
   @Test
-  void fetchSendsCredentials() throws Exception {
+  void fetchSendsCredentials() {
     AtomicReference<String> authorization = new AtomicReference<>();
     this.server.createContext("/ps/uri/55", exchange -> {
       authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
@@ -159,7 +159,7 @@ final class ResourceCallTest {
   }
 
   @Test
-  void fetchAllowsCredentialOverride() throws Exception {
+  void fetchAllowsCredentialOverride() {
     AtomicReference<String> authorization = new AtomicReference<>();
     this.server.createContext("/ps/uri/10", exchange -> {
       authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));

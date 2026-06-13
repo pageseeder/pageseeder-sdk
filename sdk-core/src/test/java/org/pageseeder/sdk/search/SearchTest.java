@@ -5,10 +5,12 @@ import org.pageseeder.sdk.service.ServiceCatalog;
 import org.pageseeder.sdk.service.ServiceCall;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 final class SearchTest {
@@ -88,8 +90,8 @@ final class SearchTest {
 
   @Test
   void dateRangeHelpersUpdateModifiedDateBoundsWithoutDuplicatingRanges() {
-    LocalDateTime from = LocalDateTime.of(2026, 1, 1, 9, 30, 15, 123_000_000);
-    LocalDateTime to = LocalDateTime.of(2026, 2, 1, 17, 45, 30);
+    LocalDateTime from = LocalDateTime.of(2026, Month.JANUARY, 1, 9, 30, 15, 123_000_000);
+    LocalDateTime to = LocalDateTime.of(2026, Month.FEBRUARY, 1, 17, 45, 30);
 
     QuestionSearch search = QuestionSearch.create()
         .withFrom(from)
@@ -144,8 +146,8 @@ final class SearchTest {
 
   @Test
   void questionSearchCoversFluentAccessorsAndNamedShorthands() {
-    LocalDateTime from = LocalDateTime.of(2026, 3, 1, 10, 0);
-    LocalDateTime to = LocalDateTime.of(2026, 3, 31, 17, 0);
+    LocalDateTime from = LocalDateTime.of(2026, Month.MARCH, 1, 10, 0);
+    LocalDateTime to = LocalDateTime.of(2026, Month.MARCH, 31, 17, 0);
     Question question = Question.of("policy").question("policy update").fields(Fields.TITLE).suggestSize(3);
 
     QuestionSearch search = QuestionSearch.create()
@@ -180,8 +182,8 @@ final class SearchTest {
 
   @Test
   void facetSearchCoversFluentAccessorsAndNamedShorthands() {
-    LocalDateTime from = LocalDateTime.of(2026, 4, 1, 10, 0);
-    LocalDateTime to = LocalDateTime.of(2026, 4, 30, 17, 0);
+    LocalDateTime from = LocalDateTime.of(2026, Month.APRIL, 1, 10, 0);
+    LocalDateTime to = LocalDateTime.of(2026, Month.APRIL, 30, 17, 0);
     Question question = Question.of("agenda", Fields.TITLE);
 
     FacetSearch search = FacetSearch.create()
@@ -247,7 +249,7 @@ final class SearchTest {
 
     assertEquals(ServiceCatalog.MEMBER_PROJECT_SEARCH, allProjectGroups.endpoint());
     assertEquals(Map.of("project", "project-a", "member", "jsmith"), allProjectGroups.pathVariables());
-    assertEquals(null, allProjectGroups.queryParameters().asMap().get("groups"));
+    assertNull(allProjectGroups.queryParameters().asMap().get("groups"));
     assertEquals(ServiceCatalog.MEMBER_PROJECT_SEARCH_FACETS, listedProjectGroups.endpoint());
     assertEquals(List.of("group-a"), listedProjectGroups.queryParameters().asMap().get("groups"));
   }
@@ -258,16 +260,16 @@ final class SearchTest {
     Facet flexibleFacet = Facet.of(Fields.STATUS).flexible(true);
     Facet rawRangeFacet = new Facet.Range("custom-field", false);
     Range range = Range.from("A", true).max("Z", false).min("B", false);
-    Range dateFrom = Range.from(LocalDateTime.of(2026, 5, 1, 9, 0), true);
-    Range dateTo = Range.to(LocalDateTime.of(2026, 5, 2, 9, 0), false);
+    Range dateFrom = Range.from(LocalDateTime.of(2026, Month.MAY, 1, 9, 0), true);
+    Range dateTo = Range.to(LocalDateTime.of(2026, Month.MAY, 2, 9, 0), false);
 
     assertEquals("+psstatus:Approved", mustFilter.toString());
     assertEquals(Fields.STATUS, flexibleFacet.field());
     assertEquals(Fields.STATUS, flexibleFacet.definition());
     assertEquals("custom-field", rawRangeFacet.field());
     assertEquals("{B;Z}", range.toString());
-    assertEquals("[" + Search.format(LocalDateTime.of(2026, 5, 1, 9, 0)) + ";}", dateFrom.toString());
-    assertEquals("{;" + Search.format(LocalDateTime.of(2026, 5, 2, 9, 0)) + "}", dateTo.toString());
+    assertEquals("[" + Search.format(LocalDateTime.of(2026, Month.MAY, 1, 9, 0)) + ";}", dateFrom.toString());
+    assertEquals("{;" + Search.format(LocalDateTime.of(2026, Month.MAY, 2, 9, 0)) + "}", dateTo.toString());
     assertEquals("psstatus:[Approved;Approved]", new RangeFilter(Fields.STATUS, Range.between("Approved", "Approved", true, true)).toString());
   }
 

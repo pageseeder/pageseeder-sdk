@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeParseException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +25,8 @@ class SearchFieldTest {
 
   @Test
   void shouldThrowNumberFormatExceptionForInvalidInt() {
-    assertThrows(NumberFormatException.class, () -> field("abc").asInt());
+    SearchField field = field("abc");
+    assertThrows(NumberFormatException.class, field::asInt);
   }
 
   // asLong
@@ -36,50 +38,57 @@ class SearchFieldTest {
 
   @Test
   void shouldThrowNumberFormatExceptionForInvalidLong() {
-    assertThrows(NumberFormatException.class, () -> field("abc").asLong());
+    SearchField field = field("abc");
+    assertThrows(NumberFormatException.class, field::asLong);
   }
 
   // asLocalDate
 
   @Test
   void shouldParseLocalDateFromLuceneFormat() {
-    assertEquals(LocalDate.of(2023, 4, 2), field("20230402").asLocalDate());
+    assertEquals(LocalDate.of(2023, Month.APRIL, 2), field("20230402").asLocalDate());
   }
 
   @Test
   void shouldParseLocalDateFromIsoFormat() {
-    assertEquals(LocalDate.of(2023, 4, 2), field("2023-04-02").asLocalDate());
+    assertEquals(LocalDate.of(2023, Month.APRIL, 2), field("2023-04-02").asLocalDate());
   }
 
   @Test
   void shouldThrowDateTimeParseExceptionForDatetimeValueInAsLocalDate() {
-    assertThrows(DateTimeParseException.class, () -> field("20230402055526").asLocalDate());
+    SearchField field = field("20230402055526");
+    assertThrows(DateTimeParseException.class, field::asLocalDate);
   }
 
   @Test
   void shouldThrowDateTimeParseExceptionForIsoDatetimeValueInAsLocalDate() {
-    assertThrows(DateTimeParseException.class, () -> field("2023-04-02T05:55:26Z").asLocalDate());
+    SearchField field = field("2023-04-02T05:55:26Z");
+    assertThrows(DateTimeParseException.class, field::asLocalDate);
   }
 
   @Test
   void shouldThrowDateTimeParseExceptionForInvalidDate() {
-    assertThrows(DateTimeParseException.class, () -> field("not-a-date").asLocalDate());
+    SearchField field = field("not-a-date");
+    assertThrows(DateTimeParseException.class, field::asLocalDate);
   }
 
   // asInstant
 
   @Test
   void shouldParseInstantFromLuceneFormat() {
-    assertEquals(Instant.parse("2023-04-02T05:55:26Z"), field("20230402055526").asInstant());
+    SearchField field = field("20230402055526");
+    assertEquals(Instant.parse("2023-04-02T05:55:26Z"), field.asInstant());
   }
 
   @Test
   void shouldParseInstantFromIsoFormat() {
-    assertEquals(Instant.parse("2023-04-02T05:55:26Z"), field("2023-04-02T05:55:26Z").asInstant());
+    SearchField field = field("2023-04-02T05:55:26Z");
+    assertEquals(Instant.parse("2023-04-02T05:55:26Z"), field.asInstant());
   }
 
   @Test
   void shouldThrowDateTimeParseExceptionForInvalidInstant() {
-    assertThrows(DateTimeParseException.class, () -> field("not-a-datetime").asInstant());
+    SearchField field = field("not-a-datetime");
+    assertThrows(DateTimeParseException.class, field::asInstant);
   }
 }

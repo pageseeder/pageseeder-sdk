@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +24,7 @@ class SearchHitTest {
 
   @Test
   void shouldReturnFirstInt() {
-    assertEquals(42, HIT.firstInt("count"));
+    assertEquals(Integer.valueOf(42), HIT.firstInt("count"));
   }
 
   @Test
@@ -41,7 +42,7 @@ class SearchHitTest {
 
   @Test
   void shouldReturnFirstLong() {
-    assertEquals(9_876_543_210L, HIT.firstLong("size"));
+    assertEquals(Long.valueOf(9_876_543_210L), HIT.firstLong("size"));
   }
 
   @Test
@@ -59,7 +60,7 @@ class SearchHitTest {
 
   @Test
   void shouldReturnFirstLocalDate() {
-    assertEquals(LocalDate.of(2023, 4, 2), HIT.firstLocalDate("date"));
+    assertEquals(LocalDate.of(2023, Month.APRIL, 2), HIT.firstLocalDate("date"));
   }
 
   @Test
