@@ -24,6 +24,8 @@ public final class SearchHit {
 
   private final double score;
   private final List<SearchField> fields;
+  // racy single-check (EJ §83): volatile ensures safe publication; race is benign — both threads compute the same immutable map
+  @SuppressWarnings("java:S3077")
   private volatile @Nullable Map<String, List<SearchField>> fieldsByName;
 
   /**
