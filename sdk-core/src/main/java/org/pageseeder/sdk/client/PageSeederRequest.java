@@ -22,7 +22,7 @@ public final class PageSeederRequest {
   private final Map<String, String> headers;
   private final byte @Nullable [] body;
   private final @Nullable String contentType;
-  private final PayloadFormat format;
+  private final @Nullable PayloadFormat format;
 
   /**
    * Creates a resolved SDK request.
@@ -37,7 +37,7 @@ public final class PageSeederRequest {
   public PageSeederRequest(String method, URI uri, Map<String, String> headers,
                            byte @Nullable [] body,
                            @Nullable String contentType,
-                           PayloadFormat format) {
+                           @Nullable PayloadFormat format) {
     this.method = method;
     this.uri = uri;
     this.headers = Map.copyOf(headers);
@@ -92,11 +92,12 @@ public final class PageSeederRequest {
   }
 
   /**
-   * Returns the expected response payload format.
+   * Returns the expected response payload format, or {@code null} for resource calls where no
+   * format is negotiated.
    *
-   * @return the response payload format
+   * @return the response payload format, or {@code null}
    */
-  public PayloadFormat format() {
+  public @Nullable PayloadFormat format() {
     return this.format;
   }
 }

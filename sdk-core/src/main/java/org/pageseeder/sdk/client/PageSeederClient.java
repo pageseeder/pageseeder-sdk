@@ -8,6 +8,7 @@ import org.pageseeder.sdk.exception.ServiceError;
 import org.pageseeder.sdk.exception.ServiceErrorException;
 import org.pageseeder.sdk.exception.TransportException;
 import org.pageseeder.sdk.service.PayloadFormat;
+import org.pageseeder.sdk.service.ResourceCall;
 import org.pageseeder.sdk.service.ServiceCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -260,6 +261,96 @@ public final class PageSeederClient {
       reqBody = call.rawBody();
     }
     return new PageSeederRequest(call.endpoint().method(), uri, headers, reqBody, contentType, format);
+  }
+
+  /**
+   * Fetches a website resource and returns the raw response.
+   *
+   * <p>Resolves the resource path against {@code websiteRoot()} with no format extension appended.
+   * Use this for document, thumbnail, and image servlet paths that live outside the {@code /api/}
+   * namespace.
+   *
+   * @param call the resource call to execute
+   * @return the response
+   */
+  public PageSeederResponse fetch(ResourceCall call) {
+    return fetch(call, this.credentials);
+  }
+
+  /**
+   * Fetches a website resource with explicit credentials, overriding any client-level credentials.
+   *
+   * @param call        the resource call to execute
+   * @param credentials the credentials to use
+   * @return the response
+   */
+  public PageSeederResponse fetch(ResourceCall call, @Nullable Credentials credentials) {
+    PageSeederRequest request = toRequest(call);
+    HttpRequest.Builder builder = HttpRequest.newBuilder(request.uri()).timeout(this.timeout);
+    request.headers().forEach(builder::header);
+    if (credentials != null) {
+      credentials.apply(builder);
+    }
+    if (this.gzipEnabled) {
+      builder.header("Accept-Encoding", "gzip");
+    }
+    builder.GET();
+    try {
+      HttpResponse<byte[]> response = this.httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+      byte[] responseBody = decodeBody(response);
+      String mediaType = response.headers().firstValue("Content-Type").orElse(null);
+      if (response.statusCode() >= 400) {
+        throwServiceException(response.statusCode(), responseBody, mediaType);
+      }
+      return new PageSeederResponse(response.statusCode(), response.headers().map(), responseBody, mediaType);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      throw new TransportException("Unable to fetch PageSeeder resource", ex);
+    } catch (IOException ex) {
+      throw new TransportException("Unable to fetch PageSeeder resource", ex);
+    }
+  }
+
+  /**
+   * Fetches a website resource and decodes the response using the supplied decoder.
+   *
+   * @param call    the resource call to execute
+   * @param decoder the decoder to apply to the response body
+   * @param <T>     the result type
+   * @return the decoded result
+   */
+  public <T> T fetch(ResourceCall call, BodyDecoder<T> decoder) {
+    return fetch(call, this.credentials, decoder);
+  }
+
+  /**
+   * Fetches a website resource with explicit credentials and decodes the response.
+   *
+   * @param call        the resource call to execute
+   * @param credentials the credentials to use
+   * @param decoder     the decoder to apply to the response body
+   * @param <T>         the result type
+   * @return the decoded result
+   */
+  public <T> T fetch(ResourceCall call, @Nullable Credentials credentials, BodyDecoder<T> decoder) {
+    PageSeederResponse response = fetch(call, credentials);
+    return response.as(decoder);
+  }
+
+  /**
+   * Converts a resource call to a low-level HTTP request without executing it.
+   *
+   * <p>Resolves path variables and merges query parameters. The resulting URI is relative to
+   * {@code websiteRoot()}; no format extension is appended and no {@code Accept} header is set.
+   *
+   * @param call the resource call to convert
+   * @return the corresponding HTTP request descriptor
+   */
+  public PageSeederRequest toRequest(ResourceCall call) {
+    String path = call.pathTemplate().resolve(call.pathVariables());
+    URI uri = withQuery(this.instance.websiteRoot().resolve(relativePath(path)), call.queryParameters().toFormUrlEncoded());
+    Map<String, String> headers = new LinkedHashMap<>(call.headers());
+    return new PageSeederRequest("GET", uri, headers, null, null, null);
   }
 
   private URI withQuery(URI base, @Nullable String query) {
