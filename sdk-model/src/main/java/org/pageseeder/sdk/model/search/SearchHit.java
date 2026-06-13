@@ -2,6 +2,8 @@ package org.pageseeder.sdk.model.search;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.AbstractList;
 import java.util.Collections;
@@ -101,6 +103,54 @@ public final class SearchHit {
   public @Nullable String firstValue(String name) {
     List<SearchField> matching = fields(name);
     return matching.isEmpty() ? null : matching.get(0).value();
+  }
+
+  /**
+   * Returns the first value for the specified field name as an {@code Integer}.
+   *
+   * @param name the field name
+   * @return the first matching value as an {@code Integer}, or {@code null} if the field is absent
+   * @throws NumberFormatException if the value cannot be parsed as an {@code int}
+   */
+  public @Nullable Integer firstInt(String name) {
+    String v = firstValue(name);
+    return v == null ? null : Integer.parseInt(v);
+  }
+
+  /**
+   * Returns the first value for the specified field name as a {@code Long}.
+   *
+   * @param name the field name
+   * @return the first matching value as a {@code Long}, or {@code null} if the field is absent
+   * @throws NumberFormatException if the value cannot be parsed as a {@code long}
+   */
+  public @Nullable Long firstLong(String name) {
+    String v = firstValue(name);
+    return v == null ? null : Long.parseLong(v);
+  }
+
+  /**
+   * Returns the first value for the specified field name as a {@code LocalDate}.
+   *
+   * @param name the field name
+   * @return the first matching value as a {@code LocalDate}, or {@code null} if the field is absent
+   * @throws java.time.format.DateTimeParseException if the value matches neither Lucene nor ISO-8601 date format
+   */
+  public @Nullable LocalDate firstLocalDate(String name) {
+    List<SearchField> matching = fields(name);
+    return matching.isEmpty() ? null : matching.get(0).asLocalDate();
+  }
+
+  /**
+   * Returns the first value for the specified field name as an {@code Instant}.
+   *
+   * @param name the field name
+   * @return the first matching value as an {@code Instant}, or {@code null} if the field is absent
+   * @throws java.time.format.DateTimeParseException if the value matches neither Lucene nor ISO-8601 datetime format
+   */
+  public @Nullable Instant firstInstant(String name) {
+    List<SearchField> matching = fields(name);
+    return matching.isEmpty() ? null : matching.get(0).asInstant();
   }
 
   private Map<String, List<SearchField>> byName() {
