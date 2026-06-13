@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 public final class ResourceCall {
 
   private static final Pattern DOC_ID = Pattern.compile("[a-zA-Z0-9_-]+");
+  private static final String URIID = "uriid";
 
   private static final PathTemplate DOCID_TEMPLATE     = new PathTemplate("/docid/{docid}");
   private static final PathTemplate URI_TEMPLATE       = new PathTemplate("/uri/{uriid}");
@@ -70,7 +71,7 @@ public final class ResourceCall {
    */
   public static ResourceCall uri(long uriId) {
     ResourceCall call = new ResourceCall(URI_TEMPLATE);
-    call.pathVariables.put("uriid", uriId);
+    call.pathVariables.put(URIID, uriId);
     return call;
   }
 
@@ -82,7 +83,7 @@ public final class ResourceCall {
    */
   public static ResourceCall thumbnail(long uriId) {
     ResourceCall call = new ResourceCall(THUMBNAIL_TEMPLATE);
-    call.pathVariables.put("uriid", uriId);
+    call.pathVariables.put(URIID, uriId);
     return call;
   }
 
@@ -94,7 +95,7 @@ public final class ResourceCall {
    */
   public static ResourceCall image(long uriId) {
     ResourceCall call = new ResourceCall(IMAGE_TEMPLATE);
-    call.pathVariables.put("uriid", uriId);
+    call.pathVariables.put(URIID, uriId);
     return call;
   }
 

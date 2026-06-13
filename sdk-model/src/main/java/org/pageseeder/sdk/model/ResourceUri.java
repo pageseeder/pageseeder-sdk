@@ -35,6 +35,8 @@ public record ResourceUri(long id, @Nullable String scheme, @Nullable String hos
                           @Nullable OffsetDateTime modified, long size, List<String> labels, boolean external,
                           GroupFolderSharing sharing) {
 
+  private static final String FOLDER = "folder";
+
   /**
    * Creates resource URI metadata without the newer server fields.
    *
@@ -58,7 +60,7 @@ public record ResourceUri(long id, @Nullable String scheme, @Nullable String hos
                      @Nullable String mediaType, @Nullable OffsetDateTime created, @Nullable OffsetDateTime modified,
                      List<String> labels, boolean external, boolean folder) {
     this(id, scheme, host, port, path, null, title, null, docid, description, mediaType,
-        folder && !external ? "folder" : null, null, created, modified, 0L, labels, external,
+        folder && !external ? FOLDER : null, null, created, modified, 0L, labels, external,
         GroupFolderSharing.UNKNOWN);
   }
 
@@ -96,6 +98,6 @@ public record ResourceUri(long id, @Nullable String scheme, @Nullable String hos
    * @return {@code true} when the media type or document type is {@code folder}
    */
   public boolean folder() {
-    return "folder".equals(this.mediaType) || "folder".equals(this.documentType);
+    return FOLDER.equals(this.mediaType) || FOLDER.equals(this.documentType);
   }
 }

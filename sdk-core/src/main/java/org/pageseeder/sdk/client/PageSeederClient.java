@@ -44,6 +44,8 @@ import java.util.zip.GZIPInputStream;
  */
 public final class PageSeederClient {
 
+  private static final String CONTENT_TYPE = "Content-Type";
+
   private static final String ERROR_ID = "id";
   private static final String ERROR_MESSAGE = "message";
   private static final String ERROR_ELEMENT = "error";
@@ -177,7 +179,7 @@ public final class PageSeederClient {
     HttpRequest.Builder builder = HttpRequest.newBuilder(request.uri()).timeout(this.timeout);
     request.headers().forEach(builder::header);
     if (request.contentType() != null) {
-      builder.header("Content-Type", request.contentType());
+      builder.header(CONTENT_TYPE, request.contentType());
     }
     if (credentials != null) {
       credentials.apply(builder);
@@ -195,7 +197,7 @@ public final class PageSeederClient {
     try {
       HttpResponse<byte[]> response = this.httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
       byte[] responseBody = decodeBody(response);
-      String mediaType = response.headers().firstValue("Content-Type").orElse(null);
+      String mediaType = response.headers().firstValue(CONTENT_TYPE).orElse(null);
       if (response.statusCode() >= 400) {
         throwServiceException(response.statusCode(), responseBody, mediaType);
       }
@@ -298,7 +300,7 @@ public final class PageSeederClient {
     try {
       HttpResponse<byte[]> response = this.httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
       byte[] responseBody = decodeBody(response);
-      String mediaType = response.headers().firstValue("Content-Type").orElse(null);
+      String mediaType = response.headers().firstValue(CONTENT_TYPE).orElse(null);
       if (response.statusCode() >= 400) {
         throwServiceException(response.statusCode(), responseBody, mediaType);
       }
