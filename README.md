@@ -1,6 +1,7 @@
-
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pageseeder_pageseeder-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
 [![Maven Central](https://img.shields.io/maven-central/v/org.pageseeder.sdk/pageseeder-sdk-core)](https://central.sonatype.com/artifact/org.pageseeder.sdk/pageseeder-sdk-core)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pageseeder_pageseeder-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=pageseeder_pageseeder-sdk&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=pageseeder_pageseeder-sdk)
+[![javadoc](https://javadoc.io/badge2/org.pageseeder.sdk/pageseeder-sdk-core/javadoc.svg)](https://javadoc.io/doc/org.pageseeder.sdk/pageseeder-sdk-core)
 
 # PageSeeder SDK
 
@@ -87,7 +88,7 @@ MyMember member = response.xml().saxItem(new BasicHandler<MyMember>() {
 `PageSeederResponse` also supports:
 - `xml().staxItem(...)`, `xml().staxList(...)` — StAX-based parsing
 - `xml().document()`, `xml().elements(...)` — DOM-based parsing
-- `json().tree()`, `json().map(...)`, `json().at(...)` — JSON parsing (requires `sdk-model`)
+- `new JsonResponseBody(response.body()).tree()` — JSON parsing (requires `sdk-model`)
 
 ## Authentication
 
@@ -113,13 +114,12 @@ client.execute(call, overrideCredentials, Decoders.object(Member.class));
 ## OAuth 2.0
 
 ```java
-ClientRegistration registration = new ClientRegistration("client-id", "client-secret", instance);
-
-TokenRequest request = TokenRequest.newClientCredentials(registration);
+ClientCredentials clientCredentials = new ClientCredentials("client-id", "client-secret");
+TokenRequest request = TokenRequest.clientCredentials(instance, clientCredentials);
 TokenResponse response = request.execute();
 
 if (response.isSuccessful()) {
-  BearerToken token = response.accessToken();
+  AccessToken token = response.accessToken();
 }
 ```
 
@@ -127,6 +127,68 @@ Convert an OpenID token response to a `Member` (requires `sdk-model`):
 
 ```java
 Member member = TokenResponses.toMember(response);
+```
+
+## Search (since v0.2.0)
+
+The `org.pageseeder.sdk.search` package provides immutable, fluent builders for PageSeeder search requests. Build a query, bind it to a `SearchScope`, and execute it like any other service call.
+
+**Question search** — full-text search within a group:
+
+```java
+ServiceCall call = QuestionSearch.of("annual report")
+    .withType("document")
+    .withStatus("Approved")
+    .facet("psstatus")
+    .page(2)
+    .toServiceCall(SearchScope.group("my-group"));
+
+SearchResponse results = client.execute(call, Decoders.search());
+```
+
+**Project-wide search** — search all groups in a project on behalf of a member:
+
+```java
+ServiceCall call = QuestionSearch.of("design spec")
+    .toServiceCall(SearchScope.project("my-project", "jdoe"));
+```
+
+**Facet search** — extract facet counts without returning full results:
+
+```java
+ServiceCall call = FacetSearch.of("report")
+    .facet("pstype")
+    .facet("psstatus")
+    .toServiceCall(SearchScope.group("my-group"));
+```
+
+**Predicate search** — Lucene predicate search:
+
+```java
+ServiceCall call = PredicateSearch.of("psstatus:Approved AND pstype:document")
+    .toServiceCall(SearchScope.project("my-project", "jdoe"));
+```
+
+## Website resources (since v0.2.1)
+
+`ResourceCall` fetches PageSeeder website resources (documents, images) that live outside the `/api/` namespace. Use `client.fetch(...)` instead of `client.execute(...)`:
+
+```java
+// Fetch a document by its document ID
+PageSeederResponse response = client.fetch(ResourceCall.docId("my-doc-id"));
+
+// Fetch a document by its numeric URI ID
+PageSeederResponse response = client.fetch(ResourceCall.uri(12345L));
+
+// Fetch a thumbnail or resized image
+PageSeederResponse thumbnail = client.fetch(ResourceCall.thumbnail(12345L));
+PageSeederResponse image     = client.fetch(ResourceCall.image(12345L));
+```
+
+Typed decoding and per-call credential overrides work the same way as with `ServiceCall`:
+
+```java
+MyDoc doc = client.fetch(ResourceCall.docId("my-doc-id"), Decoders.object(MyDoc.class));
 ```
 
 ## Build
