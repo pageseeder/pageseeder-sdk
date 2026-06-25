@@ -968,7 +968,7 @@ final class PageSeederParsers {
       return "";
     }
     if (node.isValueNode()) {
-      return escapeXml(node.asText(""));
+      return XmlEscapers.escapeText(node.asText(""));
     }
     if (node.isArray()) {
       StringBuilder xml = new StringBuilder();
@@ -984,7 +984,7 @@ final class PageSeederParsers {
         continue;
       }
       if (name.isEmpty()) {
-        xml.append(escapeXml(field.getValue().asText("")));
+        xml.append(XmlEscapers.escapeText(field.getValue().asText("")));
         continue;
       }
       appendMarkupElement(xml, name, field.getValue());
@@ -1004,18 +1004,11 @@ final class PageSeederParsers {
     }
     xml.append('<').append(name).append('>');
     if (value.isValueNode()) {
-      xml.append(escapeXml(value.asText("")));
+      xml.append(XmlEscapers.escapeText(value.asText("")));
     } else {
       xml.append(markup(value, List.of()));
     }
     xml.append("</").append(name).append('>');
-  }
-
-  private static String escapeXml(String text) {
-    return text
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;");
   }
 
   private static String defaultText(JsonNode node, String field, String fallback) {

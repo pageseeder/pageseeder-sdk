@@ -1,5 +1,8 @@
 package org.pageseeder.sdk.model.codec;
 
+import org.jspecify.annotations.Nullable;
+import org.pageseeder.sdk.exception.ParsingException;
+
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -30,7 +33,7 @@ final class XmlContentPreprocessor {
   private int commentDepth = 0;
   private boolean capturing = false;
   private int captureDepth = 0;
-  private String captureType = null;
+  private @Nullable String captureType = null;
   private final StringBuilder captured = new StringBuilder();
   private final Map<String, String> captureNamespaces = new LinkedHashMap<>();
   private final Deque<Map<String, String>> capturedNamespaceScopes = new ArrayDeque<>();
@@ -65,7 +68,7 @@ final class XmlContentPreprocessor {
 
       return out.toByteArray();
     } catch (XMLStreamException ex) {
-      return xml;
+      throw new ParsingException("Unable to preserve XML comment content markup", ex);
     }
   }
 
@@ -86,15 +89,19 @@ final class XmlContentPreprocessor {
         }
       }
       case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA ->
-          captured.append(escapeXml(reader.getText()));
+          captured.append(XmlEscapers.escapeText(reader.getText()));
       default -> { /* ignore irrelevant events */ }
     }
   }
 
   private void flushCapturedContent(XMLStreamWriter writer) throws XMLStreamException {
     capturing = false;
+    String type = captureType;
+    if (type == null) {
+      throw new XMLStreamException("Captured comment content is missing its type attribute");
+    }
     writer.writeStartElement("content");
-    writer.writeAttribute("type", captureType);
+    writer.writeAttribute("type", type);
     String value = captured.toString().strip();
     if (!value.isEmpty()) {
       writer.writeStartElement("value");
@@ -199,7 +206,7 @@ final class XmlContentPreprocessor {
     for (int i = 0; i < reader.getAttributeCount(); i++) {
       sb.append(' ');
       appendQualifiedName(sb, reader.getAttributePrefix(i), reader.getAttributeLocalName(i));
-      sb.append("=\"").append(escapeXmlAttr(reader.getAttributeValue(i))).append('"');
+      sb.append("=\"").append(XmlEscapers.escapeAttribute(reader.getAttributeValue(i))).append('"');
     }
     sb.append('>');
 
@@ -267,9 +274,9 @@ final class XmlContentPreprocessor {
 
   private static void appendNamespace(StringBuilder sb, String prefix, String uri) {
     if (prefix == null || prefix.isEmpty()) {
-      sb.append(" xmlns=\"").append(escapeXmlAttr(uri)).append('"');
+      sb.append(" xmlns=\"").append(XmlEscapers.escapeAttribute(uri)).append('"');
     } else {
-      sb.append(" xmlns:").append(prefix).append("=\"").append(escapeXmlAttr(uri)).append('"');
+      sb.append(" xmlns:").append(prefix).append("=\"").append(XmlEscapers.escapeAttribute(uri)).append('"');
     }
   }
 
@@ -277,11 +284,4 @@ final class XmlContentPreprocessor {
     return prefix == null ? "" : prefix;
   }
 
-  private static String escapeXml(String text) {
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-  }
-
-  private static String escapeXmlAttr(String text) {
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
-  }
 }

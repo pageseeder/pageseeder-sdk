@@ -899,6 +899,31 @@ final class PageSeederParserTest {
   }
 
   @Test
+  void shouldPreserveCommentMarkupInWorkflowXml() {
+    byte[] payload = """
+        <workflow id="25068" status="Initiated" priority="Medium">
+          <comments>
+            <comment id="25068" discussionid="300" type="task">
+              <title>Review guide</title>
+              <content type="application/xhtml+xml" xmlns:h="http://www.w3.org/1999/xhtml">
+                <h:p data-topic="guide">Please <h:strong>review</h:strong></h:p>
+              </content>
+            </comment>
+          </comments>
+        </workflow>
+        """.getBytes(StandardCharsets.UTF_8);
+
+    Workflow workflow = this.xml.parse(payload, Workflow.class);
+
+    String value = workflow.comments().get(0).content().get(0).value();
+    assertTrue(value.contains("<h:p"), "content should preserve element prefixes");
+    assertTrue(value.contains("xmlns:h=\"http://www.w3.org/1999/xhtml\""),
+        "content should preserve namespace declarations");
+    assertTrue(value.contains("data-topic=\"guide\""), "content should preserve attributes");
+    assertTrue(value.contains("<h:strong>review</h:strong>"), "content should preserve nested markup");
+  }
+
+  @Test
   void shouldParseVersionFromXmlAndJsonIntoSdkAndBridgeModels() throws IOException {
     Version xmlVersion = this.xml.parse(read("fixtures/version.xml"), Version.class);
     Version jsonVersion = this.json.parse(read("fixtures/version.json"), Version.class);
