@@ -8,6 +8,10 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Pre-processes XML responses to preserve comment content as verbatim strings.
@@ -28,6 +32,8 @@ final class XmlContentPreprocessor {
   private int captureDepth = 0;
   private String captureType = null;
   private final StringBuilder captured = new StringBuilder();
+  private final Map<String, String> captureNamespaces = new LinkedHashMap<>();
+  private final Deque<Map<String, String>> capturedNamespaceScopes = new ArrayDeque<>();
 
   private XmlContentPreprocessor() {}
 
@@ -66,15 +72,17 @@ final class XmlContentPreprocessor {
   private void processCapturedEvent(int event, XMLStreamReader reader, XMLStreamWriter writer) throws XMLStreamException {
     switch (event) {
       case XMLStreamConstants.START_ELEMENT -> {
+        boolean topLevel = captureDepth == 0;
         captureDepth++;
-        serializeStartElement(reader, captured);
+        serializeStartElement(reader, captured, topLevel ? captureNamespaces : Map.of(), capturedNamespaceScopes);
       }
       case XMLStreamConstants.END_ELEMENT -> {
         if (captureDepth == 0) {
           flushCapturedContent(writer);
         } else {
           captureDepth--;
-          captured.append("</").append(reader.getLocalName()).append('>');
+          serializeEndElement(reader, captured);
+          capturedNamespaceScopes.removeLast();
         }
       }
       case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA ->
@@ -95,6 +103,8 @@ final class XmlContentPreprocessor {
     }
     writer.writeEndElement();
     captured.setLength(0);
+    captureNamespaces.clear();
+    capturedNamespaceScopes.clear();
     captureType = null;
   }
 
@@ -137,6 +147,7 @@ final class XmlContentPreprocessor {
         capturing = true;
         captureDepth = 0;
         captureType = type;
+        captureNamespaces(reader, captureNamespaces);
         return;
       }
     }
@@ -172,13 +183,98 @@ final class XmlContentPreprocessor {
     }
   }
 
-  private static void serializeStartElement(XMLStreamReader reader, StringBuilder sb) {
-    sb.append('<').append(reader.getLocalName());
+  private static void serializeStartElement(XMLStreamReader reader, StringBuilder sb,
+                                            Map<String, String> additionalNamespaces,
+                                            Deque<Map<String, String>> namespaceScopes) {
+    Map<String, String> activeNamespaces = namespaceScopes.peekLast();
+    Map<String, String> declarations = new LinkedHashMap<>();
+    captureNamespaces(reader, declarations);
+    additionalNamespaces.forEach(declarations::putIfAbsent);
+    ensureElementNamespace(reader, activeNamespaces, declarations);
+    ensureAttributeNamespaces(reader, activeNamespaces, declarations);
+
+    sb.append('<');
+    appendQualifiedName(sb, reader.getPrefix(), reader.getLocalName());
+    declarations.forEach((prefix, uri) -> appendNamespace(sb, prefix, uri));
     for (int i = 0; i < reader.getAttributeCount(); i++) {
-      sb.append(' ').append(reader.getAttributeLocalName(i))
-          .append("=\"").append(escapeXmlAttr(reader.getAttributeValue(i))).append('"');
+      sb.append(' ');
+      appendQualifiedName(sb, reader.getAttributePrefix(i), reader.getAttributeLocalName(i));
+      sb.append("=\"").append(escapeXmlAttr(reader.getAttributeValue(i))).append('"');
     }
     sb.append('>');
+
+    Map<String, String> scope = new LinkedHashMap<>();
+    if (activeNamespaces != null) {
+      scope.putAll(activeNamespaces);
+    }
+    scope.putAll(declarations);
+    namespaceScopes.addLast(scope);
+  }
+
+  private static void serializeEndElement(XMLStreamReader reader, StringBuilder sb) {
+    sb.append("</");
+    appendQualifiedName(sb, reader.getPrefix(), reader.getLocalName());
+    sb.append('>');
+  }
+
+  private static void captureNamespaces(XMLStreamReader reader, Map<String, String> namespaces) {
+    for (int i = 0; i < reader.getNamespaceCount(); i++) {
+      String prefix = normalizePrefix(reader.getNamespacePrefix(i));
+      String uri = reader.getNamespaceURI(i);
+      if (uri != null) {
+        namespaces.put(prefix, uri);
+      }
+    }
+  }
+
+  private static void ensureElementNamespace(XMLStreamReader reader, Map<String, String> activeNamespaces,
+                                             Map<String, String> declarations) {
+    String namespaceURI = reader.getNamespaceURI();
+    if (namespaceURI != null && !namespaceURI.isEmpty()) {
+      ensureNamespace(reader.getPrefix(), namespaceURI, activeNamespaces, declarations);
+    }
+  }
+
+  private static void ensureAttributeNamespaces(XMLStreamReader reader, Map<String, String> activeNamespaces,
+                                                Map<String, String> declarations) {
+    for (int i = 0; i < reader.getAttributeCount(); i++) {
+      String namespaceURI = reader.getAttributeNamespace(i);
+      String prefix = reader.getAttributePrefix(i);
+      if (namespaceURI != null && !namespaceURI.isEmpty() && prefix != null && !prefix.isEmpty()) {
+        ensureNamespace(prefix, namespaceURI, activeNamespaces, declarations);
+      }
+    }
+  }
+
+  private static void ensureNamespace(String prefix, String uri, Map<String, String> activeNamespaces,
+                                      Map<String, String> declarations) {
+    String normalizedPrefix = normalizePrefix(prefix);
+    if (uri.equals(declarations.get(normalizedPrefix))) {
+      return;
+    }
+    if (activeNamespaces != null && uri.equals(activeNamespaces.get(normalizedPrefix))) {
+      return;
+    }
+    declarations.put(normalizedPrefix, uri);
+  }
+
+  private static void appendQualifiedName(StringBuilder sb, String prefix, String localName) {
+    if (prefix != null && !prefix.isEmpty()) {
+      sb.append(prefix).append(':');
+    }
+    sb.append(localName);
+  }
+
+  private static void appendNamespace(StringBuilder sb, String prefix, String uri) {
+    if (prefix == null || prefix.isEmpty()) {
+      sb.append(" xmlns=\"").append(escapeXmlAttr(uri)).append('"');
+    } else {
+      sb.append(" xmlns:").append(prefix).append("=\"").append(escapeXmlAttr(uri)).append('"');
+    }
+  }
+
+  private static String normalizePrefix(String prefix) {
+    return prefix == null ? "" : prefix;
   }
 
   private static String escapeXml(String text) {

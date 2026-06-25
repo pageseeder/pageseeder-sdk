@@ -552,6 +552,31 @@ final class PageSeederParserTest {
   }
 
   @Test
+  void shouldPreserveNamespacesInCapturedCommentContent() {
+    byte[] payload = """
+        <comment id="25100" discussionid="25100" contentrole="Comment">
+          <content type="application/xhtml+xml"
+              xmlns:h="http://www.w3.org/1999/xhtml"
+              xmlns:ps="https://pageseeder.org/ns">
+            <h:p ps:role="lead"><h:span>Namespaced</h:span></h:p>
+          </content>
+        </comment>
+        """.getBytes(StandardCharsets.UTF_8);
+
+    Comment comment = this.xml.parse(payload, Comment.class);
+
+    String value = comment.content().get(0).value();
+    assertTrue(value.contains("<h:p"), "content should preserve the element prefix");
+    assertTrue(value.contains("</h:p>"), "content should preserve the end-element prefix");
+    assertTrue(value.contains("xmlns:h=\"http://www.w3.org/1999/xhtml\""),
+        "content should preserve the XHTML namespace declaration");
+    assertTrue(value.contains("xmlns:ps=\"https://pageseeder.org/ns\""),
+        "content should preserve the PageSeeder namespace declaration");
+    assertTrue(value.contains("ps:role=\"lead\""), "content should preserve attribute prefixes");
+    assertTrue(value.contains("<h:span>Namespaced</h:span>"), "content should preserve nested prefixes");
+  }
+
+  @Test
   void shouldParseResourceUriAndError() throws IOException {
     ResourceUri xmlUri = this.xml.parse(read("fixtures/resource-uri.xml"), ResourceUri.class);
     ResourceUri jsonUri = this.json.parse(read("fixtures/resource-uri.json"), ResourceUri.class);
