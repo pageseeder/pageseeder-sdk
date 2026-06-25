@@ -23,9 +23,19 @@ import java.io.ByteArrayOutputStream;
  */
 final class XmlContentPreprocessor {
 
+  private int commentDepth = 0;
+  private boolean capturing = false;
+  private int captureDepth = 0;
+  private String captureType = null;
+  private final StringBuilder captured = new StringBuilder();
+
   private XmlContentPreprocessor() {}
 
   static byte[] preserveContentMarkup(byte[] xml) {
+    return new XmlContentPreprocessor().process(xml);
+  }
+
+  private byte[] process(byte[] xml) {
     try {
       XMLInputFactory inputFactory = PageSeederParsers.newXmlInputFactory();
       XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
@@ -34,87 +44,12 @@ final class XmlContentPreprocessor {
       ByteArrayOutputStream out = new ByteArrayOutputStream(xml.length);
       XMLStreamWriter writer = outputFactory.createXMLStreamWriter(out, "UTF-8");
 
-      int commentDepth = 0;
-      boolean capturing = false;
-      int captureDepth = 0;
-      String captureType = null;
-      StringBuilder captured = new StringBuilder();
-
       while (reader.hasNext()) {
         int event = reader.next();
-
         if (capturing) {
-          switch (event) {
-            case XMLStreamConstants.START_ELEMENT -> {
-              captureDepth++;
-              serializeStartElement(reader, captured);
-            }
-            case XMLStreamConstants.END_ELEMENT -> {
-              if (captureDepth == 0) {
-                capturing = false;
-                writer.writeStartElement("content");
-                writer.writeAttribute("type", captureType);
-                String value = captured.toString().strip();
-                if (!value.isEmpty()) {
-                  writer.writeStartElement("value");
-                  writer.writeCharacters(value);
-                  writer.writeEndElement();
-                }
-                writer.writeEndElement();
-                captured.setLength(0);
-                captureType = null;
-              } else {
-                captureDepth--;
-                captured.append("</").append(reader.getLocalName()).append('>');
-              }
-            }
-            case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA -> {
-              captured.append(escapeXml(reader.getText()));
-            }
-            default -> {}
-          }
-          continue;
-        }
-
-        switch (event) {
-          case XMLStreamConstants.START_ELEMENT -> {
-            String localName = reader.getLocalName();
-            if ("comment".equals(localName)) {
-              commentDepth++;
-            }
-            if (commentDepth > 0 && "content".equals(localName)) {
-              String type = reader.getAttributeValue(null, "type");
-              if (type != null) {
-                capturing = true;
-                captureDepth = 0;
-                captureType = type;
-                continue;
-              }
-            }
-            writeStartElement(reader, writer);
-          }
-          case XMLStreamConstants.END_ELEMENT -> {
-            if ("comment".equals(reader.getLocalName())) {
-              commentDepth--;
-            }
-            writer.writeEndElement();
-          }
-          case XMLStreamConstants.CHARACTERS -> writer.writeCharacters(reader.getText());
-          case XMLStreamConstants.CDATA -> writer.writeCData(reader.getText());
-          case XMLStreamConstants.START_DOCUMENT -> {
-            String encoding = reader.getCharacterEncodingScheme();
-            String version = reader.getVersion();
-            if (encoding != null) {
-              writer.writeStartDocument(encoding, version != null ? version : "1.0");
-            } else if (version != null) {
-              writer.writeStartDocument(version);
-            }
-          }
-          case XMLStreamConstants.END_DOCUMENT -> writer.writeEndDocument();
-          case XMLStreamConstants.COMMENT -> writer.writeComment(reader.getText());
-          case XMLStreamConstants.PROCESSING_INSTRUCTION ->
-              writer.writeProcessingInstruction(reader.getPITarget(), reader.getPIData());
-          default -> {}
+          processCapturedEvent(event, reader, writer);
+        } else {
+          processOutputEvent(event, reader, writer);
         }
       }
 
@@ -126,6 +61,86 @@ final class XmlContentPreprocessor {
     } catch (XMLStreamException ex) {
       return xml;
     }
+  }
+
+  private void processCapturedEvent(int event, XMLStreamReader reader, XMLStreamWriter writer) throws XMLStreamException {
+    switch (event) {
+      case XMLStreamConstants.START_ELEMENT -> {
+        captureDepth++;
+        serializeStartElement(reader, captured);
+      }
+      case XMLStreamConstants.END_ELEMENT -> {
+        if (captureDepth == 0) {
+          flushCapturedContent(writer);
+        } else {
+          captureDepth--;
+          captured.append("</").append(reader.getLocalName()).append('>');
+        }
+      }
+      case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA ->
+          captured.append(escapeXml(reader.getText()));
+      default -> { /* ignore irrelevant events */ }
+    }
+  }
+
+  private void flushCapturedContent(XMLStreamWriter writer) throws XMLStreamException {
+    capturing = false;
+    writer.writeStartElement("content");
+    writer.writeAttribute("type", captureType);
+    String value = captured.toString().strip();
+    if (!value.isEmpty()) {
+      writer.writeStartElement("value");
+      writer.writeCharacters(value);
+      writer.writeEndElement();
+    }
+    writer.writeEndElement();
+    captured.setLength(0);
+    captureType = null;
+  }
+
+  private void processOutputEvent(int event, XMLStreamReader reader, XMLStreamWriter writer) throws XMLStreamException {
+    switch (event) {
+      case XMLStreamConstants.START_ELEMENT -> processStartElement(reader, writer);
+      case XMLStreamConstants.END_ELEMENT -> {
+        if ("comment".equals(reader.getLocalName())) {
+          commentDepth--;
+        }
+        writer.writeEndElement();
+      }
+      case XMLStreamConstants.CHARACTERS -> writer.writeCharacters(reader.getText());
+      case XMLStreamConstants.CDATA -> writer.writeCData(reader.getText());
+      case XMLStreamConstants.START_DOCUMENT -> {
+        String encoding = reader.getCharacterEncodingScheme();
+        String version = reader.getVersion();
+        if (encoding != null) {
+          writer.writeStartDocument(encoding, version != null ? version : "1.0");
+        } else if (version != null) {
+          writer.writeStartDocument(version);
+        }
+      }
+      case XMLStreamConstants.END_DOCUMENT -> writer.writeEndDocument();
+      case XMLStreamConstants.COMMENT -> writer.writeComment(reader.getText());
+      case XMLStreamConstants.PROCESSING_INSTRUCTION ->
+          writer.writeProcessingInstruction(reader.getPITarget(), reader.getPIData());
+      default -> { /* ignore irrelevant events */ }
+    }
+  }
+
+  private void processStartElement(XMLStreamReader reader, XMLStreamWriter writer) throws XMLStreamException {
+    String localName = reader.getLocalName();
+    if ("comment".equals(localName)) {
+      commentDepth++;
+    }
+    if (commentDepth > 0 && "content".equals(localName)) {
+      String type = reader.getAttributeValue(null, "type");
+      if (type != null) {
+        capturing = true;
+        captureDepth = 0;
+        captureType = type;
+        return;
+      }
+    }
+    writeStartElement(reader, writer);
   }
 
   private static void writeStartElement(XMLStreamReader reader, XMLStreamWriter writer) throws XMLStreamException {
