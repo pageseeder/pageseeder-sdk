@@ -21,22 +21,26 @@ public final class XmlPageSeederParser implements PageSeederParser {
 
   @Override
   public <T> T parse(byte[] body, Class<T> type) {
-    return PageSeederParsers.parse(this.mapper, body, type);
+    return PageSeederParsers.parse(this.mapper, preprocess(body), type);
   }
 
   @Override
   public <T> List<T> parseList(byte[] body, Class<T> type) {
-    return PageSeederParsers.parseList(this.mapper, body, type);
+    return PageSeederParsers.parseList(this.mapper, preprocess(body), type);
   }
 
   @Override
   public <T> ResultPage<T> parseResultPage(byte[] body, Class<T> type) {
-    return PageSeederParsers.parseResultPage(this.mapper, body, type);
+    return PageSeederParsers.parseResultPage(this.mapper, preprocess(body), type);
   }
 
   @Override
   public ServiceError parseError(byte[] body) {
-    return PageSeederParsers.parseError(this.mapper, body);
+    return PageSeederParsers.parseError(this.mapper, preprocess(body));
+  }
+
+  private static byte[] preprocess(byte[] body) {
+    return XmlContentPreprocessor.preserveContentMarkup(body);
   }
 
   @Override

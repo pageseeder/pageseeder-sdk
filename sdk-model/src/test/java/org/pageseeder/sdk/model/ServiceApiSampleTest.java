@@ -175,6 +175,17 @@ final class ServiceApiSampleTest {
         assertEquals("unit-admin", comment.modifiedBy().user().member().username());
         assertEquals("http", comment.context().uri().scheme());
         break;
+      case "comment-custom-content":
+        assertEquals(119L, comment.id());
+        assertEquals("sample", comment.type());
+        assertEquals("application/vnd.sample-data+xml", comment.content().get(0).type());
+        String value = comment.content().get(0).value();
+        assertTrue(value.contains("notif"), "content should contain notif elements");
+        assertTrue(value.contains("id=\"789\""), "content should preserve attributes");
+        assertTrue(value.contains("seen=\"2025-11-07T00:12:04+11:00\""), "content should preserve attribute values");
+        assertTrue(value.contains("resource"), "content should contain resource elements");
+        assertFalse(value.contains("<id>"), "content should not convert attributes to child elements");
+        break;
       default:
         fail("No comment assertions registered for sample " + sample);
     }
@@ -426,6 +437,8 @@ final class ServiceApiSampleTest {
           return 23504L;
         case "comment-nasty":
           return 25093L;
+        case "comment-custom-content":
+          return 119L;
         default:
           throw new IllegalStateException("No comment path variable registered for sample " + sample);
       }

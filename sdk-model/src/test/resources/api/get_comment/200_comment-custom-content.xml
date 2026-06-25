@@ -1,0 +1,23 @@
+<comment id="119" discussionid="119" contentrole="Comment" type="sample" created="2025-10-03T23:51:10+10:00">
+  <title>sample[OBX0005]</title>
+  <author id="2" firstname="John" surname="Smith" username="jsmith" status="activated">
+    <fullname>John Smith</fullname>
+  </author>
+  <modifiedby id="2" firstname="John" surname="Smith" username="jsmith" status="activated" date="2025-12-18T02:53:08+11:00">
+    <fullname>John Smith</fullname>
+  </modifiedby>
+  <content type="application/vnd.sample-data+xml">
+    <content>
+      <notif id="789" seen="2025-11-07T00:12:04+11:00"/>
+      <notif id="ABC123/samples/m10-xyz-0001" seen="2025-11-07T00:12:04+11:00"/>
+      <resource id="m10-xyz-0001" completed="2025-11-06T14:05:47+11:00"/>
+    </content>
+  </content>
+  <context>
+    <uri id="48" scheme="http" host="sample.example.test" port="80" path="/members/2/samples/ABC123/data"
+         decodedpath="/members/2/samples/ABC123/data" external="true" mediatype="" created="2025-10-03T23:51:10+10:00"
+         modified="2025-10-03T23:51:10+10:00">
+      <displaytitle>http://sample.example.test/members/2/samples/ABC123/data</displaytitle>
+    </uri>
+  </context>
+</comment>
