@@ -153,16 +153,15 @@ public record PathTemplate(String template) {
     for (int i = 'a'; i <= 'z'; i++) PCHAR_SAFE.set(i);
     for (int i = 'A'; i <= 'Z'; i++) PCHAR_SAFE.set(i);
     for (int i = '0'; i <= '9'; i++) PCHAR_SAFE.set(i);
-    "-._~!$&'()*+,;=:@".chars().forEach(PCHAR_SAFE::set);
+    "-._~!$&'()*+,=:@".chars().forEach(PCHAR_SAFE::set);
   }
 
   /**
    * Converts a path variable value to its string representation, prepending the {@code ~} prefix
    * when needed to prevent PageSeeder from interpreting a string identifier as a numeric ID.
    *
-   * <p>The prefix is added when the value is a {@link String} that looks like a numeric ID
-   * (all digits, no leading zero). {@link Number} values are always treated as IDs and are
-   * never prefixed.
+   * <p>The prefix is added when the value is a {@link String} that starts with an ASCII digit
+   * other than zero. {@link Number} values are always treated as IDs and are never prefixed.
    */
   static String toPathSegment(Object value) {
     if (value instanceof Number) return value.toString();
@@ -171,11 +170,9 @@ public record PathTemplate(String template) {
   }
 
   private static boolean isMaybeID(String value) {
-    if (value.isEmpty() || value.charAt(0) == '0') return false;
-    for (int i = 0; i < value.length(); i++) {
-      if (!Character.isDigit(value.charAt(i))) return false;
-    }
-    return true;
+    if (value.isEmpty()) return false;
+    char c = value.charAt(0);
+    return c >= '1' && c <= '9';
   }
 
   static String encodePathSegment(String value) {

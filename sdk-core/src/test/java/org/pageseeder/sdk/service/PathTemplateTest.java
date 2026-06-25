@@ -56,6 +56,13 @@ final class PathTemplateTest {
   }
 
   @Test
+  void shouldEncodeSemicolonInPathVariable() {
+    PathTemplate template = new PathTemplate("/path/{value}");
+    String resolved = template.resolve(PathTemplate.variables("value", "a;b"));
+    assertEquals("/path/a%3Bb", resolved);
+  }
+
+  @Test
   void shouldEncodeNonAsciiCharacters() {
     PathTemplate template = new PathTemplate("/path/{value}");
     String resolved = template.resolve(PathTemplate.variables("value", "café"));
@@ -69,6 +76,13 @@ final class PathTemplateTest {
     PathTemplate template = new PathTemplate("/members/{member}");
     String resolved = template.resolve(PathTemplate.variables("member", "12345"));
     assertEquals("/members/~12345", resolved);
+  }
+
+  @Test
+  void shouldPrefixTildeForStringStartingWithDigit() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", "1smith"));
+    assertEquals("/members/~1smith", resolved);
   }
 
   @Test
@@ -115,8 +129,8 @@ final class PathTemplateTest {
   }
 
   @Test
-  void shouldNotEncodeSubDelimiters() {
-    assertEquals("!$&'()*+,;=", PathTemplate.encodePathSegment("!$&'()*+,;="));
+  void shouldNotEncodeSubDelimitersExceptSemicolon() {
+    assertEquals("!$&'()*+,%3B=", PathTemplate.encodePathSegment("!$&'()*+,;="));
   }
 
   @Test
