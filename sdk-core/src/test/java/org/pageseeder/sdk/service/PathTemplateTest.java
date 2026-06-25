@@ -21,6 +21,156 @@ final class PathTemplateTest {
   }
 
   @Test
+  void shouldPreserveAtSignInPathVariable() {
+    PathTemplate template = new PathTemplate("/members/{member}/memberships");
+    String resolved = template.resolve(PathTemplate.variables("member", "user@example.com"));
+    assertEquals("/members/user@example.com/memberships", resolved);
+  }
+
+  @Test
+  void shouldPreserveTildeInPathVariable() {
+    PathTemplate template = new PathTemplate("/members/{member}/memberships");
+    String resolved = template.resolve(PathTemplate.variables("member", "~jsmith"));
+    assertEquals("/members/~jsmith/memberships", resolved);
+  }
+
+  @Test
+  void shouldEncodeSlashInPathVariable() {
+    PathTemplate template = new PathTemplate("/groups/{group}");
+    String resolved = template.resolve(PathTemplate.variables("group", "a/b"));
+    assertEquals("/groups/a%2Fb", resolved);
+  }
+
+  @Test
+  void shouldEncodeSpaceAsPercent20() {
+    PathTemplate template = new PathTemplate("/groups/{group}");
+    String resolved = template.resolve(PathTemplate.variables("group", "my group"));
+    assertEquals("/groups/my%20group", resolved);
+  }
+
+  @Test
+  void shouldPreserveSubDelimsAndColonInPathVariable() {
+    PathTemplate template = new PathTemplate("/path/{value}");
+    String resolved = template.resolve(PathTemplate.variables("value", "a:b@c!d$e"));
+    assertEquals("/path/a:b@c!d$e", resolved);
+  }
+
+  @Test
+  void shouldEncodeNonAsciiCharacters() {
+    PathTemplate template = new PathTemplate("/path/{value}");
+    String resolved = template.resolve(PathTemplate.variables("value", "café"));
+    assertEquals("/path/caf%C3%A9", resolved);
+  }
+
+  // ~ prefix tests
+
+  @Test
+  void shouldPrefixTildeForNumericStringValue() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", "12345"));
+    assertEquals("/members/~12345", resolved);
+  }
+
+  @Test
+  void shouldNotPrefixTildeForNumericTypeValue() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", 12345L));
+    assertEquals("/members/12345", resolved);
+  }
+
+  @Test
+  void shouldNotPrefixTildeForNonNumericString() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", "jsmith"));
+    assertEquals("/members/jsmith", resolved);
+  }
+
+  @Test
+  void shouldNotPrefixTildeForLeadingZeroString() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", "007"));
+    assertEquals("/members/007", resolved);
+  }
+
+  @Test
+  void shouldNotPrefixTildeForEmailAddress() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", "user@example.com"));
+    assertEquals("/members/user@example.com", resolved);
+  }
+
+  @Test
+  void shouldNotPrefixTildeForIntegerTypeValue() {
+    PathTemplate template = new PathTemplate("/members/{member}");
+    String resolved = template.resolve(PathTemplate.variables("member", 42));
+    assertEquals("/members/42", resolved);
+  }
+
+  // encodePathSegment (RFC 3986 pchar) tests
+
+  @Test
+  void shouldNotEncodeUnreservedCharacters() {
+    assertEquals("azAZ09", PathTemplate.encodePathSegment("azAZ09"));
+    assertEquals("-._~", PathTemplate.encodePathSegment("-._~"));
+  }
+
+  @Test
+  void shouldNotEncodeSubDelimiters() {
+    assertEquals("!$&'()*+,;=", PathTemplate.encodePathSegment("!$&'()*+,;="));
+  }
+
+  @Test
+  void shouldNotEncodeColonOrAtSign() {
+    assertEquals(":@", PathTemplate.encodePathSegment(":@"));
+  }
+
+  @Test
+  void shouldEncodeSpace() {
+    assertEquals("hello%20world", PathTemplate.encodePathSegment("hello world"));
+  }
+
+  @Test
+  void shouldEncodeSlash() {
+    assertEquals("a%2Fb", PathTemplate.encodePathSegment("a/b"));
+  }
+
+  @Test
+  void shouldEncodeQuestionMarkAndHash() {
+    assertEquals("%3F%23", PathTemplate.encodePathSegment("?#"));
+  }
+
+  @Test
+  void shouldEncodeSquareBrackets() {
+    assertEquals("%5B%5D", PathTemplate.encodePathSegment("[]"));
+  }
+
+  @Test
+  void shouldEncodePercent() {
+    assertEquals("%25", PathTemplate.encodePathSegment("%"));
+  }
+
+  @Test
+  void shouldEncodeMultiByteUtf8() {
+    assertEquals("%C3%A9", PathTemplate.encodePathSegment("é"));
+    assertEquals("%E4%B8%AD", PathTemplate.encodePathSegment("中"));
+    assertEquals("%F0%9F%98%80", PathTemplate.encodePathSegment("😀"));
+  }
+
+  @Test
+  void shouldReturnEmptyStringForEmptyInput() {
+    assertEquals("", PathTemplate.encodePathSegment(""));
+  }
+
+  @Test
+  void shouldEncodeOnlyUnsafeCharactersInMixedInput() {
+    assertEquals("user@example.com", PathTemplate.encodePathSegment("user@example.com"));
+    assertEquals("hello%20world%2Fpath", PathTemplate.encodePathSegment("hello world/path"));
+    assertEquals("100%25%20done", PathTemplate.encodePathSegment("100% done"));
+  }
+
+  // Template resolution tests
+
+  @Test
   void shouldRejectInvalidVariableNameInTemplate() {
     assertIllegalArgument("Path variable name must match \\w+: +fragment",
         () -> new PathTemplate("/uris/{uri}/fragments/{+fragment}"));

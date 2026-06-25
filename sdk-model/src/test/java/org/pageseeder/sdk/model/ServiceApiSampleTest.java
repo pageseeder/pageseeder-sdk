@@ -365,14 +365,14 @@ final class ServiceApiSampleTest {
       return contracts;
     }
 
-    private static String sampleMember(ApiSample sample) {
+    private static Object sampleMember(ApiSample sample) {
       switch (sample.testName()) {
         case "admin":
           return "vvega";
         case "disabled":
           return "jwinnfield";
         case "not_found":
-          return "999999";
+          return 999999L;
         default:
           throw new IllegalStateException("No member path variable registered for sample " + sample);
       }
@@ -400,32 +400,32 @@ final class ServiceApiSampleTest {
       }
     }
 
-    private static String sampleCommentId(ApiSample sample) {
+    private static long sampleCommentId(ApiSample sample) {
       switch (sample.testName()) {
         case "comment-group":
-          return "25061";
+          return 25061L;
         case "comment-uri":
-          return "25062";
+          return 25062L;
         case "comment-type":
-          return "25063";
+          return 25063L;
         case "comment-type-and-uri":
-          return "25064";
+          return 25064L;
         case "comment-task":
-          return "25065";
+          return 25065L;
         case "comment-task-uri":
-          return "25066";
+          return 25066L;
         case "comment-task-type":
-          return "25067";
+          return 25067L;
         case "comment-task-type-uri":
-          return "25068";
+          return 25068L;
         case "comment-type-xhtml":
-          return "2674355";
+          return 2674355L;
         case "comment-attachments":
-          return "25091";
+          return 25091L;
         case "comment-public1":
-          return "23504";
+          return 23504L;
         case "comment-nasty":
-          return "25093";
+          return 25093L;
         default:
           throw new IllegalStateException("No comment path variable registered for sample " + sample);
       }

@@ -1,8 +1,8 @@
 package org.pageseeder.sdk.service;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -113,7 +113,8 @@ public record PathTemplate(String template) {
       String name = validateVariableName(entry.getKey());
       String key = "{" + name + "}";
       Object value = Objects.requireNonNull(entry.getValue(), "Path variable " + name);
-      resolved = resolved.replace(key, encodePathSegment(String.valueOf(value)));
+      String segment = toPathSegment(value);
+      resolved = resolved.replace(key, encodePathSegment(segment));
     }
     if (resolved.contains("{")) {
       throw new IllegalArgumentException("Unresolved path template variables in " + resolved);
@@ -142,8 +143,55 @@ public record PathTemplate(String template) {
     return this.template;
   }
 
-  private static String encodePathSegment(String value) {
-    return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+  /**
+   * Characters allowed unencoded in a URI path segment (RFC 3986 {@code pchar}).
+   *
+   * <pre>pchar = unreserved / pct-encoded / sub-delims / ":" / "@"</pre>
+   */
+  private static final BitSet PCHAR_SAFE = new BitSet(128);
+  static {
+    for (int i = 'a'; i <= 'z'; i++) PCHAR_SAFE.set(i);
+    for (int i = 'A'; i <= 'Z'; i++) PCHAR_SAFE.set(i);
+    for (int i = '0'; i <= '9'; i++) PCHAR_SAFE.set(i);
+    "-._~!$&'()*+,;=:@".chars().forEach(PCHAR_SAFE::set);
+  }
+
+  /**
+   * Converts a path variable value to its string representation, prepending the {@code ~} prefix
+   * when needed to prevent PageSeeder from interpreting a string identifier as a numeric ID.
+   *
+   * <p>The prefix is added when the value is a {@link String} that looks like a numeric ID
+   * (all digits, no leading zero). {@link Number} values are always treated as IDs and are
+   * never prefixed.
+   */
+  static String toPathSegment(Object value) {
+    if (value instanceof Number) return value.toString();
+    String s = String.valueOf(value);
+    return isMaybeID(s) ? "~" + s : s;
+  }
+
+  private static boolean isMaybeID(String value) {
+    if (value.isEmpty() || value.charAt(0) == '0') return false;
+    for (int i = 0; i < value.length(); i++) {
+      if (!Character.isDigit(value.charAt(i))) return false;
+    }
+    return true;
+  }
+
+  static String encodePathSegment(String value) {
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    StringBuilder sb = new StringBuilder(bytes.length);
+    for (byte b : bytes) {
+      int c = b & 0xFF;
+      if (c < 128 && PCHAR_SAFE.get(c)) {
+        sb.append((char) c);
+      } else {
+        sb.append('%');
+        sb.append(Character.toUpperCase(Character.forDigit(c >> 4, 16)));
+        sb.append(Character.toUpperCase(Character.forDigit(c & 0xF, 16)));
+      }
+    }
+    return sb.toString();
   }
 
   private static void validateTemplate(String template) {

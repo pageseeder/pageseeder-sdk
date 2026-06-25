@@ -110,7 +110,7 @@ final class PageSeederClientMappingTest {
         ServiceCall.of(ServiceCatalog.MEMBER_MEMBERSHIPS).pathVariable("member", "jdoe"),
         Decoders.page(Membership.class));
     ResourceUri uri = client.execute(
-        ServiceCall.of(ServiceCatalog.RESOURCE_URI).pathVariable("uri", "88").accept(PayloadFormat.JSON),
+        ServiceCall.of(ServiceCatalog.RESOURCE_URI).pathVariable("uri", 88L).accept(PayloadFormat.JSON),
         Decoders.object(ResourceUri.class));
 
     assertEquals("jdoe", member.username());
