@@ -486,8 +486,8 @@ final class PageSeederParsers {
 
   private static Membership toMembership(JsonNode node, MappingContext context) {
     JsonNode source = unwrap(node, "membership");
-    @Nullable Member member = source.has("member") ? toMember(source.get("member")) : context.member();
-    @Nullable Group group = source.has("group")
+    Member member = source.has("member") ? toMember(source.get("member")) : context.member();
+    Group group = source.has("group")
         ? toGroup(source.get("group"), "group")
         : source.has("project") ? toGroup(source.get("project"), "project") : context.group();
     return new Membership(
