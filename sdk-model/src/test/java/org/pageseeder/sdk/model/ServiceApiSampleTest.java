@@ -134,22 +134,22 @@ final class ServiceApiSampleTest {
         assertEquals("finddoc", comment.context().uri().title());
         break;
       case "comment-task":
-        assertEquals("Open", comment.status());
-        assertEquals("High", comment.priority());
-        assertEquals("unit-admin", comment.assignedTo().user().member().username());
+        assertEquals("Open", comment.task().status());
+        assertEquals("High", comment.task().priority());
+        assertEquals("unit-admin", comment.task().assignedTo().user().member().username());
         assertEquals("unittest-comment-findcomment", comment.context().group().name());
         break;
       case "comment-task-uri":
-        assertEquals("Open", comment.status());
+        assertEquals("Open", comment.task().status());
         assertEquals("finddoc", comment.context().uri().title());
         break;
       case "comment-task-type":
         assertEquals("mytype1", comment.type());
-        assertEquals("High", comment.priority());
+        assertEquals("High", comment.task().priority());
         break;
       case "comment-task-type-uri":
         assertEquals("mytype1", comment.type());
-        assertEquals("Open", comment.status());
+        assertEquals("Open", comment.task().status());
         assertEquals("/ps/unittest/comment/findcomment/documents/finddoc.psml",
             comment.context().uri().path());
         break;
@@ -174,6 +174,13 @@ final class ServiceApiSampleTest {
         assertNull(comment.author().member());
         assertEquals("unit-admin", comment.modifiedBy().user().member().username());
         assertEquals("http", comment.context().uri().scheme());
+        break;
+      case "comment-labels-properties":
+        assertEquals(List.of("Client-Issue", "Feature", "User-Interface"), comment.labels());
+        assertEquals(Map.of("date", "2025-12-02", "time", "7.00"), comment.properties());
+        break;
+      case "comment-duplicate-properties":
+        assertEquals(Map.of("category", "Sample"), comment.properties());
         break;
       case "comment-custom-content":
         assertEquals(119L, comment.id());
@@ -437,6 +444,10 @@ final class ServiceApiSampleTest {
           return 23504L;
         case "comment-nasty":
           return 25093L;
+        case "comment-labels-properties":
+          return 25094L;
+        case "comment-duplicate-properties":
+          return 690808L;
         case "comment-custom-content":
           return 119L;
         default:

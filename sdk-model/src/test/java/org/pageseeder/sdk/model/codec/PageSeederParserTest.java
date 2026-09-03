@@ -539,11 +539,11 @@ final class PageSeederParserTest {
 
     assertEquals(25068L, xmlTask.id());
     assertEquals("mytype1", xmlTask.type());
-    assertEquals("Open", xmlTask.status());
-    assertEquals("High", jsonTask.priority());
-    assertEquals("unit-admin", jsonTask.assignedTo().user().member().username());
+    assertEquals("Open", xmlTask.task().status());
+    assertEquals("High", jsonTask.task().priority());
+    assertEquals("unit-admin", jsonTask.task().assignedTo().user().member().username());
     assertEquals("/ps/unittest/comment/findcomment/documents/finddoc.psml", jsonTask.context().uri().path());
-    assertEquals("Unit Test", jsonTask.assignedTo().user().fullname());
+    assertEquals("Unit Test", jsonTask.task().assignedTo().user().fullname());
 
     assertEquals("forum", xmlMarkup.type());
     assertEquals("application/xhtml+xml", xmlMarkup.content().get(0).type());

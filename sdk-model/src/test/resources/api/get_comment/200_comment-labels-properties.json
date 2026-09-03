@@ -1,0 +1,26 @@
+{
+  "id": 25094,
+  "discussionid": 25094,
+  "contentrole": "Comment",
+  "created": "2016-12-20T16:03:54+11:00",
+  "title": "findCommentWithLabelsAndProperties",
+  "author": {
+    "id": 92,
+    "firstname": "Unit",
+    "surname": "Test",
+    "username": "unit-admin",
+    "status": "activated",
+    "fullname": "Unit Test"
+  },
+  "content": [
+    {
+      "type": "text/plain",
+      "value": "create simple comment"
+    }
+  ],
+  "labels": ["Client-Issue", "Feature", "User-Interface"],
+  "properties": [
+    {"name": "date", "value": "2025-12-02"},
+    {"name": "time", "value": "7.00"}
+  ]
+}

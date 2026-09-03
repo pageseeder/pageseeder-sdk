@@ -1,0 +1,14 @@
+<comment id="25094" discussionid="25094" contentrole="Comment"
+  created="2016-12-20T16:03:54+11:00">
+  <title>findCommentWithLabelsAndProperties</title>
+  <author id="92" firstname="Unit" surname="Test" username="unit-admin"
+    status="activated">
+    <fullname>Unit Test</fullname>
+  </author>
+  <content type="text/plain">create simple comment</content>
+  <labels>Client-Issue,Feature,User-Interface</labels>
+  <properties>
+    <property name="date" value="2025-12-02"/>
+    <property name="time" value="7.00"/>
+  </properties>
+</comment>

@@ -14,6 +14,7 @@ import org.pageseeder.sdk.exception.ParsingException;
 import org.pageseeder.sdk.model.Authenticator;
 import org.pageseeder.sdk.model.Comment;
 import org.pageseeder.sdk.model.CommentContext;
+import org.pageseeder.sdk.model.CommentTask;
 import org.pageseeder.sdk.model.CommentUser;
 import org.pageseeder.sdk.model.ConfiguredGroup;
 import org.pageseeder.sdk.model.Content;
@@ -320,14 +321,79 @@ final class PageSeederParsers {
         nullableText(source, "title"),
         toCommentUser(source.get("author")),
         toStampedCommentUser(source.get("modifiedby")),
-        toStampedCommentUser(source.get("assignedto")),
-        nullableText(source, "status"),
-        nullableText(source, "priority"),
-        offsetDateTime(source, "due"),
+        toCommentTask(source),
         immutable(contents(source.get("content"))),
         toCommentContext(source.get("context")),
-        immutable(attachments(source.get("attachment")))
+        immutable(attachments(source.get("attachment"))),
+        commentLabels(source.get("labels")),
+        commentProperties(source.get("properties"))
     );
+  }
+
+  private static @Nullable CommentTask toCommentTask(JsonNode source) {
+    @Nullable String status = nullableText(source, "status");
+    @Nullable String priority = nullableText(source, "priority");
+    @Nullable OffsetDateTime due = offsetDateTime(source, "due");
+    @Nullable StampedCommentUser assignedTo = toStampedCommentUser(source.get("assignedto"));
+    if (status == null && priority == null && due == null && assignedTo == null) {
+      return null;
+    }
+    return new CommentTask(status, priority, due, assignedTo);
+  }
+
+  private static List<String> commentLabels(@Nullable JsonNode node) {
+    if (node == null || node.isNull()) {
+      return List.of();
+    }
+    if (node.isArray()) {
+      List<String> labels = new ArrayList<>();
+      for (JsonNode child : node) {
+        labels.add(child.asText());
+      }
+      return labels;
+    }
+    return tokens(node.asText(""), ",");
+  }
+
+  private static Map<String, String> commentProperties(@Nullable JsonNode node) {
+    if (node == null || node.isNull()) {
+      return Map.of();
+    }
+    Map<String, String> values = new LinkedHashMap<>();
+    if (node.isArray()) {
+      for (JsonNode entry : node) {
+        addCommentProperty(values, entry);
+      }
+    } else if (node.isObject()) {
+      JsonNode entries = node.has("property") ? node.get("property") : node;
+      if (entries.isArray()) {
+        for (JsonNode entry : entries) {
+          addCommentProperty(values, entry);
+        }
+      } else {
+        addCommentProperty(values, entries);
+      }
+    } else {
+      // Raw pipe-delimited form, e.g. "date=2025-12-02|time=7.00|"
+      for (String token : node.asText("").split("\\|")) {
+        int equals = token.indexOf('=');
+        if (equals > 0) {
+          values.put(token.substring(0, equals), token.substring(equals + 1));
+        }
+      }
+    }
+    return values.isEmpty() ? Map.of() : Map.copyOf(values);
+  }
+
+  private static void addCommentProperty(Map<String, String> values, @Nullable JsonNode entry) {
+    if (entry == null || entry.isNull()) {
+      return;
+    }
+    String name = nullableText(entry, "name");
+    String value = nullableText(entry, "value");
+    if (name != null && value != null) {
+      values.put(name, value);
+    }
   }
 
   private static Workflow toWorkflow(JsonNode node) {
