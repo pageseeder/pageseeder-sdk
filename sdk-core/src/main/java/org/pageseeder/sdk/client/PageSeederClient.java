@@ -9,6 +9,7 @@ import org.pageseeder.sdk.exception.ServiceErrorException;
 import org.pageseeder.sdk.exception.TransportException;
 import org.pageseeder.sdk.service.PayloadFormat;
 import org.pageseeder.sdk.service.ResourceCall;
+import org.pageseeder.sdk.service.ResponseFormatMode;
 import org.pageseeder.sdk.service.ServiceCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,18 +243,26 @@ public final class PageSeederClient {
   /**
    * Converts a service call to a low-level HTTP request without executing it.
    *
-   * <p>Resolves path variables, merges query parameters, encodes form parameters,
-   * and sets the {@code Accept} and {@code Content-Type} headers.
+   * <p>Resolves path variables, applies the call's response format mode, merges query parameters,
+   * encodes form parameters, and sets the applicable {@code Accept} and {@code Content-Type}
+   * headers.
    *
    * @param call The service call to convert.
    * @return The corresponding HTTP request descriptor.
    */
   public PageSeederRequest toRequest(ServiceCall call) {
-    PayloadFormat format = call.format() == null ? this.defaultFormat : call.format();
-    String path = call.endpoint().pathTemplate().resolve(call.pathVariables()) + format.extension();
-    URI uri = withQuery(this.instance.apiRoot().resolve(relativePath(path)), call.queryParameters().toFormUrlEncoded());
+    PayloadFormat format = call.format();
+    ResponseFormatMode responseFormatMode = call.responseFormatMode();
+    String path = call.endpoint().pathTemplate().resolve(call.pathVariables());
     Map<String, String> headers = new LinkedHashMap<>(call.headers());
-    headers.putIfAbsent("Accept", format.mediaType());
+    if (responseFormatMode != ResponseFormatMode.UNSPECIFIED || format != null) {
+      format = format == null ? this.defaultFormat : format;
+      if (responseFormatMode == ResponseFormatMode.PATH_SUFFIX) {
+        path += format.extension();
+      }
+      headers.putIfAbsent("Accept", format.mediaType());
+    }
+    URI uri = withQuery(this.instance.apiRoot().resolve(relativePath(path)), call.queryParameters().toFormUrlEncoded());
     byte[] reqBody = null;
     String contentType = call.contentType();
     if (!call.formParameters().isEmpty()) {

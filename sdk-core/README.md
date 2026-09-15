@@ -83,6 +83,32 @@ ServiceCall post = ServiceCall.of(ServiceCatalog.endpoint("POST", "/groups/{grou
     .form("content", "World");
 ```
 
+### Endpoints without a format suffix
+
+Service calls append the selected response format to the endpoint path by default. For endpoints
+mapped only to their exact path, select the response through content negotiation instead:
+
+```java
+ServiceCall upload = ServiceCall.of(ServiceEndpoint.post("/upload"))
+    .responseFormatMode(ResponseFormatMode.CONTENT_NEGOTIATION)
+    .accept(PayloadFormat.JSON)
+    .rawBody(content, contentType);
+```
+
+Use `UNSPECIFIED` when an endpoint can return arbitrary content and should receive neither a format
+suffix nor the client's default `Accept` header:
+
+```java
+ServiceCall download = ServiceCall.of(ServiceEndpoint.get("/upload/get"))
+    .responseFormatMode(ResponseFormatMode.UNSPECIFIED)
+    .query("upload", uploadId);
+
+byte[] content = client.execute(download).body();
+```
+
+An explicit `accept(...)` call or `Accept` header can still be used with `UNSPECIFIED` without
+adding a path suffix.
+
 ### Search builders
 
 The `org.pageseeder.sdk.search` package provides immutable builders for the PageSeeder search services. Build the query first, then bind it to a group, project, or member-wide scope to get an executable `ServiceCall`.

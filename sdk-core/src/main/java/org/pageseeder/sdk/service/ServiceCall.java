@@ -23,6 +23,7 @@ public final class ServiceCall {
   private final QueryParameters form = new QueryParameters();
   private final Map<String, String> headers = new LinkedHashMap<>();
   private @Nullable PayloadFormat format;
+  private ResponseFormatMode responseFormatMode = ResponseFormatMode.PATH_SUFFIX;
   private byte @Nullable[] rawBody;
   private @Nullable String contentType;
 
@@ -107,6 +108,22 @@ public final class ServiceCall {
   }
 
   /**
+   * Sets how the response format is selected for this call.
+   *
+   * <p>The default is {@link ResponseFormatMode#PATH_SUFFIX}. Use
+   * {@link ResponseFormatMode#CONTENT_NEGOTIATION} for API endpoints mapped only to their exact
+   * path but supporting the {@code Accept} header, or {@link ResponseFormatMode#UNSPECIFIED} for
+   * endpoints returning arbitrary content.
+   *
+   * @param mode The response format mode.
+   * @return {@code this} for chaining.
+   */
+  public ServiceCall responseFormatMode(ResponseFormatMode mode) {
+    this.responseFormatMode = Objects.requireNonNull(mode, "mode");
+    return this;
+  }
+
+  /**
    * Sets a raw byte array as the request body with an explicit content type.
    *
    * @param body        The raw body bytes.
@@ -167,8 +184,16 @@ public final class ServiceCall {
     return this.contentType;
   }
 
-  /** @return The response format override, or {@code null} to use the client's default. */
+  /**
+   * @return The response format override, or {@code null} to use the client's default unless the
+   *         response format mode is {@link ResponseFormatMode#UNSPECIFIED}.
+   */
   public @Nullable PayloadFormat format() {
     return this.format;
+  }
+
+  /** @return How the response format is selected for this call. */
+  public ResponseFormatMode responseFormatMode() {
+    return this.responseFormatMode;
   }
 }
