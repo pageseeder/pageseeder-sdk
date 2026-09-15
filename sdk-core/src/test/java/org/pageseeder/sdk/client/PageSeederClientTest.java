@@ -12,6 +12,7 @@ import org.pageseeder.sdk.auth.SessionCookie;
 import org.pageseeder.sdk.exception.ServiceErrorException;
 import org.pageseeder.sdk.exception.TransportException;
 import org.pageseeder.sdk.service.PayloadFormat;
+import org.pageseeder.sdk.service.ResponseFormatMode;
 import org.pageseeder.sdk.service.ServiceCall;
 import org.pageseeder.sdk.service.ServiceCatalog;
 import org.pageseeder.sdk.service.ServiceEndpoint;
@@ -184,6 +185,59 @@ final class PageSeederClientTest {
 
     assertEquals("application/xml; charset=UTF-8", contentType.get());
     assertEquals(payload, body.get());
+  }
+
+  @Test
+  void shouldUseContentNegotiationWithoutPathSuffix() {
+    AtomicReference<String> path = new AtomicReference<>();
+    AtomicReference<String> accept = new AtomicReference<>();
+    this.server.createContext("/ps/api/upload", exchange -> {
+      path.set(exchange.getRequestURI().getPath());
+      accept.set(exchange.getRequestHeaders().getFirst("Accept"));
+      reply(exchange, 200, "application/json", read("fixtures/version.json"));
+    });
+
+    PageSeederResponse response = PageSeederClient.builder().apiOrigin(this.baseUri).build()
+        .execute(ServiceCall.of(ServiceEndpoint.post("/upload"))
+            .responseFormatMode(ResponseFormatMode.CONTENT_NEGOTIATION)
+            .accept(PayloadFormat.JSON));
+
+    assertEquals(200, response.statusCode());
+    assertEquals("/ps/api/upload", path.get());
+    assertEquals("application/json", accept.get());
+  }
+
+  @Test
+  void shouldLeaveResponseFormatUnspecifiedForArbitraryContent() {
+    AtomicReference<String> path = new AtomicReference<>();
+    AtomicReference<String> accept = new AtomicReference<>();
+    byte[] payload = "uploaded file".getBytes(StandardCharsets.UTF_8);
+    this.server.createContext("/ps/api/upload/get", exchange -> {
+      path.set(exchange.getRequestURI().getPath());
+      accept.set(exchange.getRequestHeaders().getFirst("Accept"));
+      reply(exchange, 200, "application/octet-stream", payload);
+    });
+
+    PageSeederResponse response = PageSeederClient.builder().apiOrigin(this.baseUri).build()
+        .execute(ServiceCall.of(ServiceEndpoint.get("/upload/get"))
+            .responseFormatMode(ResponseFormatMode.UNSPECIFIED));
+
+    assertEquals("/ps/api/upload/get", path.get());
+    assertNull(accept.get());
+    assertEquals("application/octet-stream", response.mediaType());
+    assertArrayEquals(payload, response.body());
+  }
+
+  @Test
+  void shouldAllowExplicitFormatForUnspecifiedPath() {
+    PageSeederClient client = PageSeederClient.builder().apiOrigin(this.baseUri).build();
+    PageSeederRequest request = client.toRequest(ServiceCall.of(ServiceEndpoint.get("/upload/get"))
+        .responseFormatMode(ResponseFormatMode.UNSPECIFIED)
+        .accept(PayloadFormat.JSON));
+
+    assertEquals(this.baseUri + "/ps/api/upload/get", request.uri().toString());
+    assertEquals("application/json", request.headers().get("Accept"));
+    assertEquals(PayloadFormat.JSON, request.format());
   }
 
   @Test

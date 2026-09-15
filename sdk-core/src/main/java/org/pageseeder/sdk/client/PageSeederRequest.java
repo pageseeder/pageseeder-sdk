@@ -92,8 +92,10 @@ public final class PageSeederRequest {
   }
 
   /**
-   * Returns the expected response payload format, or {@code null} for resource calls where no
-   * format is negotiated.
+   * Returns the expected response payload format, or {@code null} when no format was selected.
+   *
+   * <p>A format is not selected for resource calls or service calls using
+   * {@code ResponseFormatMode.UNSPECIFIED} without an explicit format.
    *
    * @return the response payload format, or {@code null}
    */
